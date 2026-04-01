@@ -3,11 +3,12 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const book = await prisma.book.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
     if (!book) return NextResponse.json({ error: "Book not found" }, { status: 404 });
     return NextResponse.json(book);
@@ -18,12 +19,13 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const book = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: body,
     });
     return NextResponse.json(book);
@@ -34,11 +36,12 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.book.delete({
-      where: { id: params.id },
+      where: { id },
     });
     return NextResponse.json({ message: "Book deleted" });
   } catch (error) {
