@@ -33,7 +33,7 @@ export default function Home() {
       <Hero />
 
       {/* Featured Books Section */}
-      <section className="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
+      <section id="collection" className="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="space-y-4">
             <span className="text-accent font-bold tracking-widest text-xs uppercase">Curated Selection</span>
@@ -65,7 +65,7 @@ export default function Home() {
       </section>
 
       {/* Categories / Newsletter placeholder */}
-      <section className="bg-primary text-primary-foreground py-24 px-6 lg:px-12 text-center">
+      <section id="community" className="bg-primary text-primary-foreground py-24 px-6 lg:px-12 text-center">
          <div className="max-w-2xl mx-auto space-y-8">
             <h2 className="text-3xl lg:text-5xl font-serif font-bold">Join Our Book Community</h2>
             <p className="text-primary-foreground/70 text-lg">

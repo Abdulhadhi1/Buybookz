@@ -36,14 +36,14 @@ const Hero = () => {
 
           <div className="flex flex-wrap gap-4">
             <Link 
-              href="/shop"
+              href="#collection"
               className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold flex items-center space-x-2 hover:bg-primary/90 transition-all shadow-xl hover:-translate-y-1 active:translate-y-0"
             >
               <ShoppingBag size={18} />
               <span>Explore Collection</span>
             </Link>
             <Link 
-              href="/about"
+              href="#community"
               className="px-8 py-4 bg-background text-primary border border-border rounded-full font-bold flex items-center space-x-2 hover:bg-secondary transition-all"
             >
               <span>Our Story</span>
