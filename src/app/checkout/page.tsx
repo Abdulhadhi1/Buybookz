@@ -49,7 +49,7 @@ export default function CheckoutPage() {
     fetchData();
   }, []);
 
-  const subtotal = items.reduce((acc, item) => acc + item.book.price * item.quantity, 0);
+  const subtotal = items.reduce((acc: number, item: any) => acc + item.book.price * item.quantity, 0);
 
   const handleCheckout = async () => {
     if (!selectedAddress) {

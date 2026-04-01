@@ -48,7 +48,7 @@ export default function CartPage() {
     // Call DELETE /api/cart/[id] here
   };
 
-  const subtotal = items.reduce((acc, item) => acc + item.book.price * item.quantity, 0);
+  const subtotal = items.reduce((acc: number, item: any) => acc + item.book.price * item.quantity, 0);
 
   const startCheckout = async () => {
     setCheckingOut(true);

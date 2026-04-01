@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Calculate total
-    const totalAmount = cartItems.reduce((acc, item) => acc + item.book.price * item.quantity, 0);
+    const totalAmount = cartItems.reduce((acc: number, item: any) => acc + item.book.price * item.quantity, 0);
 
     // 3. Create Razorpay order
     const options = {
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         status: "PENDING",
         paymentId: razorpayOrder.id,
         items: {
-          create: cartItems.map((item) => ({
+          create: cartItems.map((item: any) => ({
             bookId: item.bookId,
             quantity: item.quantity,
           })),
