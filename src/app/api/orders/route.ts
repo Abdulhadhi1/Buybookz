@@ -3,10 +3,13 @@ import Razorpay from "razorpay";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+// Move initialization inside a helper to avoid build-time crashes when env vars are missing
+const getRazorpayInstance = () => {
+    return new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_placeholder",
+        key_secret: process.env.RAZORPAY_KEY_SECRET || "rzp_secret_placeholder",
+    });
+};
 
 export async function POST(req: Request) {
   try {
@@ -29,6 +32,7 @@ export async function POST(req: Request) {
     const totalAmount = cartItems.reduce((acc: number, item: any) => acc + item.book.price * item.quantity, 0);
 
     // 3. Create Razorpay order
+    const razorpay = getRazorpayInstance();
     const options = {
       amount: totalAmount * 100, // amount in the smallest currency unit (paise for INR)
       currency: "INR",
