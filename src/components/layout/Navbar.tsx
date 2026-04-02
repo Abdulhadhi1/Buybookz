@@ -48,19 +48,19 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-10 w-40"
+          className="relative h-14 w-56"
         >
-          {/* Light Theme Logo (Displayed when .dark is NOT present) */}
+          {/* Light Theme Logo (Displayed on White background) */}
           <Image 
-            src="/White-theme0logo.png" 
+            src="/dark-theme-logo.png" 
             alt="BuyBookz" 
             fill 
             className="object-contain dark:hidden"
             priority
           />
-          {/* Dark Theme Logo (Displayed only when .dark IS present) */}
+          {/* Dark Theme Logo (Displayed on Dark background) */}
           <Image 
-            src="/dark-theme-logo.png" 
+            src="/White-theme0logo.png" 
             alt="BuyBookz" 
             fill 
             className="object-contain hidden dark:block"

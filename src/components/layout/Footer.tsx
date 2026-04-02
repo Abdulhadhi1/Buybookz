@@ -8,15 +8,15 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
-          <Link href="/" className="relative h-10 w-40 block">
+          <Link href="/" className="relative h-14 w-56 block">
             <Image 
-                src="/White-theme0logo.png" 
+                src="/dark-theme-logo.png" 
                 alt="BuyBookz" 
                 fill 
                 className="object-contain dark:hidden"
             />
             <Image 
-                src="/dark-theme-logo.png" 
+                src="/White-theme0logo.png" 
                 alt="BuyBookz" 
                 fill 
                 className="object-contain hidden dark:block"
