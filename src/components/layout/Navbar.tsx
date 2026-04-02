@@ -48,24 +48,28 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-20 w-72"
+          className="relative h-32 w-80 flex items-center"
         >
           {/* Light Theme Logo (Displayed on White background) */}
-          <Image 
-            src="/dark-theme-logo.png" 
-            alt="BuyBookz" 
-            fill 
-            className="object-contain dark:hidden"
-            priority
-          />
+          <div className="relative w-full h-full dark:hidden">
+              <Image 
+                src="/dark-theme-logo.png" 
+                alt="BuyBookz" 
+                fill 
+                className="object-contain object-left"
+                priority
+              />
+          </div>
           {/* Dark Theme Logo (Displayed on Dark background) */}
-          <Image 
-            src="/White-theme0logo.png" 
-            alt="BuyBookz" 
-            fill 
-            className="object-contain hidden dark:block"
-            priority
-          />
+          <div className="relative w-full h-full hidden dark:block">
+              <Image 
+                src="/White-theme0logo.png" 
+                alt="BuyBookz" 
+                fill 
+                className="object-contain object-left"
+                priority
+              />
+          </div>
         </Link>
 
         {/* Desktop Nav */}
