@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ShoppingCart, Search, User, Menu, X, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -47,9 +48,24 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="text-2xl font-serif font-bold tracking-tight text-primary"
+          className="relative h-10 w-40"
         >
-          BuyBookz<span className="text-accent">.</span>
+          {/* Light Theme Logo (Displayed when .dark is NOT present) */}
+          <Image 
+            src="/White-theme0logo.png" 
+            alt="BuyBookz" 
+            fill 
+            className="object-contain dark:hidden"
+            priority
+          />
+          {/* Dark Theme Logo (Displayed only when .dark IS present) */}
+          <Image 
+            src="/dark-theme-logo.png" 
+            alt="BuyBookz" 
+            fill 
+            className="object-contain hidden dark:block"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Phone, MapPin, Globe, Share2, Info } from "lucide-react";
 
 const Footer = () => {
@@ -7,8 +8,19 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
-          <Link href="/" className="text-2xl font-serif font-bold tracking-tight">
-            BuyBookz<span className="text-accent">.</span>
+          <Link href="/" className="relative h-10 w-40 block">
+            <Image 
+                src="/White-theme0logo.png" 
+                alt="BuyBookz" 
+                fill 
+                className="object-contain dark:hidden"
+            />
+            <Image 
+                src="/dark-theme-logo.png" 
+                alt="BuyBookz" 
+                fill 
+                className="object-contain hidden dark:block"
+            />
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
             Discover your next favorite story at BuyBookz. Your premium destination for curated literature and worldwide bestsellers.
