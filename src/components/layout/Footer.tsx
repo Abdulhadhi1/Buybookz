@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
-          <Link href="/" className="relative h-28 w-80 flex items-center">
+          <Link href="/" className="relative h-18 w-64 block">
              <div className="relative w-full h-full dark:hidden">
                  <Image 
                     src="/dark-theme-logo.png" 
