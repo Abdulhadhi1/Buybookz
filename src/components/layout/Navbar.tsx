@@ -48,7 +48,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-32 w-80 flex items-center"
+          className="relative h-14 w-48 md:h-20 md:w-64 flex items-center"
         >
           {/* Light Theme Logo (Displayed on White background) */}
           <div className="relative w-full h-full dark:hidden">
@@ -56,7 +56,7 @@ const Navbar = () => {
                 src="/dark-theme-logo.png" 
                 alt="BuyBookz" 
                 fill 
-                className="object-contain object-left"
+                className="object-contain object-left md:object-center"
                 priority
               />
           </div>
@@ -66,7 +66,7 @@ const Navbar = () => {
                 src="/White-theme0logo.png" 
                 alt="BuyBookz" 
                 fill 
-                className="object-contain object-left"
+                className="object-contain object-left md:object-center"
                 priority
               />
           </div>
