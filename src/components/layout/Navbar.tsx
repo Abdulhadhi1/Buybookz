@@ -48,7 +48,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-14 w-56"
+          className="relative h-20 w-72"
         >
           {/* Light Theme Logo (Displayed on White background) */}
           <Image 
