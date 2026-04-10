@@ -1,7 +1,17 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
 async function main() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+      throw new Error("DATABASE_URL is not set in environment variables");
+  }
+  
+  const pool = new pg.Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
+
   const books = [
     {
       title: "The Silent Forest",
@@ -52,20 +62,19 @@ async function main() {
 
   console.log("Seeding books...");
 
-  for (const book of books) {
-    await prisma.book.create({
-      data: book
-    });
+  try {
+    for (const book of books) {
+      await prisma.book.create({
+        data: book
+      });
+    }
+    console.log("✅ Seeding completed successfully!");
+  } catch (err) {
+    console.error("❌ Error seeding books:", err);
+  } finally {
+    await prisma.$disconnect();
+    await pool.end();
   }
-
-  console.log("Seeding completed successfully!");
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+main().catch(console.error);
