@@ -75,11 +75,11 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-8">
-          <Link href="/shop" className="text-sm font-medium hover:text-accent transition-colors">Shop</Link>
-          <Link href="/categories" className="text-sm font-medium hover:text-accent transition-colors">Categories</Link>
-          <Link href="/about" className="text-sm font-medium hover:text-accent transition-colors">About</Link>
-          <Link href="/contact" className="text-sm font-medium hover:text-accent transition-colors">Contact</Link>
+        <div className="hidden md:flex items-center space-x-10">
+          <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-colors">Shop</Link>
+          <Link href="/categories" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-colors">Categories</Link>
+          <Link href="/about" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-colors">About</Link>
+          <Link href="/contact" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-accent transition-colors">Contact</Link>
         </div>
 
         {/* Icons */}

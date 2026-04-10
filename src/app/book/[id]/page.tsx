@@ -5,10 +5,10 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, Share2, ArrowLeft, Loader2, ShieldCheck, Truck, RefreshCw, Minus, Plus } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PriceDisplay from "@/components/ui/PriceDisplay";
 
 export default function BookDetailPage() {
   const { id } = useParams();
@@ -129,14 +129,14 @@ export default function BookDetailPage() {
                     <span className="text-[10px] font-black ml-2 text-muted-foreground">4.8</span>
                 </div>
               </div>
-              <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary leading-[1.1]">{book.title}</h1>
+              <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary leading-[1.1] tracking-tight">{book.title}</h1>
               <p className="text-2xl text-accent italic font-serif leading-tight">by {book.author}</p>
             </div>
 
             <div className="flex items-center space-x-8">
                <div className="flex flex-col">
                    <span className="text-[10px] uppercase font-black tracking-widest opacity-40 mb-1">Price</span>
-                   <span className="text-5xl font-bold text-primary tracking-tighter">{formatPrice(book.price)}</span>
+                   <PriceDisplay price={book.price} amountClassName="text-5xl" symbolClassName="text-xl mr-1" />
                </div>
                <div className="h-12 w-px bg-border"></div>
                <div className="flex flex-col">

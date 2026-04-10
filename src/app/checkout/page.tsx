@@ -8,6 +8,7 @@ import Script from "next/script";
 import { formatPrice } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PriceDisplay from "@/components/ui/PriceDisplay";
 
 export default function CheckoutPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -162,7 +163,7 @@ export default function CheckoutPage() {
                 <ArrowLeft size={18} />
             </button>
             <div>
-                <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary">Checkout</h1>
+                <h1 className="text-3xl md:text-5xl font-serif font-bold text-primary tracking-tight">Checkout</h1>
                 <p className="text-sm text-muted-foreground mt-1 italic">Secure your literary treasures.</p>
             </div>
         </div>
@@ -204,7 +205,7 @@ export default function CheckoutPage() {
                                   <p className="text-xs uppercase tracking-widest font-black text-muted-foreground">{addr.city}, {addr.state} • {addr.pincode}</p>
                                </motion.div>
                             ))}
-                            {(addresses.length === 0 || showAddressForm) && (
+                            {addresses.length === 0 && (
                                 <button onClick={() => setShowAddressForm(true)} className="p-8 rounded-[2rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:bg-secondary/20 hover:text-primary transition-all space-y-3">
                                     <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center"><MapPin size={20} /></div>
                                     <span className="text-xs font-black uppercase tracking-[0.2em]">Add Shipping Address</span>
@@ -243,48 +244,61 @@ export default function CheckoutPage() {
                     )}
                 </section>
 
-                <section className="space-y-6">
-                    <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold">2</div>
+                <section className="space-y-8">
+                    <div className="flex items-center space-x-5">
+                        <div className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</div>
                         <h2 className="text-2xl font-serif font-bold">Review Order</h2>
                     </div>
                     <div className="ml-14 divide-y divide-border">
                         {items.map((item) => (
                            <div key={item.id} className="py-6 flex items-center justify-between">
                               <div className="flex items-center space-x-4">
-                                <div className="w-12 h-16 bg-secondary rounded-lg flex items-center justify-center font-serif text-primary/30 text-xs shadow-sm italic">{item.book.title[0]}</div>
-                                <div>
-                                    <h4 className="font-bold text-sm">{item.book.title}</h4>
-                                    <p className="text-xs text-muted-foreground italic">Qty: {item.quantity}</p>
+                                <div className="w-14 h-20 bg-secondary rounded-xl flex items-center justify-center font-serif text-primary/30 text-xs shadow-sm border border-border select-none">
+                                    {item.book.title[0]}
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="font-bold text-sm tracking-tight">{item.book.title}</h4>
+                                    <div className="flex items-center space-x-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest bg-secondary px-2 py-0.5 rounded leading-none pt-1">Qty: {item.quantity}</span>
+                                        <PriceDisplay price={item.book.price} className="text-muted-foreground" amountClassName="text-[10px]" symbolClassName="text-[8px]" />
+                                    </div>
                                 </div>
                               </div>
-                              <span className="font-bold text-sm">{formatPrice(item.book.price * item.quantity)}</span>
+                              <PriceDisplay price={item.book.price * item.quantity} amountClassName="text-sm" />
                            </div>
                         ))}
                     </div>
                 </section>
             </div>
 
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-primary text-primary-foreground p-10 rounded-[3rem] shadow-2xl space-y-10 sticky top-32">
-                <div className="space-y-6">
-                    <h3 className="text-xl font-serif font-bold flex items-center space-x-3"><CreditCard size={20} /><span>Payment Summary</span></h3>
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center text-sm"><span className="opacity-60 uppercase tracking-widest font-medium">Order Subtotal</span><span className="font-bold">{formatPrice(subtotal)}</span></div>
-                        <div className="flex justify-between items-center text-sm"><span className="opacity-60 uppercase tracking-widest font-medium">Delivery Fee</span><span className="text-accent italic">Complimentary</span></div>
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-primary text-primary-foreground p-10 rounded-[3.5rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] space-y-10 sticky top-32 border border-white/5">
+                <div className="space-y-8">
+                    <div className="flex flex-col space-y-1">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Settlement Detail</span>
+                        <h3 className="text-2xl font-serif font-bold">Checkout Summary</h3>
                     </div>
-                    <div className="pt-6 border-t border-white/10 flex justify-between items-end">
-                        <div className="flex flex-col"><span className="text-[10px] uppercase font-black tracking-widest mb-1">Final Total</span><span className="text-4xl font-serif font-bold tracking-tighter">{formatPrice(subtotal)}</span></div>
+                    
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center text-xs"><span className="opacity-40 uppercase tracking-widest font-black">Subtotal</span><PriceDisplay price={subtotal} amountClassName="text-sm" symbolClassName="text-xs" /></div>
+                        <div className="flex justify-between items-center text-xs"><span className="opacity-40 uppercase tracking-widest font-black">Transit</span><span className="text-accent font-black uppercase tracking-widest italic">Free</span></div>
+                    </div>
+
+                    <div className="pt-8 border-t border-white/10 space-y-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-40">Final Amount Payable</span>
+                        <PriceDisplay price={subtotal} className="text-white" amountClassName="text-5xl tracking-tighter" symbolClassName="text-xl mr-1" />
                     </div>
                 </div>
-                <div className="space-y-4">
-                    <button onClick={handleCheckout} disabled={processing || items.length === 0} className="w-full py-5 bg-accent text-white rounded-full font-bold flex items-center justify-center space-x-3 shadow-xl hover:bg-accent/90 transition-all active:scale-95 disabled:opacity-50">
-                        {processing ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} />}
-                        <span>Pay Securely Now</span>
+
+                <div className="space-y-6">
+                    <button onClick={handleCheckout} disabled={processing || items.length === 0} className="w-full py-6 bg-accent text-white rounded-full font-bold flex items-center justify-center space-x-4 shadow-2xl hover:bg-accent/90 transition-all active:scale-95 disabled:opacity-50 group">
+                        {processing ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} className="group-hover:translate-x-1 transition-transform" />}
+                        <span className="uppercase tracking-[0.2em] text-xs font-black">Complete Purchase</span>
                     </button>
-                    <div className="flex items-center justify-center space-x-6 pt-4 grayscale opacity-40">
-                         <div className="text-[8px] font-black uppercase tracking-[0.2em]">UPI</div>
-                         <div className="text-[8px] font-black uppercase tracking-[0.2em]">Cards</div>
-                         <div className="text-[8px] font-black uppercase tracking-[0.2em]">NetBanking</div>
+                    <div className="flex flex-col items-center space-y-4 opacity-30">
+                         <div className="flex items-center space-x-4 grayscale">
+                            <CreditCard size={14} />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em]">Fully Secure Transaction</span>
+                         </div>
                     </div>
                 </div>
             </motion.div>

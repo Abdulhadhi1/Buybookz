@@ -4,10 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Eye, Plus, Loader2 } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import PriceDisplay from "@/components/ui/PriceDisplay";
 
 interface BookCardProps {
   id: string;
@@ -112,7 +112,7 @@ const BookCard = ({ id, title, author, price, image, category }: BookCardProps) 
             </div>
             
             <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
-               <span className="text-lg font-bold text-primary">{formatPrice(price)}</span>
+               <PriceDisplay price={price} amountClassName="text-lg md:text-xl" />
                
                {/* Mobile/Tablet Add to Cart (Circular Plus Button) */}
                <button 
