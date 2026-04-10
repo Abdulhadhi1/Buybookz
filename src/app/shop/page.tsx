@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Filter, Loader2, ArrowRight } from "lucide-react";
+import { Search, Loader2, ArrowRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BookCard from "@/components/shop/BookCard";
 
-export default function ShopPage() {
+function ShopContent() {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const searchParams = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
 
   const categories = ["All", "Mystery", "Sci-Fi", "Lifestyle", "History", "Self-Help"];
 
@@ -30,10 +32,14 @@ export default function ShopPage() {
     fetchBooks();
   }, []);
 
-  const filteredBooks = books.filter(book => {
+  const filteredBooks = books.filter((book: any) => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          book.author.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || book.category === selectedCategory;
+    
+    // Support both string category and object-based category
+    const bookCategoryName = typeof book.category === 'object' ? book.category?.name : book.category;
+    const matchesCategory = selectedCategory === "All" || bookCategoryName === selectedCategory;
+    
     return matchesSearch && matchesCategory;
   });
 
@@ -101,7 +107,7 @@ export default function ShopPage() {
             </div>
         ) : filteredBooks.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
-                {filteredBooks.map((book) => (
+                {filteredBooks.map((book: any) => (
                     <BookCard key={book.id} {...book} />
                 ))}
             </div>
@@ -122,4 +128,12 @@ export default function ShopPage() {
       <Footer />
     </main>
   );
+}
+
+export default function ShopPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-accent" size={48} /></div>}>
+            <ShopContent />
+        </Suspense>
+    );
 }

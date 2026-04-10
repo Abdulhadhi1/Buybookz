@@ -9,19 +9,21 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import PriceDisplay from "@/components/ui/PriceDisplay";
 
-interface BookCardProps {
+ interface BookCardProps {
   id: string;
   title: string;
   author: string;
   price: number;
   image?: string;
-  category?: string;
+  category?: any;
 }
 
 const BookCard = ({ id, title, author, price, image, category }: BookCardProps) => {
   const [adding, setAdding] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
+
+  const categoryName = typeof category === "object" ? category?.name : category;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,9 +57,9 @@ const BookCard = ({ id, title, author, price, image, category }: BookCardProps) 
     >
       <Link href={`/book/${id}`} className="flex-grow flex flex-col ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-[2rem]">
         {/* Category Tag */}
-        {category && (
+        {categoryName && (
           <span className="absolute top-6 left-6 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-accent border border-accent/20">
-            {category}
+            {categoryName}
           </span>
         )}
 
