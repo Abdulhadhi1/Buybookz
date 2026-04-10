@@ -4,16 +4,17 @@ import { getSession } from "@/lib/auth";
 
 export async function PATCH(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getSession();
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         const { quantity } = await req.json();
         
         const updatedItem = await prisma.cartItem.update({
-            where: { id: params.id, userId: session.user.id },
+            where: { id, userId: session.user.id },
             data: { quantity: Math.max(1, quantity) },
         });
 
@@ -25,14 +26,15 @@ export async function PATCH(
 
 export async function DELETE(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const session = await getSession();
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         await prisma.cartItem.delete({
-            where: { id: params.id, userId: session.user.id },
+            where: { id, userId: session.user.id },
         });
 
         return NextResponse.json({ message: "Item removed" });
