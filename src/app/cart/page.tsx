@@ -129,7 +129,14 @@ export default function CartPage() {
                             <h3 className="text-2xl font-serif font-bold text-primary group-hover:text-accent transition-colors">
                               {item.book.title}
                             </h3>
-                            <p className="text-muted-foreground italic font-medium">by {item.book.author}</p>
+                            <div className="flex items-center space-x-3 text-xs">
+                                <span className="text-muted-foreground italic font-medium">by {item.book.author}</span>
+                                {item.language && (
+                                    <span className="text-[10px] font-black uppercase tracking-widest bg-accent/10 text-accent px-2 py-0.5 rounded leading-none">
+                                        Edition: {item.language}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         
                         <PriceDisplay price={item.book.price} className="justify-center sm:justify-start" amountClassName="text-xl" />

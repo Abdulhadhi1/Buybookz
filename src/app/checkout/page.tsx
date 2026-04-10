@@ -260,6 +260,11 @@ export default function CheckoutPage() {
                                     <h4 className="font-bold text-sm tracking-tight">{item.book.title}</h4>
                                     <div className="flex items-center space-x-2">
                                         <span className="text-[10px] font-black uppercase tracking-widest bg-secondary px-2 py-0.5 rounded leading-none pt-1">Qty: {item.quantity}</span>
+                                        {item.language && (
+                                            <span className="text-[10px] font-black uppercase tracking-widest bg-accent/5 text-accent px-2 py-0.5 rounded leading-none pt-1">
+                                                {item.language}
+                                            </span>
+                                        )}
                                         <PriceDisplay price={item.book.price} className="text-muted-foreground" amountClassName="text-[10px]" symbolClassName="text-[8px]" />
                                     </div>
                                 </div>

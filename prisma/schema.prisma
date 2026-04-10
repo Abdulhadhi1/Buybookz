@@ -34,11 +34,19 @@ model Book {
   description String?
   image       String?
   stock       Int         @default(0)
-  category    String?
+  categoryId  String?
+  category    Category?   @relation(fields: [categoryId], references: [id])
+  languages   String[]    @default(["English"])
   orders      OrderItem[]
   cartItems   CartItem[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  books Book[]
 }
 
 model Order {
@@ -62,12 +70,13 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
   orderId  String
-  order    Order  @relation(fields: [orderId], references: [id])
+  order    Order   @relation(fields: [orderId], references: [id])
   bookId   String
-  book     Book   @relation(fields: [bookId], references: [id])
+  book     Book    @relation(fields: [bookId], references: [id])
   quantity Int
+  language String?
 }
 
 model Address {
@@ -88,6 +97,7 @@ model CartItem {
   bookId    String
   book      Book     @relation(fields: [bookId], references: [id])
   quantity  Int      @default(1)
+  language  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
