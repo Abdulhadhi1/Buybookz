@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const secretKey = "secret"; // Should be process.env.JWT_SECRET
+const secretKey = process.env.JWT_SECRET || "buybookz-secret-key-fallback";
 const key = new TextEncoder().encode(secretKey);
 
 export async function encrypt(payload: any) {

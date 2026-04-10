@@ -7,6 +7,7 @@ import { ShoppingCart, Heart, Eye, Plus, Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 interface BookCardProps {
   id: string;
@@ -20,6 +21,7 @@ interface BookCardProps {
 const BookCard = ({ id, title, author, price, image, category }: BookCardProps) => {
   const [adding, setAdding] = useState(false);
   const router = useRouter();
+  const { refreshCartCount } = useCart();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,8 +37,7 @@ const BookCard = ({ id, title, author, price, image, category }: BookCardProps) 
       if (res.status === 401) {
         router.push("/login");
       } else if (res.ok) {
-        // Success feedback could be added here
-        alert("Added to cart!");
+        await refreshCartCount();
       }
     } catch (err) {
       console.error(err);

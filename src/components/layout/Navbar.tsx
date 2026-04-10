@@ -6,8 +6,10 @@ import { useState, useEffect } from "react";
 import { ShoppingCart, Search, User, Menu, X, Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/context/CartContext";
 
 const Navbar = () => {
+  const { cartCount } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -96,9 +98,11 @@ const Navbar = () => {
           </Link>
           <Link href="/cart" className="p-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-full transition-all relative group shadow-lg scale-100 hover:scale-105 active:scale-95">
             <ShoppingCart size={18} />
-            <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border-2 border-background">
-              0
-            </span>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-accent text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full border-2 border-background animate-in zoom-in">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <button 
             className="md:hidden p-2 hover:bg-secondary rounded-full transition-colors"

@@ -18,6 +18,8 @@ export const metadata: Metadata = {
   description: "Browse, discover, and purchase your favorite books with a premium reading experience.",
 };
 
+import { CartProvider } from "@/context/CartContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +32,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
-        {children}
+        <CartProvider>
+            {children}
+        </CartProvider>
         <WhatsAppButton />
       </body>
     </html>
