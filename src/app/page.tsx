@@ -6,10 +6,9 @@ import { Loader2, ArrowRight, ShoppingCart, Heart, Search, ChevronUp } from "luc
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BookCard from "@/components/shop/BookCard";
+import HorizontalBookCard from "@/components/shop/HorizontalBookCard";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-import HorizontalBookCard from "@/components/shop/HorizontalBookCard";
 
 export default function Home() {
   const [books, setBooks] = useState<any[]>([]);
@@ -41,22 +40,29 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDFAF5]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFAF5] dark:bg-[#0a0a0a]">
         <div className="space-y-4 text-center">
             <Loader2 className="animate-spin text-accent mx-auto" size={48} />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">Curating your experience...</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30">Authenticating Collection...</p>
         </div>
       </div>
     );
   }
 
-  // Only show categories that have books
+  // Filter books with logic that handles potential data variations
+  const getBooksByCategory = (catId: string, catName: string) => {
+    return books.filter(book => 
+        book.categoryId === catId || 
+        (typeof book.category === 'object' ? book.category?.name === catName : book.category === catName)
+    );
+  };
+
   const displayCategories = categories.filter(cat => 
-    books.some(book => book.categoryId === cat.id)
+    getBooksByCategory(cat.id, cat.name).length > 0
   );
 
   return (
-    <main className="min-h-screen bg-[#FDFAF5] text-primary relative no-scrollbar">
+    <main className="min-h-screen bg-[#FDFAF5] dark:bg-[#0a0a0a] text-primary transition-colors duration-300 relative no-scrollbar">
       <Navbar />
 
       {/* Floating Action Buttons (Right) */}
@@ -81,80 +87,77 @@ export default function Home() {
       </button>
       
       {/* Page Header */}
-      <section className="pt-40 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
-         <h1 className="text-5xl md:text-8xl font-bold tracking-tighter text-primary">the library</h1>
-         <p className="mt-6 text-lg text-muted-foreground italic font-serif opacity-60">handpicked titles for the discerning reader.</p>
+      <section className="pt-48 pb-20 px-6 lg:px-12 max-w-7xl mx-auto">
+         <h1 className="text-5xl md:text-9xl font-bold tracking-tighter text-primary lowercase border-b-8 border-accent/20 pb-4">The Library.</h1>
+         <p className="mt-8 text-xl text-muted-foreground italic font-serif max-w-2xl leading-relaxed">
+            Curating rare editions and modern masterpieces. Explore our archives by genre to find your next great odyssey.
+         </p>
       </section>
 
-      {/* NEW: Horizontal View List (Mobile Responsive) */}
-      <section className="mb-24 space-y-8">
-          <div className="px-6 lg:px-12 max-w-7xl mx-auto flex justify-between items-center">
-              <h3 className="text-xl font-bold tracking-tight uppercase">Curated Collection</h3>
-              <Link href="/shop" className="text-[9px] font-black uppercase tracking-widest border-b border-primary">Explore All</Link>
-          </div>
-          <div className="flex overflow-x-auto no-scrollbar gap-4 px-6 lg:px-12 snap-x">
-              {books.slice(0, 6).map(book => (
-                  <HorizontalBookCard key={book.id} {...book} />
-              ))}
-          </div>
-      </section>
-
-      {/* Category Wise Display */}
-      <div className="space-y-32 pb-40">
+      {/* LANDSCAPE VIEW: Curated Picks per Genre (Horizontal Scroll) */}
+      <div className="space-y-40 pb-40">
         {displayCategories.length === 0 ? (
-          <div className="px-6 lg:px-12 max-w-7xl mx-auto py-40 border-t border-border">
-             <h2 className="text-3xl font-serif font-bold opacity-10 italic">The collection is being replenished...</h2>
+          <div className="px-6 lg:px-12 max-w-7xl mx-auto border-t border-border/20 pt-20">
+             <h2 className="text-3xl font-serif font-bold opacity-10 italic">Library Indexing in progress...</h2>
           </div>
         ) : (
-          displayCategories.map((cat) => (
-            <section key={cat.id} className="space-y-10">
-                {/* Section Header */}
-                <div className="px-6 lg:px-12 max-w-7xl mx-auto flex items-end justify-between">
-                    <div className="space-y-1">
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-accent">Collection</span>
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-tight lowercase">{cat.name}</h2>
+          displayCategories.map((cat, idx) => {
+            const catBooks = getBooksByCategory(cat.id, cat.name);
+            return (
+                <section key={cat.id} className="space-y-12">
+                    {/* Header with View All */}
+                    <div className="px-6 lg:px-12 max-w-7xl mx-auto flex items-end justify-between">
+                        <div className="space-y-2">
+                            <span className="text-[10px] font-black uppercase tracking-[0.5em] text-accent flex items-center">
+                                <span className="w-8 h-[2px] bg-accent mr-3"></span> Selection {idx + 1}
+                            </span>
+                            <h2 className="text-4xl md:text-7xl font-bold tracking-tight lowercase">{cat.name}</h2>
+                        </div>
+                        <Link 
+                            href={`/shop?category=${cat.name}`}
+                            className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all shadow-lg active:scale-95"
+                        >
+                            View All Titles
+                        </Link>
                     </div>
-                    <Link 
-                        href={`/shop?category=${cat.name}`}
-                        className="pb-1 border-b-2 border-primary text-[10px] font-black uppercase tracking-widest hover:text-accent hover:border-accent transition-all"
-                    >
-                        View All
-                    </Link>
-                </div>
 
-                {/* Horizontal Scroll Area */}
-                <div className="relative group">
-                    <div className="flex overflow-x-auto no-scrollbar gap-8 px-6 lg:px-12 snap-x">
-                        {books
-                            .filter(book => book.categoryId === cat.id)
-                            .map(book => (
-                                <div key={book.id} className="w-[280px] md:w-[350px] flex-shrink-0 snap-start">
-                                    <BookCard {...book} />
+                    {/* Horizontal Scroll Containers - RESPONSIVE */}
+                    <div className="relative group">
+                        {/* Horizontal List View for Mobile/Tablet */}
+                        <div className="flex overflow-x-auto no-scrollbar gap-6 px-6 lg:px-12 snap-x pb-8">
+                            {catBooks.map(book => (
+                                <div key={book.id} className="w-[290px] md:w-[380px] flex-shrink-0 snap-start">
+                                    <HorizontalBookCard {...book} />
                                 </div>
-                            ))
-                        }
+                            ))}
+                        </div>
+                        
+                        {/* Standard Card Grid for Desktop if many books */}
+                        <div className="hidden lg:grid grid-cols-4 gap-8 px-6 lg:px-12 max-w-7xl mx-auto pt-10">
+                            {catBooks.slice(0, 4).map(book => (
+                                <BookCard key={book.id} {...book} />
+                            ))}
+                        </div>
                     </div>
-                    
-                    {/* Visual gradients for scroll hint */}
-                    <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#FDFAF5] to-transparent pointer-events-none"></div>
-                    <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#FDFAF5] to-transparent pointer-events-none"></div>
-                </div>
-            </section>
-          ))
+                </section>
+            );
+          })
         )}
       </div>
 
-      {/* Standard Newsletter */}
-      <section className="bg-white border-t border-border py-40 px-6 lg:px-12 text-center">
-         <div className="max-w-2xl mx-auto space-y-12">
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">Stay Inspired.</h2>
-            <div className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto border-b-2 border-primary">
+      {/* Newsletter Section */}
+      <section className="bg-primary text-primary-foreground py-40 px-6 lg:px-12 text-center relative overflow-hidden">
+         <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+         <div className="max-w-2xl mx-auto space-y-12 relative z-10">
+            <h2 className="text-4xl md:text-7xl font-bold tracking-tighter">Stay Connected.</h2>
+            <p className="text-primary-foreground/60 text-lg italic max-w-lg mx-auto">Join our inner circle for premier releases and literary gatherings.</p>
+            <div className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto border-b-2 border-primary-foreground/30">
                 <input 
                     type="email" 
-                    placeholder="E-mail Address" 
-                    className="flex-grow px-0 py-4 bg-transparent focus:outline-none font-medium placeholder:text-[#BBBBBB]"
+                    placeholder="Enter E-mail" 
+                    className="flex-grow px-0 py-6 bg-transparent focus:outline-none font-medium placeholder:text-white/20 text-white"
                 />
-                <button className="px-8 py-4 text-primary font-black uppercase tracking-widest text-[10px] hover:text-accent transition-all">
+                <button className="px-10 py-6 text-primary-foreground font-black uppercase tracking-widest text-xs hover:text-accent transition-all">
                     Inscribe
                 </button>
             </div>
