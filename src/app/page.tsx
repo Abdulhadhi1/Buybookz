@@ -93,7 +93,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-9xl font-serif font-medium leading-[0.9] tracking-tighter"
+            className="text-5xl md:text-8xl font-serif font-medium leading-[0.9] tracking-tighter"
           >
             The Art of <br /> <span className="text-luxury">Literature.</span>
           </motion.h1>
@@ -137,7 +137,7 @@ export default function Home() {
       </div>
 
       {/* Curated Sections */}
-      <div className="space-y-40 pb-40 relative">
+      <div className="space-y-16 pb-20 relative">
         {displayCategories.length === 0 ? (
           <div className="px-6 lg:px-12 max-w-7xl mx-auto py-20 text-center opacity-40">
              <h2 className="text-2xl font-serif italic">Curating your library...</h2>
@@ -147,14 +147,10 @@ export default function Home() {
             const catBooks = getBooksByCategory(cat.id, cat.name);
             return (
                 <section key={cat.id} className="relative">
-                    <div className="px-6 lg:px-12 max-w-7xl mx-auto mb-16">
+                    <div className="px-6 lg:px-12 max-w-7xl mx-auto mb-8">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
                             <div className="space-y-4">
-                                <div className="flex items-center space-x-3 text-accent text-xs font-black uppercase tracking-[0.4em]">
-                                    <span className="w-10 h-[2px] bg-accent/30" />
-                                    <span>Collection {idx + 1}</span>
-                                </div>
-                                <h2 className="text-5xl md:text-7xl font-serif font-medium leading-none tracking-tight">{cat.name}</h2>
+                <h2 className="text-3xl md:text-5xl font-serif font-medium leading-none tracking-tight capitalize">{cat.name}</h2>
                             </div>
                             <Link 
                                 href={`/shop?category=${cat.name}`}
