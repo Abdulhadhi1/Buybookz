@@ -1,62 +1,88 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { Loader2, ArrowRight, ShoppingCart, Heart, Search, ChevronUp } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import Hero from "@/components/home/Hero";
 import BookCard from "@/components/shop/BookCard";
-import { Loader2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [books, setBooks] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/books");
-        const data = await res.json();
-        setBooks(data);
+        const [booksRes, catsRes] = await Promise.all([
+          fetch("/api/books"),
+          fetch("/api/categories")
+        ]);
+        const [booksData, catsData] = await Promise.all([
+          booksRes.json(),
+          catsRes.json()
+        ]);
+        setBooks(booksData);
+        setCategories(catsData);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchBooks();
+    fetchData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FDFAF5]">
+        <Loader2 className="animate-spin text-accent" size={48} />
+      </div>
+    );
+  }
+
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-[#FDFAF5] text-primary relative">
       <Navbar />
+
+      {/* Floating Action Buttons (Right) */}
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col space-y-px">
+        <button onClick={() => router.push("/cart")} className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
+          <ShoppingCart size={20} />
+        </button>
+        <button className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
+          <Heart size={20} />
+        </button>
+        <button className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
+          <Search size={20} />
+        </button>
+      </div>
+
+      {/* Scroll to top */}
+      <button 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-10 right-10 z-40 p-4 bg-[#2D1B14] text-white hover:bg-black transition-all shadow-xl"
+      >
+        <ChevronUp size={24} />
+      </button>
       
-      <Hero />
+      {/* Page Header */}
+      <section className="pt-40 pb-12 px-6 lg:px-12 max-w-7xl mx-auto">
+         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-primary lowercase">loved book titles</h1>
+      </section>
 
-      {/* Featured Books Section */}
-      <section id="collection" className="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-          <div className="space-y-4">
-            <span className="text-accent font-bold tracking-widest text-xs uppercase">Curated Selection</span>
-            <h2 className="text-4xl lg:text-5xl font-serif font-bold text-primary">Featured Books</h2>
-            <p className="text-muted-foreground max-w-md">
-                Handpicked by our editors, these titles represent the best of modern literature.
-            </p>
-          </div>
-          <button className="text-sm font-bold tracking-widest uppercase pb-1 border-b-2 border-accent hover:text-accent transition-colors">
-            View All Collection
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-24">
-            <Loader2 className="animate-spin text-accent" size={48} />
-          </div>
-        ) : books.length === 0 ? (
-          <div className="text-center py-24 bg-secondary/20 rounded-[3rem] border border-dashed border-border lg:col-span-4">
-                <p className="font-serif italic text-xl opacity-50">No books found in the library.</p>
+      {/* Grid Display */}
+      <section className="pb-40 px-6 lg:px-12 max-w-7xl mx-auto">
+        {books.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-40 px-6 text-center border-2 border-dashed border-border">
+              <h2 className="text-3xl font-serif font-bold opacity-20 italic">The archives are awaiting your selection...</h2>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-x-8 gap-y-16">
             {books.map((book) => (
               <BookCard key={book.id} {...book} />
             ))}
@@ -64,21 +90,21 @@ export default function Home() {
         )}
       </section>
 
-      {/* Categories / Newsletter placeholder */}
-      <section id="community" className="bg-primary text-primary-foreground py-24 px-6 lg:px-12 text-center">
-         <div className="max-w-2xl mx-auto space-y-8">
-            <h2 className="text-3xl lg:text-5xl font-serif font-bold">Join Our Book Community</h2>
-            <p className="text-primary-foreground/70 text-lg">
-                Stay updated with new arrivals, exclusive offers, and literary events.
+      {/* Modern Newsletter Section */}
+      <section className="bg-white border-t border-border py-40 px-6 lg:px-12 text-center">
+         <div className="max-w-2xl mx-auto space-y-12">
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">Stay Inspired.</h2>
+            <p className="text-[#666666] text-lg leading-relaxed">
+                Join our newsletter to receive curated lists of must-read literary reviews.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-0 max-w-md mx-auto border-b-2 border-primary">
                 <input 
                     type="email" 
-                    placeholder="Enter your email address" 
-                    className="flex-grow px-6 py-4 rounded-full bg-white/10 border border-white/20 focus:outline-none focus:border-accent transition-colors text-white"
+                    placeholder="E-mail Address" 
+                    className="flex-grow px-0 py-4 bg-transparent focus:outline-none font-medium placeholder:text-[#BBBBBB]"
                 />
-                <button className="px-8 py-4 bg-accent text-white rounded-full font-bold hover:bg-accent/90 transition-colors shadow-xl">
-                    Subscribe
+                <button className="px-8 py-4 text-primary font-black uppercase tracking-widest text-[10px] hover:text-accent transition-all">
+                    Inscribe
                 </button>
             </div>
          </div>

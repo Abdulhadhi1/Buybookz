@@ -23,13 +23,24 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await request.json();
+    const { title, author, price, description, image, stock, categoryId, languages } = await request.json();
+    
     const book = await prisma.book.update({
       where: { id },
-      data: body,
+      data: {
+        title,
+        author,
+        price: price ? parseFloat(price) : undefined,
+        description,
+        image,
+        stock: stock ? parseInt(stock) : undefined,
+        categoryId,
+        languages
+      },
     });
     return NextResponse.json(book);
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Failed to update book" }, { status: 500 });
   }
 }

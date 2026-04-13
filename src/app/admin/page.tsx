@@ -46,7 +46,7 @@ export default function AdminDashboard() {
   // Forms
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [bookForm, setBookForm] = useState({
-    title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"]
+    id: "", title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"]
   });
   const [catForm, setCatForm] = useState({ name: "", id: "" }); // id for editing
   
@@ -122,17 +122,43 @@ export default function AdminDashboard() {
   };
 
   // --- Book Actions ---
+  const handleEditBook = (book: any) => {
+    setBookForm({
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        price: book.price.toString(),
+        stock: book.stock.toString(),
+        categoryId: book.categoryId || "",
+        description: book.description || "",
+        image: book.image || "",
+        languages: book.languages || ["English"]
+    });
+    setShowAddBook(true);
+  };
+
+  const handleDeleteBook = async (id: string) => {
+    if (!confirm("Are you sure you want to remove this work from the library?")) return;
+    try {
+        const res = await fetch(`/api/books/${id}`, { method: "DELETE" });
+        if (res.ok) fetchData();
+    } catch (err) { console.error(err); }
+  };
+
   const handleBookSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    const method = bookForm.id ? "PATCH" : "POST";
+    const url = bookForm.id ? `/api/books/${bookForm.id}` : "/api/books";
+
     try {
-        const res = await fetch("/api/books", {
-            method: "POST",
+        const res = await fetch(url, {
+            method,
             body: JSON.stringify(bookForm),
         });
         if (res.ok) {
             setShowAddBook(false);
-            setBookForm({ title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"] });
+            setBookForm({ id: "", title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"] });
             fetchData();
         }
     } finally {
@@ -269,7 +295,10 @@ export default function AdminDashboard() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <h2 className="text-4xl font-serif font-bold text-primary">Library Catalog</h2>
-                    <button onClick={() => setShowAddBook(true)} className="flex items-center space-x-3 px-8 py-5 bg-accent text-white rounded-full font-bold shadow-2xl hover:scale-105 transition-all">
+                    <button onClick={() => {
+                        setBookForm({ id: "", title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"] });
+                        setShowAddBook(true);
+                    }} className="flex items-center space-x-3 px-8 py-5 bg-accent text-white rounded-full font-bold shadow-2xl hover:scale-105 transition-all">
                         <Plus size={18} /><span>Add Work</span>
                     </button>
                 </div>
@@ -332,8 +361,18 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <div className="flex justify-end space-x-2">
-                                                <button className="p-3 bg-secondary/40 rounded-full hover:bg-accent hover:text-white transition-all"><Edit2 size={16} /></button>
-                                                <button className="p-3 bg-secondary/40 rounded-full hover:bg-red-500 hover:text-white transition-all"><Trash2 size={16} /></button>
+                                                <button 
+                                                    onClick={() => handleEditBook(book)}
+                                                    className="p-3 bg-secondary/40 rounded-full hover:bg-accent hover:text-white transition-all shadow-sm"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDeleteBook(book.id)}
+                                                    className="p-3 bg-secondary/40 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -526,8 +565,10 @@ export default function AdminDashboard() {
                 <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="relative bg-[#FDFDFD] w-full max-w-4xl rounded-[4rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
                     <div className="p-10 border-b border-border flex justify-between items-center bg-secondary/10">
                         <div className="flex items-center space-x-5">
-                            <div className="w-12 h-12 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg"><Plus size={24} /></div>
-                            <h2 className="text-3xl font-serif font-bold text-primary">Inscribe New Work</h2>
+                            <div className="w-12 h-12 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg">
+                                {bookForm.id ? <Edit2 size={24} /> : <Plus size={24} />}
+                            </div>
+                            <h2 className="text-3xl font-serif font-bold text-primary">{bookForm.id ? "Refine Masterpiece" : "Inscribe New Work"}</h2>
                         </div>
                         <button onClick={() => setShowAddBook(false)} className="p-3 hover:bg-white rounded-full transition-colors"><X size={24} /></button>
                     </div>
@@ -613,8 +654,8 @@ export default function AdminDashboard() {
 
                         <div className="pt-8 border-t border-border flex justify-end">
                             <button disabled={isSubmitting} className="px-12 py-6 bg-accent text-white rounded-full font-bold shadow-2xl hover:scale-105 transition-all flex items-center space-x-4 disabled:opacity-50">
-                                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <BookOpen size={20} />}
-                                <span className="uppercase tracking-widest text-sm font-black text-white">Consign to Library</span>
+                                {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (bookForm.id ? <Edit2 size={20} /> : <BookOpen size={20} />)}
+                                <span className="uppercase tracking-widest text-sm font-black text-white">{bookForm.id ? "Refine Edition" : "Consign to Library"}</span>
                             </button>
                         </div>
                     </form>

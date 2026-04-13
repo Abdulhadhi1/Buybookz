@@ -3,27 +3,31 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Eye, Plus, Loader2 } from "lucide-react";
+import { Star, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import PriceDisplay from "@/components/ui/PriceDisplay";
 
- interface BookCardProps {
+interface BookCardProps {
   id: string;
   title: string;
   author: string;
   price: number;
   image?: string;
   category?: any;
+  stock?: number;
 }
 
-const BookCard = ({ id, title, author, price, image, category }: BookCardProps) => {
+const BookCard = ({ id, title, author, price, image, category, stock = 10 }: BookCardProps) => {
   const [adding, setAdding] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
 
   const categoryName = typeof category === "object" ? category?.name : category;
+  
+  // Simulated discount for UI matching
+  const hasDiscount = title.length % 2 === 0;
+  const originalPrice = hasDiscount ? price * 1.2 : null;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,87 +54,63 @@ const BookCard = ({ id, title, author, price, image, category }: BookCardProps) 
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group relative bg-background rounded-[2.5rem] p-3 md:p-5 border border-border shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col h-full"
+      className="group flex flex-col h-full cursor-pointer"
     >
-      <Link href={`/book/${id}`} className="flex-grow flex flex-col ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded-[2rem]">
-        {/* Category Tag */}
-        {categoryName && (
-          <span className="absolute top-6 left-6 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest text-accent border border-accent/20">
-            {categoryName}
-          </span>
-        )}
+      <Link href={`/book/${id}`} className="flex-grow flex flex-col space-y-4">
+        {/* Image Area */}
+        <div className="relative aspect-[3/4] w-full bg-[#F4F1EA] flex items-center justify-center p-8 overflow-hidden">
+            {/* Badges */}
+            {stock === 0 ? (
+                <div className="absolute top-4 left-0 z-10 bg-[#2D1B14] text-white px-4 py-1.5 text-[10px] uppercase font-bold tracking-widest">
+                    Out of stock
+                </div>
+            ) : hasDiscount ? (
+                <div className="absolute top-4 left-4 z-10 bg-[#694432] text-white px-3 py-1 text-[10px] font-bold">
+                    10%
+                </div>
+            ) : null}
 
-        {/* Desktop-only Action Row (Hover) */}
-        <div className="absolute top-6 right-6 z-10 hidden lg:flex flex-col space-y-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
-          <button className="p-3 bg-white dark:bg-zinc-900 border border-border rounded-full hover:bg-accent hover:text-white transition-colors shadow-lg">
-            <Heart size={18} />
-          </button>
-          <button className="p-3 bg-white dark:bg-zinc-900 border border-border rounded-full hover:bg-accent hover:text-white transition-colors shadow-lg">
-            <Eye size={18} />
-          </button>
+            <div className="relative w-full h-full transform transition-transform duration-500 group-hover:scale-105 shadow-[15px_15px_30px_rgba(0,0,0,0.1)]">
+                {image ? (
+                    <Image
+                        src={image}
+                        alt={title}
+                        fill
+                        className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full bg-white flex items-center justify-center border border-border">
+                        <span className="text-4xl font-serif italic text-primary/10">{title[0]}</span>
+                    </div>
+                )}
+            </div>
         </div>
 
-        {/* Image Container */}
-        <div className="relative aspect-[3/4] w-full bg-secondary rounded-[1.8rem] overflow-hidden mb-5">
-          {image ? (
-            <Image
-              src={image}
-              alt={title}
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-secondary to-muted flex items-center justify-center p-8 text-center">
-              <div className="space-y-2 transform group-hover:scale-110 transition-transform duration-700">
-                  <p className="font-serif italic text-xl text-primary/40 leading-tight">{title}</p>
-                  <div className="w-12 h-0.5 bg-accent/30 mx-auto"></div>
-              </div>
-            </div>
-          )}
-          
-          {/* Desktop-only Quick Add Button (Hover) */}
-          <div className="absolute inset-x-4 bottom-4 hidden lg:block translate-y-12 group-hover:translate-y-0 transition-transform duration-500">
-              <button 
-                onClick={handleAddToCart}
-                disabled={adding}
-                className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold flex items-center justify-center space-x-2 shadow-2xl hover:bg-primary/90 transition-all active:scale-95"
-              >
-                  {adding ? <Loader2 className="animate-spin" size={16} /> : <ShoppingCart size={16} />}
-                  <span className="text-sm">Add to Cart</span>
-              </button>
-          </div>
-        </div>
-
-        {/* Details Footer */}
-        <div className="px-2 flex-grow flex flex-col">
-            <div className="flex-grow">
-               <h3 className="font-serif font-bold text-lg md:text-xl text-primary line-clamp-1 group-hover:text-accent transition-colors mb-1">
-                 {title}
-               </h3>
-               <p className="text-muted-foreground text-xs md:text-sm font-medium mb-3 italic">{author}</p>
-            </div>
+        {/* Info Area */}
+        <div className="space-y-1.5 pt-1">
+            <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-[#999999]">
+                {categoryName || "General"}
+            </span>
+            <h3 className="text-base font-bold text-primary group-hover:text-accent transition-colors leading-tight">
+                {title}
+            </h3>
             
-            <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/50">
-               <PriceDisplay price={price} amountClassName="text-lg md:text-xl" />
-               
-               {/* Mobile/Tablet Add to Cart (Circular Plus Button) */}
-               <button 
-                 onClick={handleAddToCart}
-                 disabled={adding}
-                 className="p-3 bg-accent text-white rounded-full shadow-lg lg:hidden hover:bg-accent/90 transition-all active:scale-90 flex items-center justify-center"
-               >
-                  {adding ? <Loader2 className="animate-spin" size={18} /> : <Plus size={18} />}
-               </button>
+            {/* Rating */}
+            <div className="flex items-center space-x-0.5 py-1">
+                {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} size={14} fill="currentColor" stroke="none" className="text-black" />
+                ))}
+            </div>
 
-               {/* Desktop Rating Indicator */}
-               <div className="hidden lg:flex items-center space-x-1">
-                  {[1, 2, 3].map((s) => (
-                     <div key={s} className="w-1.5 h-1.5 bg-accent rounded-full opacity-40"></div>
-                  ))}
-               </div>
+            {/* Pricing */}
+            <div className="flex items-baseline space-x-2">
+                {originalPrice && (
+                    <span className="text-[#BBBBBB] line-through text-sm">${originalPrice.toFixed(2)}</span>
+                )}
+                <span className="text-base font-medium text-primary">${price.toFixed(2)}</span>
             </div>
         </div>
       </Link>
