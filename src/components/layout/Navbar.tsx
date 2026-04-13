@@ -40,9 +40,9 @@ const Navbar = () => {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 px-6 lg:px-12 py-6",
+        "fixed top-0 left-0 right-0 z-[60] transition-all duration-500 px-6 lg:px-12 py-8",
         isScrolled
-          ? "bg-[#FDFAF5]/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md py-4 shadow-sm border-b border-border/10"
+          ? "bg-background/80 backdrop-blur-xl py-5 border-b border-border/40 shadow-sm"
           : "bg-transparent"
       )}
     >
@@ -50,7 +50,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-12 w-48 flex items-center"
+          className="relative h-10 w-40 flex items-center"
         >
           {/* Light Theme Logo */}
           <div className="relative w-full h-full dark:hidden">
@@ -76,33 +76,42 @@ const Navbar = () => {
 
         {/* Desktop Nav - Centered */}
         <div className="hidden lg:flex items-center space-x-12">
-          <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-[#D1B89C] transition-colors">Shop</Link>
-          <Link href="/categories" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-[#D1B89C] transition-colors">Categories</Link>
-          <Link href="/about" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-[#D1B89C] transition-colors">About</Link>
-          <Link href="/contact" className="text-[10px] font-black uppercase tracking-[0.2em] hover:text-[#D1B89C] transition-colors">Contact</Link>
+          {["Shop", "Categories", "About", "Contact"].map((item) => (
+            <Link 
+              key={item}
+              href={`/${item.toLowerCase()}`} 
+              className="group relative text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/60 hover:text-foreground transition-colors"
+            >
+              <span>{item}</span>
+              <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-accent transition-all duration-300 group-hover:w-full" />
+            </Link>
+          ))}
         </div>
 
         {/* Icons */}
-        <div className="flex items-center space-x-4">
-           {/* Dark Mode Toggle */}
+        <div className="flex items-center space-x-6">
            <button 
                 onClick={toggleDarkMode}
-                className="p-2 hover:bg-[#F4F1EA] dark:hover:bg-zinc-800 rounded-full transition-colors group"
+                className="p-2 text-foreground/60 hover:text-foreground transition-colors"
             >
-                {isDarkMode ? <Sun size={18} className="group-hover:text-yellow-400" /> : <Moon size={18} className="group-hover:text-indigo-600" />}
+                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
            </button>
 
-           <Link href="/profile" className="hidden sm:block p-2 hover:text-[#D1B89C] transition-colors">
+           <Link href="/profile" className="hidden sm:block text-foreground/60 hover:text-foreground transition-colors">
             <User size={18} />
           </Link>
           
-          <Link href="/cart" className="flex items-center space-x-2 p-2 px-4 bg-primary text-primary-foreground rounded-full group scale-100 hover:scale-105 active:scale-95 transition-all shadow-lg">
-            <ShoppingCart size={16} />
-            <span className="text-[10px] font-bold">{cartCount}</span>
+          <Link href="/cart" className="relative group p-2 text-foreground/60 hover:text-foreground transition-colors">
+            <ShoppingCart size={18} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-black text-white">
+                {cartCount}
+              </span>
+            )}
           </Link>
           
           <button 
-            className="lg:hidden p-2 hover:bg-[#F4F1EA] transition-colors"
+            className="lg:hidden p-2 text-foreground"
             onClick={() => setIsOpen(!isOpen)}
           >
             <Menu size={20} />
@@ -119,24 +128,38 @@ const Navbar = () => {
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm" 
+                className="fixed inset-0 bg-black/60 z-[70] backdrop-blur-md" 
             />
             <motion.div
-                initial={{ x: "-100%" }}
+                initial={{ x: "100%" }}
                 animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 left-0 bottom-0 w-[80%] bg-[#FDFAF5] dark:bg-[#0a0a0a] z-50 p-8 flex flex-col space-y-12 shadow-2xl"
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="fixed top-0 right-0 bottom-0 w-[85%] sm:w-[400px] bg-background z-[80] p-12 flex flex-col shadow-2xl"
             >
-                <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold tracking-tighter">BuyBookz</span>
-                    <button onClick={() => setIsOpen(false)}><X size={20} /></button>
+                <div className="flex justify-between items-center mb-16">
+                    <span className="text-2xl font-serif italic tracking-tight">BuyBookz</span>
+                    <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
-                <div className="flex flex-col space-y-6">
-                    <Link href="/shop" onClick={() => setIsOpen(false)} className="text-2xl font-bold">Shop List Content</Link>
-                    <Link href="/categories" onClick={() => setIsOpen(false)} className="text-2xl font-bold">Categories View</Link>
-                    <Link href="/about" onClick={() => setIsOpen(false)} className="text-2xl font-bold">Our Story</Link>
-                    <Link href="/contact" onClick={() => setIsOpen(false)} className="text-2xl font-bold">Inquiries</Link>
+                <div className="flex flex-col space-y-8">
+                    {["Shop", "Categories", "About", "Contact"].map((item) => (
+                      <Link 
+                        key={item}
+                        href={`/${item.toLowerCase()}`} 
+                        onClick={() => setIsOpen(false)} 
+                        className="text-4xl font-serif font-medium hover:text-accent transition-colors"
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                </div>
+                
+                <div className="mt-auto space-y-8 pt-12 border-t border-border">
+                  <Link href="/profile" className="flex items-center space-x-4 text-sm font-bold uppercase tracking-widest">
+                    <User size={18} />
+                    <span>My Account</span>
+                  </Link>
+                  <p className="text-xs text-foreground/40 font-medium">© 2024 BuyBookz. Luxury Literature.</p>
                 </div>
             </motion.div>
           </>
@@ -147,3 +170,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
