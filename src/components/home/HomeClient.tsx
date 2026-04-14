@@ -105,7 +105,7 @@ export default function HomeClient({ books, categories }: HomeClientProps) {
             <section key={cat.id} className="relative">
               <div className="px-6 lg:px-12 mb-2">
                 <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-1">
-                  <h2 className="text-xl md:text-2xl font-serif font-medium leading-none tracking-tight capitalize">{cat.name}</h2>
+                  <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">{cat.name}</h2>
                   <Link 
                     href={`/shop?category=${cat.name}`}
                     className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"

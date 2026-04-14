@@ -117,16 +117,15 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
             
             <p className="text-[11px] font-medium text-foreground/40 italic">by {author}</p>
 
-            {/* Pricing */}
-            <div className="flex items-center justify-between pt-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-bold text-foreground">${price.toFixed(2)}</span>
-                  {originalPrice && (
-                    <span className="text-[10px] text-foreground/20 line-through">${originalPrice.toFixed(2)}</span>
-                  )}
+                <div className="flex items-center justify-between pt-1">
+                    <div className="flex items-center space-x-2">
+                        <span className="text-sm font-bold text-foreground">₹{price.toFixed(2)}</span>
+                        {originalPrice && (
+                            <span className="text-[10px] text-foreground/20 line-through">₹{originalPrice.toFixed(2)}</span>
+                        )}
+                    </div>
+                    <ShoppingBag size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-accent" />
                 </div>
-                <ShoppingBag size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-accent" />
-            </div>
         </div>
       </Link>
     </motion.div>
