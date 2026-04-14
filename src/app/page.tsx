@@ -10,7 +10,16 @@ export default async function Home() {
       orderBy: { createdAt: "desc" },
     }) || Promise.resolve([]),
     prisma.book.findMany({
-      include: { category: true },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        price: true,
+        image: true,
+        categoryId: true,
+        category: { select: { name: true } }
+      },
+      take: 60, // Sufficient for displaying several per category
       orderBy: { createdAt: "desc" },
     }),
     prisma.category.findMany({
