@@ -50,7 +50,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-10 w-40 flex items-center"
+          className="relative h-16 w-56 flex items-center"
         >
           {/* Light Theme Logo */}
           <div className="relative w-full h-full dark:hidden">
@@ -74,12 +74,11 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* Desktop Nav - Centered */}
         <div className="hidden lg:flex items-center space-x-12">
-          {["Shop", "Categories", "About", "Contact"].map((item) => (
+          {["Shop", "Publications", "About", "Contact"].map((item) => (
             <Link 
               key={item}
-              href={`/${item.toLowerCase()}`} 
+              href={`/${item.toLowerCase() === 'publications' ? 'categories' : item.toLowerCase()}`} 
               className="group relative text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/60 hover:text-foreground transition-colors"
             >
               <span>{item}</span>
@@ -142,10 +141,10 @@ const Navbar = () => {
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
                 <div className="flex flex-col space-y-8">
-                    {["Shop", "Categories", "About", "Contact"].map((item) => (
+                    {["Shop", "Publications", "About", "Contact"].map((item) => (
                       <Link 
                         key={item}
-                        href={`/${item.toLowerCase()}`} 
+                        href={`/${item.toLowerCase() === 'publications' ? 'categories' : item.toLowerCase()}`} 
                         onClick={() => setIsOpen(false)} 
                         className="text-4xl font-serif font-medium hover:text-accent transition-colors"
                       >

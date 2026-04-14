@@ -101,3 +101,10 @@ model CartItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+model Banner {
+  id        String   @id @default(cuid())
+  image     String
+  title     String?
+  link      String?
+  createdAt DateTime @default(now())
+}

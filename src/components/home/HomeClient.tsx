@@ -1,22 +1,21 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { ChevronUp, BookOpen, ArrowRight, ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronUp } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HorizontalBookCard from "@/components/shop/HorizontalBookCard";
+import BannerSlider from "@/components/home/BannerSlider";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 interface HomeClientProps {
+  banners: any[];
   books: any[];
   categories: any[];
 }
 
-export default function HomeClient({ books, categories }: HomeClientProps) {
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 400], [1, 0.95]);
-
+export default function HomeClient({ banners, books, categories }: HomeClientProps) {
   const getBooksByCategory = (catId: string, catName: string) => {
     return books.filter(book => 
         book.categoryId === catId || 
@@ -32,58 +31,8 @@ export default function HomeClient({ books, categories }: HomeClientProps) {
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">
       <Navbar />
 
-      {/* Hero Section - Cinematic */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden px-6 pt-20">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-accent/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-accent/5 blur-[120px] rounded-full" />
-        </div>
-
-        <motion.div 
-          style={{ opacity: heroOpacity, scale: heroScale }}
-          className="relative z-10 max-w-5xl mx-auto text-center space-y-8"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-secondary/50 border border-border/50 text-xs font-bold tracking-widest uppercase text-accent"
-          >
-            <BookOpen size={12} />
-            <span>Curated masterpieces</span>
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-7xl font-serif font-medium leading-[0.9] tracking-tighter"
-          >
-            The Art of <br /> <span className="text-luxury">Literature.</span>
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="max-w-xl mx-auto text-base md:text-lg text-foreground/60 font-medium leading-relaxed"
-          >
-            Explore our meticulously curated archives of rare editions and timeless odysseys.
-          </motion.p>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6"
-          >
-            <Link href="/shop" className="px-8 py-4 bg-primary text-primary-foreground rounded-full text-xs font-black uppercase tracking-widest hover:bg-accent transition-all premium-shadow group">
-              Browse Collection
-              <ArrowRight size={14} className="inline ml-2 transform group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </motion.div>
-        </motion.div>
-      </section>
+      {/* Hero Section - Replaced with Banner Slider */}
+      <BannerSlider banners={banners} />
 
       {/* Floating Utilities */}
       <div className="fixed right-6 bottom-32 z-50 flex flex-col space-y-3">

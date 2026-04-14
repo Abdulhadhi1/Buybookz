@@ -42,7 +42,7 @@ const Footer = () => {
           <h4 className="font-serif font-bold text-lg mb-6">Quick Links</h4>
           <ul className="space-y-4 text-sm">
             <li><Link href="/shop" className="hover:text-accent transition-colors">Shop All Books</Link></li>
-            <li><Link href="/categories" className="hover:text-accent transition-colors">Categories</Link></li>
+            <li><Link href="/categories" className="hover:text-accent transition-colors">Publications</Link></li>
             <li><Link href="/about" className="hover:text-accent transition-colors">Our Story</Link></li>
             <li><Link href="/contact" className="hover:text-accent transition-colors">Contact Us</Link></li>
           </ul>
@@ -81,10 +81,6 @@ const Footer = () => {
 
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-muted-foreground font-medium">
         <p>© 2024 BuyBookz. All rights reserved.</p>
-        <div className="mt-4 md:mt-0 flex space-x-8">
-          <span>Designed with ❤️ by Antigravity</span>
-          <span>Powered by Next.js & Razorpay</span>
-        </div>
       </div>
     </footer>
   );
