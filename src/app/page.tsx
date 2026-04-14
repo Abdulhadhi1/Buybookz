@@ -17,13 +17,13 @@ export default async function Home() {
         price: true,
         image: true,
         categoryId: true,
-        category: { select: { name: true } }
       },
-      take: 60, // Sufficient for displaying several per category
+      take: 24, // Drastic reduction for build success
       orderBy: { createdAt: "desc" },
     }),
     prisma.category.findMany({
-        orderBy: { name: "asc" },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
     }),
   ]);
 
