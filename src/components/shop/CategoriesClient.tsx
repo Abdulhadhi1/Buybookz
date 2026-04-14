@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Layers } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
@@ -12,7 +12,7 @@ interface CategoriesClientProps {
 
 export default function CategoriesClient({ initialCategories }: CategoriesClientProps) {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background pb-20 lg:pb-0">
       <Navbar />
       
       <section className="pt-32 pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
@@ -38,24 +38,30 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
                 >
                     <Link 
                         href={`/shop?category=${cat.name}`}
-                        className="group flex flex-col p-12 bg-white dark:bg-zinc-900 border border-border rounded-[4rem] hover:border-accent hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 relative overflow-hidden h-full"
+                        className="group flex flex-col p-12 bg-white dark:bg-zinc-800/50 border border-border rounded-[4rem] hover:border-accent hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 relative overflow-hidden h-full shadow-sm"
                     >
-                        <div className="w-20 h-20 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-500">
-                            <BookOpen size={32} />
+                        {/* Decorative Background Element */}
+                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors" />
+
+                        <div className="w-20 h-20 rounded-[2.5rem] bg-secondary dark:bg-zinc-800 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-500 shadow-inner">
+                            <Layers size={32} />
                         </div>
                         
-                        <div className="flex-grow">
-                            <h3 className="text-3xl font-serif font-bold text-primary group-hover:text-accent transition-colors mb-3 leading-tight uppercase tracking-tight">
+                        <div className="flex-grow space-y-4">
+                            <h3 className="text-3xl font-serif font-black text-primary group-hover:text-accent transition-colors leading-tight uppercase tracking-tighter">
                                 {cat.name}
                             </h3>
-                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                                {cat._count?.books || 0} Titles in Archive
-                            </p>
+                            <div className="flex items-center space-x-3">
+                                <span className="h-0.5 w-6 bg-accent opacity-30" />
+                                <p className="text-[10px] font-black uppercase tracking-widest text-foreground/40">
+                                    {cat._count?.books || 0} Literary Treasures
+                                </p>
+                            </div>
                         </div>
                         
-                        <div className="mt-10 pt-8 border-t border-border/10 flex items-center justify-between text-accent">
-                            <span className="text-[9px] font-black uppercase tracking-widest group-hover:mr-4 transition-all">Explore Publisher</span>
-                            <div className="h-10 w-10 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+                        <div className="mt-12 pt-8 border-t border-border/10 flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-accent group-hover:mr-4 transition-all">Explore Collections</span>
+                            <div className="h-10 w-10 rounded-full border border-accent/20 flex items-center justify-center group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all text-accent">
                                 <ArrowRight size={18} />
                             </div>
                         </div>
@@ -65,8 +71,9 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
         </div>
 
         {initialCategories.length === 0 && (
-            <div className="text-center py-40 border-2 border-dashed border-border rounded-[4rem]">
-                 <h2 className="text-3xl font-serif text-primary/20 italic">No publishers found in the registry.</h2>
+            <div className="text-center py-40 bg-secondary/30 rounded-[4rem] border-2 border-dashed border-border">
+                 <h2 className="text-3xl font-serif text-primary/20 italic">No publishers are currently active in the registry.</h2>
+                 <p className="text-xs uppercase font-black tracking-widest mt-4 opacity-30">Archives are being updated.</p>
             </div>
         )}
       </section>

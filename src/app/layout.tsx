@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 
 import { CartProvider } from "@/context/CartContext";
 
+import MobileNav from "@/components/layout/MobileNav";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,6 +38,7 @@ export default function RootLayout({
             {children}
         </CartProvider>
         <WhatsAppButton />
+        <MobileNav />
       </body>
     </html>
   );
