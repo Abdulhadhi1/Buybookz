@@ -25,7 +25,11 @@ export default function HomeClient({ banners, books, categories }: HomeClientPro
 
   const displayCategories = categories.filter(cat => 
     getBooksByCategory(cat.id, cat.name).length > 0
-  );
+  ).sort((a, b) => {
+    if (a.name.toLowerCase() === "novel") return -1;
+    if (b.name.toLowerCase() === "novel") return 1;
+    return 0;
+  });
 
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">

@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, Loader2, ArrowRight } from "lucide-react";
+import { Search, Loader2, ArrowRight, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BookCard from "@/components/shop/BookCard";
@@ -11,11 +11,12 @@ import BookCard from "@/components/shop/BookCard";
 function ShopContent() {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
   const searchParams = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("query") || "");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All");
+  const [sortBy, setSortBy] = useState("latest");
 
-  const categories = ["All", "Mystery", "Sci-Fi", "Lifestyle", "History", "Self-Help"];
+  const categories = ["All", "Novel", "Mystery", "Sci-Fi", "History", "Self-Help"];
 
   useEffect(() => {
     const fetchBooks = async () => {
@@ -32,62 +33,68 @@ function ShopContent() {
     fetchBooks();
   }, []);
 
+  useEffect(() => {
+    const query = searchParams.get("query");
+    if (query) setSearchTerm(query);
+    const cat = searchParams.get("category");
+    if (cat) setSelectedCategory(cat);
+  }, [searchParams]);
+
   const filteredBooks = books.filter((book: any) => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          book.author.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Support both string category and object-based category
     const bookCategoryName = typeof book.category === 'object' ? book.category?.name : book.category;
-    const matchesCategory = selectedCategory === "All" || bookCategoryName === selectedCategory;
+    const matchesCategory = selectedCategory === "All" || bookCategoryName?.toLowerCase() === selectedCategory.toLowerCase();
     
     return matchesSearch && matchesCategory;
+  }).sort((a, b) => {
+    if (sortBy === "price-low-high") return a.price - b.price;
+    if (sortBy === "price-high-low") return b.price - a.price;
+    return 0; // default (latest)
   });
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background text-foreground">
       <Navbar />
       
-      {/* Hero Header */}
-      <section className="pt-32 pb-16 px-6 lg:px-12 bg-secondary/30 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-accent/5 -skew-x-12 transform translate-x-20"></div>
-        <div className="max-w-7xl mx-auto relative z-10">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-            >
-                <h1 className="text-6xl md:text-8xl font-serif font-bold text-primary tracking-tighter">The Library</h1>
-                <p className="max-w-xl text-lg text-muted-foreground italic leading-relaxed">
-                  Explore our curated collection of literary masterpieces, from gripping mysteries to future-shaping science fiction.
-                </p>
-            </motion.div>
+      {/* Refined Header */}
+      <section className="pt-32 pb-12 px-6 lg:px-12 border-b border-border bg-secondary/10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-2">
+                <span className="text-xs font-black uppercase tracking-[0.4em] text-accent">Curated Collection</span>
+                <h1 className="text-5xl md:text-6xl font-serif font-black tracking-tight">{selectedCategory === "All" ? "The Archive" : selectedCategory}</h1>
+            </div>
+            <p className="max-w-xs text-[10px] font-bold uppercase tracking-widest text-foreground/40 leading-relaxed italic">
+              Displaying {filteredBooks.length} titles from our premium publication house.
+            </p>
         </div>
       </section>
 
-      {/* Toolbar */}
-      <section className="sticky top-[72px] z-40 bg-background/80 backdrop-blur-md border-b border-border py-4 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
-            {/* Search */}
-            <div className="relative group flex-grow max-w-md">
-                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-accent transition-colors" />
+      {/* Modern Filter Toolbar */}
+      <section className="sticky top-[72px] z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 py-4 px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            {/* Search Input */}
+            <div className="relative flex-grow max-w-sm">
+                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40" />
                 <input 
                     type="text"
-                    placeholder="Search by title or author..."
-                    className="w-full pl-12 pr-6 py-3 bg-secondary/50 border border-border rounded-full focus:ring-2 focus:ring-accent outline-none font-medium text-sm transition-all"
+                    placeholder="Search by title..."
+                    className="w-full pl-10 pr-4 py-2.5 bg-secondary/40 border border-transparent rounded-full focus:bg-white focus:border-accent/20 outline-none text-[10px] font-bold uppercase tracking-widest transition-all"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
 
-            {/* Categories */}
-            <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+            {/* Category Pills */}
+            <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar scroll-smooth py-1">
                 {categories.map((cat) => (
                     <button
                         key={cat}
                         onClick={() => setSelectedCategory(cat)}
-                        className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${
+                        className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
                             selectedCategory === cat 
-                            ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                            ? "bg-primary text-white" 
                             : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                         }`}
                     >
@@ -95,31 +102,50 @@ function ShopContent() {
                     </button>
                 ))}
             </div>
+
+            {/* Sorting Dropdown */}
+            <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 px-4 py-2 bg-secondary/40 rounded-full border border-transparent">
+                    <ArrowUpDown size={12} className="text-foreground/40" />
+                    <select 
+                        className="bg-transparent text-[9px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                    >
+                        <option value="latest">Latest Arrivals</option>
+                        <option value="price-low-high">Price: Low to High</option>
+                        <option value="price-high-low">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
         </div>
       </section>
 
       {/* Grid */}
-      <section className="py-20 px-6 lg:px-12 max-w-7xl mx-auto">
+      <section className="py-16 px-6 lg:px-12 max-w-7xl mx-auto">
         {loading ? (
-            <div className="flex flex-col items-center justify-center py-40 space-y-4">
-                <Loader2 className="animate-spin text-accent" size={48} />
-                <p className="text-xs font-black uppercase tracking-[0.2em] opacity-30">Opening the archives...</p>
+            <div className="flex flex-col items-center justify-center py-40 space-y-6">
+                <div className="w-12 h-12 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Synchronizing Archive...</p>
             </div>
         ) : filteredBooks.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-14">
                 {filteredBooks.map((book: any) => (
                     <BookCard key={book.id} {...book} />
                 ))}
             </div>
         ) : (
-            <div className="text-center py-40 space-y-6">
-                <h3 className="text-3xl font-serif font-bold italic opacity-30">No matches found in our records.</h3>
+            <div className="text-center py-40 space-y-8 bg-secondary/10 rounded-[4rem] border border-dashed border-border/50">
+                <div className="space-y-2">
+                    <h3 className="text-3xl font-serif font-bold italic text-primary/20 tracking-tight">No records located.</h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Try adjusting your selection criteria.</p>
+                </div>
                 <button 
-                    onClick={() => {setSearchTerm(""); setSelectedCategory("All");}}
-                    className="flex items-center space-x-2 mx-auto text-accent font-bold hover:underline"
+                    onClick={() => {setSearchTerm(""); setSelectedCategory("All"); setSortBy("latest");}}
+                    className="inline-flex items-center space-x-3 px-8 py-4 bg-primary text-white rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-accent transition-all"
                 >
-                    <span>Clear all filters</span>
-                    <ArrowRight size={16} />
+                    <span>Reset All Filters</span>
+                    <ArrowRight size={14} />
                 </button>
             </div>
         )}
