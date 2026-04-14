@@ -17,8 +17,9 @@ export default async function Home() {
         price: true,
         image: true,
         categoryId: true,
+        category: { select: { name: true } }
       },
-      take: 24, // Drastic reduction for build success
+      take: 120, // Increased limit while keeping fields minimal
       orderBy: { createdAt: "desc" },
     }),
     prisma.category.findMany({
