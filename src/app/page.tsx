@@ -6,9 +6,9 @@ export const revalidate = 60; // Revalidate every minute
 export default async function Home() {
   // Fetch banners, books, and categories directly on the server for maximum performance
   const [banners, books, categories] = await Promise.all([
-    prisma.banner.findMany({
+    (prisma as any).banner?.findMany({
       orderBy: { createdAt: "desc" },
-    }),
+    }) || Promise.resolve([]),
     prisma.book.findMany({
       include: { category: true },
       orderBy: { createdAt: "desc" },
