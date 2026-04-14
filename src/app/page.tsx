@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import HomeClient from "@/components/home/HomeClient";
 
-export const revalidate = 60; // Revalidate every minute
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   // Fetch banners, books, and categories directly on the server for maximum performance
