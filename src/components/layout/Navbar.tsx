@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Search, User, Menu, X, Moon, Sun, Heart } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
@@ -14,7 +14,6 @@ const Navbar = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -25,9 +24,7 @@ const Navbar = () => {
         try {
           const res = await fetch("/api/books");
           const allBooks = await res.json();
-          // Find novels and other matching books
           const matches = allBooks.filter((book: any) => {
-            const isNovel = book.category?.name?.toLowerCase().includes("novel") || book.category === "Novel";
             const matchesQuery = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                                 book.author.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesQuery;
@@ -61,27 +58,12 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleDarkMode = () => {
-    const newMode = !isDarkMode;
-    setIsDarkMode(newMode);
-    document.documentElement.classList.toggle("dark", newMode);
-    localStorage.setItem("theme", newMode ? "dark" : "light");
-  };
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
-
   return (
     <nav
       className={cn(
         "fixed top-0 left-0 right-0 z-[60] transition-all duration-500 px-6 lg:px-12 py-8",
         isScrolled
-          ? "bg-background/80 backdrop-blur-xl py-5 border-b border-border/40 shadow-sm"
+          ? "bg-white/90 backdrop-blur-xl py-5 border-b border-border shadow-sm"
           : "bg-transparent"
       )}
     >
@@ -91,20 +73,9 @@ const Navbar = () => {
           href="/" 
           className="relative h-16 w-56 flex items-center"
         >
-          {/* Light Theme Logo */}
-          <div className="relative w-full h-full dark:hidden">
+          <div className="relative w-full h-full">
               <Image 
                 src="/dark-theme-logo.png" 
-                alt="BuyBookz" 
-                fill 
-                className="object-contain object-left"
-                priority
-              />
-          </div>
-          {/* Dark Theme Logo */}
-          <div className="relative w-full h-full hidden dark:block">
-              <Image 
-                src="/White-theme0logo.png" 
                 alt="BuyBookz" 
                 fill 
                 className="object-contain object-left"
@@ -117,11 +88,11 @@ const Navbar = () => {
           {/* Advanced Search in Nav */}
           <div className="relative group">
             <form onSubmit={handleSearch} className="relative flex items-center">
-              <Search size={14} className="absolute left-4 text-foreground/40" />
+              <Search size={14} className="absolute left-4 text-primary/40" />
               <input 
                 type="text" 
-                placeholder="Search novels..." 
-                className="pl-10 pr-4 py-2 bg-secondary/30 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent focus:border-accent/30 focus:bg-white transition-all w-64"
+                placeholder="Search the archives..." 
+                className="pl-10 pr-4 py-2 bg-secondary/50 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent focus:border-accent/30 focus:bg-white transition-all w-64"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
@@ -135,10 +106,10 @@ const Navbar = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-full left-0 mt-2 w-full bg-white dark:bg-zinc-900 shadow-2xl rounded-2xl overflow-hidden border border-border z-[100]"
+                  className="absolute top-full left-0 mt-2 w-full bg-white shadow-2xl rounded-2xl overflow-hidden border border-border z-[100]"
                 >
                   <div className="p-2">
-                    <p className="px-3 py-2 text-[8px] font-black uppercase tracking-widest text-accent/50">Suggested Novels</p>
+                    <p className="px-3 py-2 text-[8px] font-black uppercase tracking-widest text-accent/50">Suggestions</p>
                     {suggestions.map((s) => (
                       <button 
                         key={s.id}
@@ -164,7 +135,7 @@ const Navbar = () => {
                       }}
                       className="w-full mt-2 py-2 px-3 border-t border-border text-[9px] font-black uppercase tracking-widest text-accent hover:bg-accent/5 transition-colors text-center"
                     >
-                      Show All Books
+                      Show All Collections
                     </button>
                   </div>
                 </motion.div>
@@ -188,13 +159,6 @@ const Navbar = () => {
 
         {/* Icons */}
         <div className="flex items-center space-x-6">
-           <button 
-                onClick={toggleDarkMode}
-                className="p-2 text-foreground/60 hover:text-foreground transition-colors"
-            >
-                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-           </button>
-
            <Link href="/profile" className="hidden sm:block text-foreground/60 hover:text-foreground transition-colors">
             <User size={18} />
           </Link>
@@ -226,38 +190,40 @@ const Navbar = () => {
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
                 onClick={() => setIsOpen(false)}
-                className="fixed inset-0 bg-black/60 z-[70] backdrop-blur-md" 
+                className="fixed inset-0 bg-black/40 z-[70] backdrop-blur-sm" 
             />
             <motion.div
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                className="fixed top-0 right-0 bottom-0 w-[85%] sm:w-[400px] bg-background z-[80] p-12 flex flex-col shadow-2xl"
+                className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-white z-[80] p-10 flex flex-col shadow-2xl"
             >
-                <div className="flex justify-between items-center mb-16">
-                    <span className="text-2xl font-serif italic tracking-tight">BuyBookz</span>
+                <div className="flex justify-between items-center mb-12">
+                    <span className="text-xl font-serif font-black tracking-tight">BuyBookz</span>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
-                <div className="flex flex-col space-y-8">
+                <div className="flex flex-col space-y-6">
                     {["Shop", "Publishers", "About", "Contact"].map((item) => (
                       <Link 
                         key={item}
                         href={`/${item.toLowerCase() === 'publishers' ? 'categories' : item.toLowerCase()}`} 
                         onClick={() => setIsOpen(false)} 
-                        className="text-4xl font-serif font-medium hover:text-accent transition-colors"
+                        className="text-2xl font-serif font-bold text-primary hover:text-accent transition-colors"
                       >
                         {item}
                       </Link>
                     ))}
                 </div>
                 
-                <div className="mt-auto space-y-8 pt-12 border-t border-border">
-                  <Link href="/profile" className="flex items-center space-x-4 text-sm font-bold uppercase tracking-widest">
-                    <User size={18} />
+                <div className="mt-auto space-y-6 pt-10 border-t border-border">
+                  <Link href="/profile" className="flex items-center space-x-4 text-xs font-black uppercase tracking-widest text-primary">
+                    <User size={16} />
                     <span>My Account</span>
                   </Link>
-                  <p className="text-xs text-foreground/40 font-medium">© 2024 BuyBookz. Luxury Literature.</p>
+                  <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest italic leading-relaxed">
+                    © 2024 BuyBookz Archives.
+                  </p>
                 </div>
             </motion.div>
           </>
@@ -268,4 +234,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
