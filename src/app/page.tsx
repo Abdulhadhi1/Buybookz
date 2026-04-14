@@ -137,7 +137,7 @@ export default function Home() {
       </div>
 
       {/* Curated Sections */}
-      <div className="space-y-16 pb-20 relative">
+      <div className="space-y-12 pb-16 relative">
         {displayCategories.length === 0 ? (
           <div className="px-6 lg:px-12 max-w-7xl mx-auto py-20 text-center opacity-40">
              <h2 className="text-2xl font-serif italic">Curating your library...</h2>
@@ -147,17 +147,15 @@ export default function Home() {
             const catBooks = getBooksByCategory(cat.id, cat.name);
             return (
                 <section key={cat.id} className="relative">
-                    <div className="px-6 lg:px-12 max-w-7xl mx-auto mb-8">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-                            <div className="space-y-4">
-                <h2 className="text-3xl md:text-5xl font-serif font-medium leading-none tracking-tight capitalize">{cat.name}</h2>
-                            </div>
+                    <div className="px-6 lg:px-12 max-w-7xl mx-auto mb-4">
+                        <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
+                            <h2 className="text-xl md:text-2xl font-serif font-medium leading-none tracking-tight capitalize">{cat.name}</h2>
                             <Link 
                                 href={`/shop?category=${cat.name}`}
-                                className="group flex items-center space-x-2 text-xs font-black uppercase tracking-widest hover:text-accent transition-all"
+                                className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
                             >
-                                <span>See entire archive</span>
-                                <ArrowUpRight size={16} className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                <span>View All</span>
+                                <ArrowUpRight size={12} className="transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                             </Link>
                         </div>
                     </div>
