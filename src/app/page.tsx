@@ -137,7 +137,7 @@ export default function Home() {
       </div>
 
       {/* Curated Sections */}
-      <div className="space-y-12 pb-16 relative">
+      <div className="space-y-4 pb-12 relative mt-8">
         {displayCategories.length === 0 ? (
           <div className="px-6 lg:px-12 max-w-7xl mx-auto py-20 text-center opacity-40">
              <h2 className="text-2xl font-serif italic">Curating your library...</h2>
@@ -147,8 +147,8 @@ export default function Home() {
             const catBooks = getBooksByCategory(cat.id, cat.name);
             return (
                 <section key={cat.id} className="relative">
-                    <div className="px-6 lg:px-12 max-w-7xl mx-auto mb-4">
-                        <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
+                    <div className="px-6 lg:px-12 mb-2">
+                        <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-1">
                             <h2 className="text-xl md:text-2xl font-serif font-medium leading-none tracking-tight capitalize">{cat.name}</h2>
                             <Link 
                                 href={`/shop?category=${cat.name}`}
@@ -163,7 +163,7 @@ export default function Home() {
                     {/* Books Display */}
                     <div className="relative">
                         {/* Horizontal Scroll for Mobile/Tablet */}
-                        <div className="flex overflow-x-auto no-scrollbar gap-8 px-6 lg:px-12 snap-x pb-12 scroll-px-6 lg:scroll-px-12">
+                        <div className="flex overflow-x-auto no-scrollbar gap-8 px-6 lg:px-12 snap-x pb-4 scroll-px-6 lg:scroll-px-12">
                             {catBooks.map(book => (
                                 <div key={book.id} className="w-[300px] md:w-[450px] flex-shrink-0 snap-start">
                                     <HorizontalBookCard {...book} />
