@@ -12,7 +12,7 @@ interface CategoriesClientProps {
 
 export default function CategoriesClient({ initialCategories }: CategoriesClientProps) {
   return (
-    <main className="min-h-screen bg-background pb-20 lg:pb-0">
+    <main className="min-h-screen bg-background pb-24 lg:pb-0">
       <Navbar />
       
       <section className="pt-32 pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
@@ -32,18 +32,19 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
             {initialCategories.map((cat, idx) => (
                 <motion.div
                     key={cat.id}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     transition={{ delay: idx * 0.05 }}
+                    className="h-full"
                 >
                     <Link 
-                        href={`/shop?category=${cat.name}`}
-                        className="group flex flex-col p-12 bg-white dark:bg-zinc-800/50 border border-border rounded-[4rem] hover:border-accent hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] transition-all duration-700 relative overflow-hidden h-full shadow-sm"
+                        href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                        className="group flex flex-col p-12 bg-white dark:bg-zinc-900 border border-border rounded-[4rem] hover:border-accent hover:shadow-[0_45px_90px_-25px_rgba(0,0,0,0.15)] transition-all duration-500 relative overflow-hidden h-full shadow-md"
                     >
-                        {/* Decorative Background Element */}
-                        <div className="absolute -right-10 -top-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-colors" />
+                        {/* Pure White Background for Card */}
+                        <div className="absolute inset-0 bg-white dark:bg-zinc-900 -z-10" />
 
-                        <div className="w-20 h-20 rounded-[2.5rem] bg-secondary dark:bg-zinc-800 flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-accent group-hover:text-white transition-all duration-500 shadow-inner">
+                        <div className="w-20 h-20 rounded-[2.5rem] bg-white dark:bg-zinc-800 border border-border flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all duration-500 shadow-sm">
                             <Layers size={32} />
                         </div>
                         
@@ -54,14 +55,14 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
                             <div className="flex items-center space-x-3">
                                 <span className="h-0.5 w-6 bg-accent opacity-30" />
                                 <p className="text-[10px] font-black uppercase tracking-widest text-foreground/40">
-                                    {cat._count?.books || 0} Literary Treasures
+                                    {cat._count?.books || 0} Registered Works
                                 </p>
                             </div>
                         </div>
                         
-                        <div className="mt-12 pt-8 border-t border-border/10 flex items-center justify-between">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-accent group-hover:mr-4 transition-all">Explore Collections</span>
-                            <div className="h-10 w-10 rounded-full border border-accent/20 flex items-center justify-center group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all text-accent">
+                        <div className="mt-12 pt-8 border-t border-border/20 flex items-center justify-between">
+                            <span className="text-[9px] font-black uppercase tracking-widest text-accent group-hover:mr-4 transition-all">Open Publisher Account</span>
+                            <div className="h-10 w-10 rounded-full border border-accent/30 flex items-center justify-center group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all text-accent shadow-sm">
                                 <ArrowRight size={18} />
                             </div>
                         </div>
@@ -71,9 +72,8 @@ export default function CategoriesClient({ initialCategories }: CategoriesClient
         </div>
 
         {initialCategories.length === 0 && (
-            <div className="text-center py-40 bg-secondary/30 rounded-[4rem] border-2 border-dashed border-border">
-                 <h2 className="text-3xl font-serif text-primary/20 italic">No publishers are currently active in the registry.</h2>
-                 <p className="text-xs uppercase font-black tracking-widest mt-4 opacity-30">Archives are being updated.</p>
+            <div className="text-center py-40 bg-white border-2 border-dashed border-border rounded-[4rem] shadow-sm">
+                 <h2 className="text-3xl font-serif text-primary/20 italic">No publishers registered found.</h2>
             </div>
         )}
       </section>

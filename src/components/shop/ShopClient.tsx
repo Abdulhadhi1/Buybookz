@@ -40,7 +40,7 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
     
     // Exact match for category names from URL, case-insensitive for safety
     const matchesCategory = selectedCategory === "All" || 
-                           bookCategoryName?.toLowerCase() === selectedCategory.toLowerCase();
+                           bookCategoryName?.trim().toLowerCase() === selectedCategory.trim().toLowerCase();
     
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
