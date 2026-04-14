@@ -13,11 +13,17 @@ import PriceDisplay from "@/components/ui/PriceDisplay";
 export default function CartPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
   const { refreshCartCount } = useCart();
 
   const fetchCart = async () => {
     try {
       const res = await fetch("/api/cart");
+      if (res.status === 401) {
+        setIsUnauthorized(true);
+        setLoading(false);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setItems(data);
@@ -88,7 +94,21 @@ export default function CartPage() {
             )}
         </div>
 
-        {items.length === 0 ? (
+        {isUnauthorized ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-40 bg-secondary/30 rounded-[4rem] border border-dashed border-border space-y-8">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <ShoppingBag className="text-accent/30" size={40} />
+            </div>
+            <div className="space-y-2">
+                <h2 className="text-3xl font-serif font-bold text-primary italic">Secure Your Archives</h2>
+                <p className="text-muted-foreground max-w-xs mx-auto">Please sign in to access your curated collection of treasures.</p>
+            </div>
+            <Link href="/login" className="inline-flex items-center space-x-3 px-10 py-5 bg-accent text-white rounded-full font-bold hover:bg-accent/90 transition-all active:scale-95 shadow-2xl">
+              <span className="uppercase tracking-widest text-xs font-black">Sign In Now</span>
+              <ArrowRight size={18} />
+            </Link>
+          </motion.div>
+        ) : items.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-40 bg-secondary/30 rounded-[4rem] border border-dashed border-border space-y-8">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm">
                 <ShoppingBag className="text-accent/30" size={40} />

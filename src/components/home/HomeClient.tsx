@@ -34,17 +34,6 @@ export default function HomeClient({ banners, books, categories }: HomeClientPro
       {/* Hero Section - Replaced with Banner Slider */}
       <BannerSlider banners={banners} />
 
-      {/* Floating Utilities */}
-      <div className="fixed right-6 bottom-32 z-50 flex flex-col space-y-3">
-        <motion.button 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="p-4 bg-white dark:bg-zinc-800 rounded-full shadow-2xl border border-border/50"
-        >
-          <ChevronUp size={20} />
-        </motion.button>
-      </div>
 
       {/* Curated Sections */}
       <div className="space-y-4 pb-12 relative mt-4">

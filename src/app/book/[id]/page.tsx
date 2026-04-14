@@ -16,6 +16,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   const [quantity, setQuantity] = useState(1);
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [adding, setAdding] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
 
@@ -70,26 +71,7 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
     <main className="min-h-screen bg-[#FDFAF5] text-primary relative">
       <Navbar />
 
-      {/* Floating Action Buttons (Right) */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col space-y-2">
-        <button onClick={() => router.push("/cart")} className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
-          <ShoppingCart size={20} />
-        </button>
-        <button className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
-          <Heart size={20} />
-        </button>
-        <button className="p-4 bg-[#D1B89C] text-white hover:bg-[#b0967a] transition-all">
-          <Share2 size={20} />
-        </button>
-      </div>
 
-      {/* Scroll to top */}
-      <button 
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-10 right-10 z-40 p-4 bg-[#2D1B14] text-white hover:bg-black transition-all shadow-xl"
-      >
-        <ChevronUp size={24} />
-      </button>
 
       <div className="pt-32 pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -143,14 +125,24 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
 
                 {/* Pricing */}
                 <div className="flex items-baseline space-x-4">
-                    <span className="text-[#BBBBBB] line-through text-2xl">${originalPrice.toFixed(2)}</span>
-                    <span className="text-3xl font-medium text-primary">${book.price.toFixed(2)}</span>
+                    <span className="text-[#BBBBBB] line-through text-2xl">₹{originalPrice.toFixed(2)}</span>
+                    <span className="text-3xl font-medium text-primary">₹{book.price.toFixed(2)}</span>
                 </div>
             </div>
 
             {/* Description */}
-            <div className="text-[#666666] leading-relaxed text-base">
-                {book.description || "A thoughtful literary novel told from the perspective of an artificial companion observing human emotion and hope."}
+            <div className="text-[#666666] leading-relaxed text-base space-y-2">
+                <p className={isDescriptionExpanded ? "" : "line-clamp-2"}>
+                    {book.description || "A thoughtful literary novel told from the perspective of an artificial companion observing human emotion and hope."}
+                </p>
+                {book.description && book.description.length > 100 && (
+                    <button 
+                        onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                        className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline"
+                    >
+                        {isDescriptionExpanded ? "Read Less" : "Read More"}
+                    </button>
+                )}
             </div>
 
             {/* Interactive Section */}
