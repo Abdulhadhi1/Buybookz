@@ -1,113 +1,85 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import "dotenv/config";
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-      throw new Error("DATABASE_URL is not set in environment variables");
-  }
-  
-  const pool = new pg.Pool({ connectionString });
-  const adapter = new PrismaPg(pool);
-  const prisma = new PrismaClient({ adapter });
+  console.log("🚀 Seeding sample books to Supabase...");
 
-  const bookData = [
+  // Create Categories
+  const fiction = await prisma.category.upsert({
+    where: { name: "Fiction" },
+    update: {},
+    create: { name: "Fiction" },
+  });
+
+  const business = await prisma.category.upsert({
+    where: { name: "Business & Finance" },
+    update: {},
+    create: { name: "Business & Finance" },
+  });
+
+  const books = [
     {
-      title: "The Silent Forest",
-      author: "Elena Rossi",
+      title: "The Midnight Library",
+      author: "Matt Haig",
       price: 599,
-      description: "A gripping thriller that takes you deep into the heart of a mysterious forest where secrets are buried and the silence is deafening.",
-      categoryName: "Mystery",
+      description: "Between life and death there is a library...",
+      image: "https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190203i/52578297.jpg",
+      stock: 15,
+      categoryId: fiction.id,
+      languages: ["English", "Tamil"]
+    },
+    {
+      title: "Think and Grow Rich",
+      author: "Napoleon Hill",
+      price: 350,
+      description: "The landmark bestseller that has helped millions...",
+      image: "https://images-na.ssl-images-amazon.com/images/I/71Ad9E6Vf0L.jpg",
       stock: 50,
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=800&auto=format&fit=crop",
-      languages: ["English", "Tamil"]
-    },
-    {
-      title: "Neon Dreams",
-      author: "Marcus Vane",
-      price: 749,
-      description: "A cyberpunk odyssey through a sprawling metropolis where technology and humanity collide in a dance of neon and shadows.",
-      categoryName: "Sci-Fi",
-      stock: 30,
-      image: "https://images.unsplash.com/photo-1543004218-ee141104308e?q=80&w=800&auto=format&fit=crop",
-      languages: ["English", "Hindi"]
-    },
-    {
-      title: "Culinary Alchemy",
-      author: "Chef Isabella",
-      price: 1250,
-      description: "Master the art of high-end gastronomy with secrets from one of the world's most innovative kitchens.",
-      categoryName: "Lifestyle",
-      stock: 20,
-      image: "https://images.unsplash.com/photo-1589998059171-988d887df646?q=80&w=800&auto=format&fit=crop",
-      languages: ["English", "French"]
-    },
-    {
-      title: "Whispers of History",
-      author: "Prof. Julian Thorne",
-      price: 899,
-      description: "An evocative journey through the forgotten corridors of history, revealing the stories that shaped our civilization.",
-      categoryName: "History",
-      stock: 40,
-      image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?q=80&w=800&auto=format&fit=crop",
-      languages: ["English", "Tamil"]
-    },
-    {
-      title: "Modern Minimalist",
-      author: "Sarah Jenkins",
-      price: 499,
-      description: "A guide to decluttering your life and finding peace in simplicity within a chaotic modern world.",
-      categoryName: "Self-Help",
-      stock: 100,
-      image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=800&auto=format&fit=crop",
+      categoryId: business.id,
       languages: ["English"]
+    },
+    {
+      title: "Atomic Habits",
+      author: "James Clear",
+      price: 499,
+      description: "An easy and proven way to build good habits...",
+      image: "https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg",
+      stock: 25,
+      categoryId: business.id,
+      languages: ["English"]
+    },
+    {
+      title: "Ponniyin Selvan",
+      author: "Kalki",
+      price: 1200,
+      description: "The historical masterpiece of Tamizh literature.",
+      image: "https://m.media-amazon.com/images/I/910i8fXy52L.jpg",
+      stock: 10,
+      categoryId: fiction.id,
+      languages: ["Tamil"]
     }
   ];
 
-  console.log("Seeding started...");
-
-  try {
-    // 1. Sync Categories
-    const categoryNames = Array.from(new Set(bookData.map(b => b.categoryName)));
-    const categories: Record<string, string> = {};
-
-    for (const name of categoryNames) {
-        const cat = await prisma.category.upsert({
-            where: { name },
-            update: {},
-            create: { name }
-        });
-        categories[name] = cat.id;
-    }
-
-    console.log("✅ Categories synchronized.");
-
-    // 2. Clear existing books (optional, but good for clean seeding)
-    // await prisma.book.deleteMany();
-
-    // 3. Create Books
-    for (const book of bookData) {
-      await prisma.book.create({
-        data: {
-            title: book.title,
-            author: book.author,
-            price: book.price,
-            description: book.description,
-            stock: book.stock,
-            image: book.image,
-            languages: book.languages,
-            categoryId: categories[book.categoryName]
-        }
-      });
-    }
-    console.log("✅ Books seeded successfully!");
-  } catch (err) {
-    console.error("❌ Error during seeding:", err);
-  } finally {
-    await prisma.$disconnect();
-    await pool.end();
+  for (const book of books) {
+    await prisma.book.create({
+      data: book
+    });
   }
+
+  console.log("✅ Seeding complete! 5 books added.");
 }
 
-main().catch(console.error);
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
