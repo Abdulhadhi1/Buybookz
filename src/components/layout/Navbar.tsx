@@ -19,27 +19,26 @@ const Navbar = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
-    if (searchTerm.length > 1) {
-      const fetchSuggestions = async () => {
-        try {
-          const res = await fetch("/api/books");
-          const allBooks = await res.json();
-          const matches = allBooks.filter((book: any) => {
-            const matchesQuery = book.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                book.author.toLowerCase().includes(searchTerm.toLowerCase());
-            return matchesQuery;
-          }).slice(0, 5);
-          setSuggestions(matches);
-          setShowSuggestions(true);
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      fetchSuggestions();
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
+    const timer = setTimeout(() => {
+      if (searchTerm.length > 1) {
+        const fetchSuggestions = async () => {
+          try {
+            const res = await fetch(`/api/books?query=${encodeURIComponent(searchTerm)}&limit=5`);
+            const books = await res.json();
+            setSuggestions(books);
+            setShowSuggestions(true);
+          } catch (err) {
+            console.error(err);
+          }
+        };
+        fetchSuggestions();
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 400); // 400ms debounce
+
+    return () => clearTimeout(timer);
   }, [searchTerm]);
 
   const handleSearch = (e: React.FormEvent) => {

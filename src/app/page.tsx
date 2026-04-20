@@ -5,10 +5,8 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   // Fetch banners, books, and categories directly on the server for maximum performance
-  const [banners, books, categories] = await Promise.all([
-    (prisma as any).banner?.findMany({
-      orderBy: { createdAt: "desc" },
-    }) || Promise.resolve([]),
+  // Fetch books and categories directly on the server
+  const [books, categories] = await Promise.all([
     prisma.book.findMany({
       select: {
         id: true,
@@ -19,7 +17,7 @@ export default async function Home() {
         categoryId: true,
         category: { select: { name: true } }
       },
-      take: 120, // Increased limit while keeping fields minimal
+      take: 120,
       orderBy: { createdAt: "desc" },
     }),
     prisma.category.findMany({
@@ -28,8 +26,8 @@ export default async function Home() {
     }),
   ]);
 
-  // Serialize data for client component
-  const serializedBanners = JSON.parse(JSON.stringify(banners));
+  // Handle banners safely as empty array since table doesn't exist
+  const serializedBanners: any[] = [];
   const serializedBooks = JSON.parse(JSON.stringify(books));
   const serializedCategories = JSON.parse(JSON.stringify(categories));
 

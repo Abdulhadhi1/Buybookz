@@ -2,11 +2,22 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("query");
+    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
+
     const books = await prisma.book.findMany({
+      where: query ? {
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { author: { contains: query, mode: "insensitive" } },
+        ]
+      } : {},
       include: { category: true },
       orderBy: { createdAt: "desc" },
+      take: limit || undefined,
     });
     return NextResponse.json(books);
   } catch (error) {
