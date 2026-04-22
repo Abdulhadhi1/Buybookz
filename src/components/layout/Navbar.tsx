@@ -139,10 +139,9 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-12">
-            {["Shop", "Publishers", "About", "Contact"].map((item) => (
+            {["Shop", "Favorites", "About", "Contact"].map((item) => (
               <Link 
-                key={item}
-                href={`/${item.toLowerCase() === 'publishers' ? 'categories' : item.toLowerCase()}`} 
+                href={`/${item.toLowerCase()}`}
                 className="group relative text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/60 hover:text-foreground transition-colors"
               >
                 <span>{item}</span>
@@ -203,10 +202,10 @@ const Navbar = () => {
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
                 <div className="flex flex-col space-y-6">
-                    {["Shop", "Publishers", "About", "Contact"].map((item) => (
+                    {["Shop", "Favorites", "About", "Contact"].map((item) => (
                       <Link 
                         key={item}
-                        href={`/${item.toLowerCase() === 'publishers' ? 'categories' : item.toLowerCase()}`} 
+                        href={`/${item.toLowerCase()}`} 
                         onClick={() => setIsOpen(false)} 
                         className="text-2xl font-serif font-bold text-primary hover:text-accent transition-colors"
                       >

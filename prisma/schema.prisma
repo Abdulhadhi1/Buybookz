@@ -17,6 +17,7 @@ model User {
   orders    Order[]
   addresses Address[]
   cartItems CartItem[]
+  favorites Favorite[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }
@@ -39,6 +40,7 @@ model Book {
   languages   String[]    @default(["English"])
   orders      OrderItem[]
   cartItems   CartItem[]
+  favorites   Favorite[]
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 }
@@ -101,6 +103,18 @@ model CartItem {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  bookId    String
+  book      Book     @relation(fields: [bookId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, bookId])
+}
+
 model Banner {
   id        String   @id @default(cuid())
   image     String

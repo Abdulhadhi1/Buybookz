@@ -17,8 +17,9 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   const [selectedLanguage, setSelectedLanguage] = useState("");
   const [adding, setAdding] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
-  const { refreshCartCount } = useCart();
+  const { refreshCartCount, addToCart } = useCart();
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -27,6 +28,13 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
         const data = await res.json();
         setBook(data);
         if (data.languages?.length > 0) setSelectedLanguage(data.languages[0]);
+        
+        // Fetch favorite status
+        const favRes = await fetch("/api/favorites");
+        if (favRes.ok) {
+           const favorites = await favRes.json();
+           setIsFavorite(favorites.some((f: any) => f.id === id));
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -37,22 +45,34 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
   }, [id]);
 
   const handleAddToCart = async () => {
+    if (!book) return;
     setAdding(true);
     try {
-      const res = await fetch("/api/cart", {
-        method: "POST",
-        body: JSON.stringify({ bookId: id, quantity, language: selectedLanguage }),
-      });
-      if (res.status === 401) {
-        router.push("/login");
-      } else if (res.ok) {
-        await refreshCartCount();
-      }
+      await addToCart(book, quantity, selectedLanguage);
+      router.push("/cart");
     } catch (err) {
       console.error(err);
     } finally {
       setAdding(false);
     }
+  };
+
+  const handleToggleFavorite = async () => {
+     try {
+       const res = await fetch("/api/favorites", {
+         method: "POST",
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ bookId: id }),
+       });
+       if (res.status === 401) {
+         router.push("/login?callbackUrl=" + window.location.pathname);
+       } else if (res.ok) {
+         const data = await res.json();
+         setIsFavorite(data.isFavorite);
+       }
+     } catch (err) {
+       console.error(err);
+     }
   };
 
   if (loading) {
@@ -190,10 +210,21 @@ export default function BookDetailPage({ params }: { params: Promise<{ id: strin
                     <button 
                         onClick={handleAddToCart}
                         disabled={adding || book.stock === 0}
-                        className="flex-grow py-5 bg-[#2D1B14] text-white font-bold hover:bg-black transition-all flex items-center justify-center space-x-3 disabled:opacity-50"
+                        className="flex-grow py-5 bg-[#2D1B14] text-white rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center space-x-3 disabled:opacity-50"
                     >
                         {adding ? <Loader2 className="animate-spin" size={20} /> : <ShoppingCart size={20} />}
                         <span className="uppercase tracking-widest text-xs">{book.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
+                    </button>
+
+                    <button 
+                        onClick={handleToggleFavorite}
+                        className={`p-5 rounded-xl border-2 transition-all ${
+                            isFavorite 
+                            ? "bg-red-50 border-red-100 text-red-500" 
+                            : "border-border hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-foreground/20"
+                        }`}
+                    >
+                        <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
                     </button>
                 </div>
             </div>
