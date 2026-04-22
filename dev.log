@@ -1,0 +1,86 @@
+
+> buybookz@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.164:3000
+- Environments: .env
+✓ Ready in 1088ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\IMCR-12\yarn.lock as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\IMCR-12\OneDrive\Desktop\New\package-lock.json
+
+
+○ Compiling / ...
+⨯ Error: Invalid src prop (https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg) on `next/image`, hostname "m.media-amazon.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at ignore-listed frames {
+  digest: '2533537751@E231'
+}
+ GET / 500 in 6.9s (next.js: 3.8s, proxy.ts: 246ms, application-code: 2.9s)
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.164:3000
+- Environments: .env
+✓ Ready in 605ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\IMCR-12\yarn.lock as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\IMCR-12\OneDrive\Desktop\New\package-lock.json
+
+
+⨯ Error: Invalid src prop (https://images-na.ssl-images-amazon.com/images/I/71Ad9E6Vf0L.jpg) on `next/image`, hostname "images-na.ssl-images-amazon.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at ignore-listed frames {
+  digest: '3100889331@E231'
+}
+ GET / 500 in 1794ms (next.js: 132ms, proxy.ts: 218ms, application-code: 1444ms)
+[browser] Uncaught Error: Invalid src prop (https://images-na.ssl-images-amazon.com/images/I/71Ad9E6Vf0L.jpg) on `next/image`, hostname "images-na.ssl-images-amazon.com" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+    at Array.map (<anonymous>)
+    at HorizontalBookCard (src/components/shop/HorizontalBookCard.tsx:29:13)
+    at <unknown> (src/components/home/HomeClient.tsx:66:23)
+    at Array.map (<anonymous>)
+    at <unknown> (src/components/home/HomeClient.tsx:64:29)
+    at Array.map (<anonymous>)
+    at HomeClient (src/components/home/HomeClient.tsx:44:28)
+    at Home (src\app\page.tsx:35:5)
+  27 |         <div className="relative w-24 md:w-32 h-full bg-secondary rounded-lg overflow-hidd...
+  28 |           {image ? (
+> 29 |             <Image src={image} alt={title} fill className="object-cover transform group-ho...
+     |             ^
+  30 |           ) : (
+  31 |             <div className="w-full h-full flex items-center justify-center font-serif ital...
+  32 |           )}
+⚠ Found a change in next.config.ts. Restarting the server to apply the changes...
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.164:3000
+- Environments: .env
+✓ Ready in 547ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\IMCR-12\yarn.lock as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\IMCR-12\OneDrive\Desktop\New\package-lock.json
+
+
+ GET / 200 in 1932ms (next.js: 227ms, proxy.ts: 248ms, application-code: 1457ms)
+[browser] Image with src "/dark-theme-logo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+⨯ upstream image response failed for https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1602190203i/52578297.jpg 403
+ GET /api/cart 401 in 610ms (next.js: 586ms, application-code: 24ms)
+⨯ upstream image response failed for https://images-na.ssl-images-amazon.com/images/I/71Ad9E6Vf0L.jpg 404
+⨯ upstream image response failed for https://m.media-amazon.com/images/I/910i8fXy52L.jpg 404
+[browser] Image with src "https://m.media-amazon.com/images/I/91bYsX41DVL._AC_UF1000,1000_QL80_.jpg" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /shop?category=Business+&+Finance= 200 in 1444ms (next.js: 709ms, proxy.ts: 25ms, application-code: 711ms)
+memory allocation of 16777216 bytes failed
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+[?25h

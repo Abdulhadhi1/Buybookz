@@ -70,16 +70,12 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="relative h-16 w-56 flex items-center"
+          className="flex items-center group"
         >
-          <div className="relative w-full h-full">
-              <Image 
-                src="/dark-theme-logo.png" 
-                alt="BuyBookz" 
-                fill 
-                className="object-contain object-left"
-                priority
-              />
+          <div className="text-3xl font-serif font-black tracking-tighter flex items-center">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-accent">Buy</span>
+            <span className="text-accent italic ml-1 relative transition-all duration-300 group-hover:ml-2">Bookz</span>
+            <div className="w-1.5 h-1.5 bg-accent rounded-full ml-1 self-end mb-1 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </Link>
 
@@ -199,7 +195,10 @@ const Navbar = () => {
                 className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-white z-[80] p-10 flex flex-col shadow-2xl"
             >
                 <div className="flex justify-between items-center mb-12">
-                    <span className="text-xl font-serif font-black tracking-tight">BuyBookz</span>
+                    <div className="text-2xl font-serif font-black tracking-tighter flex items-center">
+                      <span className="text-primary">Buy</span>
+                      <span className="text-accent italic ml-0.5">Bookz</span>
+                    </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
                 <div className="flex flex-col space-y-6">

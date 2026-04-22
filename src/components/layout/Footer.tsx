@@ -8,23 +8,11 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
-          <Link href="/" className="relative h-18 w-64 block">
-             <div className="relative w-full h-full dark:hidden">
-                 <Image 
-                    src="/dark-theme-logo.png" 
-                    alt="BuyBookz" 
-                    fill 
-                    className="object-contain object-left"
-                />
-             </div>
-             <div className="relative w-full h-full hidden dark:block">
-                 <Image 
-                    src="/White-theme0logo.png" 
-                    alt="BuyBookz" 
-                    fill 
-                    className="object-contain object-left"
-                />
-             </div>
+          <Link href="/" className="block group">
+            <div className="text-3xl font-serif font-black tracking-tighter flex items-center">
+              <span className="text-primary group-hover:text-luxury transition-colors duration-500">Buy</span>
+              <span className="text-accent italic ml-1">Bookz</span>
+            </div>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
             Discover your next favorite story at BuyBookz. Your premium destination for curated literature and worldwide bestsellers.
