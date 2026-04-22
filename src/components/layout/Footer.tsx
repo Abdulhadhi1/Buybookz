@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Globe, Share2, Info, Book } from "lucide-react";
+import { Mail, Phone, MapPin, Globe, Share2, Info, Book, BookOpen } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -9,13 +9,16 @@ const Footer = () => {
         {/* Brand */}
         <div className="space-y-4">
           <Link href="/" className="flex items-center group">
-            <div className="mr-3 w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center group-hover:bg-accent transition-colors duration-500">
-               <Book size={20} className="text-accent group-hover:text-white transition-colors duration-500" />
+            <div className="mr-3">
+               <BookOpen size={28} className="text-accent" strokeWidth={1.5} />
             </div>
-            <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
-              <span className="text-4xl font-black text-primary transition-colors duration-500 group-hover:text-accent">Buy</span>
-              <span className="text-4xl font-light italic text-accent -ml-1 transition-all duration-500 group-hover:ml-0.5">Bookz</span>
-              <span className="text-5xl font-black text-accent ml-0.5">.</span>
+            <div className="flex flex-col leading-none">
+              <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
+                <span className="text-3xl font-black text-primary transition-colors duration-500 group-hover:text-accent">Buy</span>
+                <span className="text-3xl font-light italic text-accent -ml-0.5 transition-all duration-500 group-hover:ml-0.5">Bookz</span>
+                <span className="text-4xl font-black text-accent ml-0.5">.</span>
+              </div>
+              <span className="text-[7px] uppercase tracking-[0.4em] text-accent/60 font-black ml-0.5 mt-1">THE ARCHIVES</span>
             </div>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
