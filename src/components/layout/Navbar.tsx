@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Search, User, Menu, X, Heart } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, Heart, Book } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
@@ -70,8 +70,28 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="flex items-center group perspective-1000"
+          className="flex items-center group"
         >
+          <div className="mr-3 relative">
+            <div className="absolute inset-0 bg-accent/20 blur-xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <motion.div 
+              animate={{ 
+                y: [0, -4, 0],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="relative z-10 w-12 h-12 bg-white dark:bg-zinc-900 rounded-2xl flex items-center justify-center shadow-premium group-hover:rotate-[15deg] transition-transform duration-500 border border-accent/10"
+            >
+              <div className="relative">
+                <Book className="w-6 h-6 text-accent" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+              </div>
+            </motion.div>
+          </div>
+
           <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
             <span className="text-4xl font-black text-primary drop-shadow-sm">Buy</span>
             <span className="text-4xl font-light italic text-accent -ml-1 transition-all duration-500 group-hover:ml-0.5 group-hover:font-medium">Bookz</span>
@@ -198,10 +218,15 @@ const Navbar = () => {
                 className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-white z-[80] p-10 flex flex-col shadow-2xl"
             >
                 <div className="flex justify-between items-center mb-12">
-                    <div className="flex items-baseline font-serif tracking-tight">
-                      <span className="text-3xl font-black text-primary">Buy</span>
-                      <span className="text-3xl font-light italic text-accent -ml-1">Bookz</span>
-                      <span className="text-4xl font-black text-accent ml-0.5">.</span>
+                    <div className="flex items-center">
+                        <div className="mr-2 w-8 h-8 bg-accent/10 rounded-lg flex items-center justify-center">
+                           <Book size={16} className="text-accent" />
+                        </div>
+                        <div className="flex items-baseline font-serif tracking-tight">
+                          <span className="text-3xl font-black text-primary">Buy</span>
+                          <span className="text-3xl font-light italic text-accent -ml-1">Bookz</span>
+                          <span className="text-4xl font-black text-accent ml-0.5">.</span>
+                        </div>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>

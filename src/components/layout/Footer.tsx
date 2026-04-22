@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, Globe, Share2, Info } from "lucide-react";
+import { Mail, Phone, MapPin, Globe, Share2, Info, Book } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -8,7 +8,10 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
         {/* Brand */}
         <div className="space-y-4">
-          <Link href="/" className="block group">
+          <Link href="/" className="flex items-center group">
+            <div className="mr-3 w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center group-hover:bg-accent transition-colors duration-500">
+               <Book size={20} className="text-accent group-hover:text-white transition-colors duration-500" />
+            </div>
             <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
               <span className="text-4xl font-black text-primary transition-colors duration-500 group-hover:text-accent">Buy</span>
               <span className="text-4xl font-light italic text-accent -ml-1 transition-all duration-500 group-hover:ml-0.5">Bookz</span>
