@@ -70,12 +70,15 @@ const Navbar = () => {
         {/* Logo */}
         <Link 
           href="/" 
-          className="flex items-center group"
+          className="flex items-center group perspective-1000"
         >
-          <div className="text-3xl font-serif font-black tracking-tighter flex items-center">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-accent">Buy</span>
-            <span className="text-accent italic ml-1 relative transition-all duration-300 group-hover:ml-2">Bookz</span>
-            <div className="w-1.5 h-1.5 bg-accent rounded-full ml-1 self-end mb-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
+            <span className="text-4xl font-black text-primary drop-shadow-sm">Buy</span>
+            <span className="text-4xl font-light italic text-accent -ml-1 transition-all duration-500 group-hover:ml-0.5 group-hover:font-medium">Bookz</span>
+            <span className="text-5xl font-black text-accent ml-0.5 relative">
+              .
+              <span className="absolute inset-0 bg-accent/30 blur-lg opacity-0 group-hover:opacity-100 transition-opacity">.</span>
+            </span>
           </div>
         </Link>
 
@@ -195,9 +198,10 @@ const Navbar = () => {
                 className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-white z-[80] p-10 flex flex-col shadow-2xl"
             >
                 <div className="flex justify-between items-center mb-12">
-                    <div className="text-2xl font-serif font-black tracking-tighter flex items-center">
-                      <span className="text-primary">Buy</span>
-                      <span className="text-accent italic ml-0.5">Bookz</span>
+                    <div className="flex items-baseline font-serif tracking-tight">
+                      <span className="text-3xl font-black text-primary">Buy</span>
+                      <span className="text-3xl font-light italic text-accent -ml-1">Bookz</span>
+                      <span className="text-4xl font-black text-accent ml-0.5">.</span>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>

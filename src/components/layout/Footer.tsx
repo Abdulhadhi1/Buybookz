@@ -9,9 +9,10 @@ const Footer = () => {
         {/* Brand */}
         <div className="space-y-4">
           <Link href="/" className="block group">
-            <div className="text-3xl font-serif font-black tracking-tighter flex items-center">
-              <span className="text-primary group-hover:text-luxury transition-colors duration-500">Buy</span>
-              <span className="text-accent italic ml-1">Bookz</span>
+            <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
+              <span className="text-4xl font-black text-primary transition-colors duration-500 group-hover:text-accent">Buy</span>
+              <span className="text-4xl font-light italic text-accent -ml-1 transition-all duration-500 group-hover:ml-0.5">Bookz</span>
+              <span className="text-5xl font-black text-accent ml-0.5">.</span>
             </div>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
