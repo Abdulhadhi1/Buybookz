@@ -72,29 +72,10 @@ const Navbar = () => {
           href="/" 
           className="flex items-center group select-none"
         >
-          <div className="relative mr-4">
-             <motion.div
-               animate={{ 
-                 rotateY: [0, 15, 0],
-                 y: [0, -2, 0]
-               }}
-               transition={{
-                 duration: 4,
-                 repeat: Infinity,
-                 ease: "easeInOut"
-               }}
-               className="relative z-10"
-             >
-               {/* Unique Sapphire Blue color for the book icon */}
-               <BookOpen size={38} className="text-[#1E40AF] drop-shadow-[0_0_10px_rgba(30,64,175,0.3)]" strokeWidth={1.5} />
-             </motion.div>
-             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#1E40AF]/10 blur-md rounded-full" />
-          </div>
-
-          <div className="flex items-baseline font-serif tracking-tighter transition-all duration-500 group-hover:scale-105">
-            <span className="text-3xl font-black text-primary">Buy</span>
-            <span className="text-3xl font-extralight italic text-accent ml-0.5">Bookz</span>
-            <span className="text-4xl font-black text-accent ml-0.5 relative">.</span>
+          <div className="flex items-baseline font-serif tracking-tighter transition-all duration-500 group-hover:scale-110">
+            <span className="text-4xl lg:text-5xl font-black text-primary drop-shadow-sm select-none">Buy</span>
+            <span className="text-4xl lg:text-5xl font-extralight italic text-accent ml-1 transition-all duration-500 group-hover:ml-2">Bookz</span>
+            <span className="text-5xl lg:text-6xl font-black text-accent ml-0.5">.</span>
           </div>
         </Link>
 
@@ -214,15 +195,10 @@ const Navbar = () => {
                 className="fixed top-0 right-0 bottom-0 w-[80%] max-w-[320px] bg-white z-[80] p-10 flex flex-col shadow-2xl"
             >
                 <div className="flex justify-between items-center mb-12">
-                    <div className="flex items-center">
-                        <div className="mr-3">
-                           <BookOpen size={24} className="text-[#1E40AF]" />
-                        </div>
-                        <div className="flex items-baseline font-serif tracking-tight">
-                          <span className="text-3xl font-black text-primary">Buy</span>
-                          <span className="text-3xl font-light italic text-accent -ml-0.5">Bookz</span>
-                          <span className="text-4xl font-black text-accent ml-0.5">.</span>
-                        </div>
+                    <div className="flex items-baseline font-serif tracking-tight">
+                        <span className="text-3xl font-black text-primary">Buy</span>
+                        <span className="text-3xl font-light italic text-accent -ml-0.5">Bookz</span>
+                        <span className="text-4xl font-black text-accent ml-0.5">.</span>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>
