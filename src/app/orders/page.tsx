@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Package, ChevronRight, Loader2, ArrowLeft, CheckCircle2, BookOpen } from "lucide-react";
+import { Package, ChevronRight, Loader2, ArrowLeft, CheckCircle2, BookOpen, MessageCircle } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -12,6 +12,13 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+
+  const generateWhatsAppLink = (order: any) => {
+    const phone = "919677201727";
+    const bookTitles = order.items.map((i: any) => `*${i.book.title}* (Qty: ${i.quantity})`).join("\n- ");
+    const text = `Hello BuyBookz! 📚\n\nI have successfully paid for my order.\n\n*Order ID:* #${order.id.slice(-8).toUpperCase()}\n*Total Amount:* ${formatPrice(order.totalAmount)}\n\n*Books Ordered:*\n- ${bookTitles}\n\nPlease verify and process my order. Thank you!`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -114,6 +121,25 @@ export default function OrdersPage() {
                     </div>
                   ))}
                 </div>
+
+                {order.status === 'PAID' && (
+                  <div className="mt-8 pt-6 border-t border-border border-dashed flex flex-col sm:flex-row items-center justify-between gap-6 bg-[#25D366]/5 -mx-8 -mb-8 px-8 py-6 rounded-b-[2.5rem]">
+                    <div className="flex flex-col text-center sm:text-left">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-[#25D366] mb-1">Final Step: Verification</span>
+                        <span className="text-xs font-bold text-muted-foreground">Please forward your order details to standardise dispatch.</span>
+                    </div>
+                    
+                    <a 
+                      href={generateWhatsAppLink(order)}
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="px-8 py-4 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center space-x-3 transition-all bg-[#25D366] text-white hover:bg-[#1ebd5a] shadow-[0_15px_30px_-5px_rgba(37,211,102,0.4)] active:scale-95 group w-full sm:w-auto justify-center flex-shrink-0"
+                    >
+                      <MessageCircle size={18} className="group-hover:scale-110 transition-transform" />
+                      <span>Send to WhatsApp</span>
+                    </a>
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>

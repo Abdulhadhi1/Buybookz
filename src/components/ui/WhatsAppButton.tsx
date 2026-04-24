@@ -4,8 +4,8 @@ import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "919876543210"; // Replace with real admin number
-  const message = "Hello! I have a question about a book on BuyBookz.";
+  const phoneNumber = "919677201727"; // Admin WhatsApp
+  const message = "Hello BuyBookz! 👋\n\nI have a query regarding the bookstore.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   return (
