@@ -21,7 +21,7 @@ export async function GET() {
       orderBy: { createdAt: "desc" }
     });
 
-    return NextResponse.json(favorites.map(f => f.book));
+    return NextResponse.json(favorites.map((f: any) => f.book));
   } catch (error) {
     console.error("GET Favorites Error:", error);
     return NextResponse.json({ error: "Failed to fetch favorites" }, { status: 500 });
