@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getSession();
@@ -12,6 +14,7 @@ export async function GET() {
     });
     return NextResponse.json(addresses);
   } catch (error) {
+    console.error("GET Addresses Error:", error);
     return NextResponse.json({ error: "Failed to fetch addresses" }, { status: 500 });
   }
 }
@@ -43,6 +46,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(newAddress);
   } catch (error) {
+    console.error("POST Address Error:", error);
     return NextResponse.json({ error: "Failed to create address" }, { status: 500 });
   }
 }
