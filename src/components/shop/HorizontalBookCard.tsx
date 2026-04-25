@@ -12,7 +12,7 @@ interface HorizontalBookCardProps {
   title: string;
   author: string;
   price: number;
-  image?: string;
+  image?: string | null;
   category?: { name?: string | null } | string | null;
 }
 
