@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
 import CategoriesClient from "@/components/shop/CategoriesClient";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
+
 
 export default async function CategoriesPage() {
     // Fetch real publishers (categories) from the DB

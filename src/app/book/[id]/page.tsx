@@ -2,17 +2,9 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
 import BookDetailClient from "@/components/book/BookDetailClient";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
 
-export async function generateStaticParams() {
-  const books = await prisma.book.findMany({
-    select: { id: true },
-    take: 200,
-    orderBy: { createdAt: "desc" },
-  });
-
-  return books.map((book) => ({ id: book.id }));
-}
 
 export default async function BookDetailPage({
   params,

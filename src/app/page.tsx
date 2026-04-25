@@ -1,7 +1,9 @@
 import prisma from "@/lib/prisma";
 import HomeClient from "@/components/home/HomeClient";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 300;
+
 
 type HomeBook = {
   id: string;
