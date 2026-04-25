@@ -73,6 +73,17 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div className="space-y-6">
             <div className="relative aspect-square w-full bg-[#F4F1EA] flex items-center justify-center p-12 overflow-hidden group rounded-[2rem]">
+              <button
+                onClick={handleToggleFavorite}
+                className={`absolute right-4 top-4 z-10 p-3 rounded-full border shadow-md transition-all ${
+                  isFavorite(book.id)
+                    ? "bg-red-50 border-red-100 text-red-500"
+                    : "bg-white/90 border-white text-foreground/30 hover:text-red-500"
+                }`}
+                aria-label="Toggle favorite"
+              >
+                <Heart size={18} fill={isFavorite(book.id) ? "currentColor" : "none"} />
+              </button>
               {book.image ? (
                 <Image
                   src={book.image}
@@ -187,17 +198,6 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                   <span className="uppercase tracking-widest text-xs">{book.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
                 </button>
 
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`p-5 rounded-xl border-2 transition-all ${
-                    isFavorite(book.id)
-                      ? "bg-red-50 border-red-100 text-red-500"
-                      : "border-border hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-foreground/20"
-                  }`}
-                  aria-label="Toggle favorite"
-                >
-                  <Heart size={20} fill={isFavorite(book.id) ? "currentColor" : "none"} />
-                </button>
               </div>
             </div>
 

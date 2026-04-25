@@ -46,6 +46,8 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     hasLoaded,
     isFavorite: (bookId: string) => favoriteIds.has(bookId),
     toggleFavorite: async (bookId: string) => {
+      const wasFavorite = favoriteIds.has(bookId);
+
       try {
         const res = await fetch("/api/favorites", {
           method: "POST",
@@ -61,7 +63,26 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
           };
         }
 
+        setFavoriteIds((current) => {
+          const next = new Set(current);
+          if (wasFavorite) {
+            next.delete(bookId);
+          } else {
+            next.add(bookId);
+          }
+          return next;
+        });
+
         if (!res.ok) {
+          setFavoriteIds((current) => {
+            const next = new Set(current);
+            if (wasFavorite) {
+              next.add(bookId);
+            } else {
+              next.delete(bookId);
+            }
+            return next;
+          });
           return {
             message: "Could not update favorite right now.",
             ok: false,
@@ -86,6 +107,15 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
           ok: true,
         };
       } catch {
+        setFavoriteIds((current) => {
+          const next = new Set(current);
+          if (wasFavorite) {
+            next.add(bookId);
+          } else {
+            next.delete(bookId);
+          }
+          return next;
+        });
         return {
           message: "Could not update favorite right now.",
           ok: false,

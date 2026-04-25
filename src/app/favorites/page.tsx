@@ -25,6 +25,14 @@ export default function FavoritesPage() {
   const { favoriteIds, hasLoaded } = useFavorites();
 
   useEffect(() => {
+    if (!hasLoaded || isUnauthorized) {
+      return;
+    }
+
+    setBooks((current) => current.filter((book) => favoriteIds.has(book.id)));
+  }, [favoriteIds, hasLoaded, isUnauthorized]);
+
+  useEffect(() => {
     const fetchFavorites = async () => {
       try {
         const res = await fetch("/api/favorites");
