@@ -212,27 +212,14 @@ export default function AdminDashboard() {
     } catch (err) { console.error(err); }
   };
 
-  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-        setIsSubmitting(true);
-        const res = await fetch("/api/upload", {
-            method: "POST",
-            body: formData
-        });
-        const data = await res.json();
-        if (data.url) {
-            setBannerForm({ ...bannerForm, image: data.url });
-        }
-    } catch (err) {
-        console.error("Upload error", err);
-    } finally {
-        setIsSubmitting(false);
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setBannerForm({ ...bannerForm, image: reader.result as string });
+        };
+        reader.readAsDataURL(file);
     }
   };
 
