@@ -3,6 +3,8 @@ import Razorpay from "razorpay";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // Move initialization inside a helper to avoid build-time crashes when env vars are missing
 const getRazorpayInstance = () => {
     return new Razorpay({
