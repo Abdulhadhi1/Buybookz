@@ -17,13 +17,13 @@ interface BookSummary {
   title: string;
   author: string;
   price: number;
-  image?: string;
-  categoryId?: string;
+  image?: string | null;
+  categoryId?: string | null;
   category?: { name?: string | null } | string | null;
 }
 
 interface HomeClientProps {
-  banners: { id?: string; image?: string; title?: string; link?: string }[];
+  banners: { id?: string; image?: string | null; title?: string | null; link?: string | null }[];
   books: BookSummary[];
   categories: CategorySummary[];
 }
