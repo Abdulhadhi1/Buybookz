@@ -1,42 +1,31 @@
 import { PrismaClient } from "@prisma/client";
 
-const prismaClientSingleton = () => {
-  return new PrismaClient();
-};
+// This singleton ensures that Prisma is only instantiated when it's safe to do so.
+// During the Next.js build phase (where DATABASE_URL is often missing), we return a dummy.
+// At runtime, we return the real PrismaClient.
+const getPrismaClient = () => {
+  // Check if we are in the build phase or if the connection string is missing
+  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+  const hasDbUrl = !!(process.env.DATABASE_URL || process.env.POSTGRES_URL);
 
-declare global {
-  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>;
-}
-
-// Lazy-loading helper to avoid connecting during build time
-const getPrisma = () => {
-    // During Next.js build phase, we return a dummy object to prevent connection failures.
-    // In production/development runtime, we return the real singleton.
-    if (process.env.NEXT_PHASE === 'phase-production-build' && !process.env.DATABASE_URL) {
-        return {} as any;
-    }
-    
-    if (process.env.NODE_ENV === "production") {
-        return prismaClientSingleton();
-    }
-    
-    return globalThis.prismaGlobal ?? (globalThis.prismaGlobal = prismaClientSingleton());
-};
-
-// Use a Proxy to ensure Prisma is only instantiated when actually called.
-// This prevents "Failed to collect page data" errors during build.
-const prisma = new Proxy({} as PrismaClient, {
-  get: (target, prop) => {
-    const instance = getPrisma();
-    const value = (instance as any)[prop];
-    
-    // Crucial: Bind functions to the instance so they have the correct 'this' context.
-    // This fixes the 500 errors caused by the previous Proxy implementation.
-    if (typeof value === 'function') {
-        return value.bind(instance);
-    }
-    return value;
+  if (isBuildPhase || !hasDbUrl) {
+    // Return a proxy that swallows calls during build to prevent crashes
+    return new Proxy({} as PrismaClient, {
+      get: () => () => Promise.resolve(null),
+    });
   }
-});
+
+  // Standard singleton logic for runtime
+  if (process.env.NODE_ENV === "production") {
+    return new PrismaClient();
+  }
+
+  if (!(global as any).prisma) {
+    (global as any).prisma = new PrismaClient();
+  }
+  return (global as any).prisma;
+};
+
+const prisma = getPrismaClient();
 
 export default prisma;
