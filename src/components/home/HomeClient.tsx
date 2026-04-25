@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ChevronUp } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HorizontalBookCard from "@/components/shop/HorizontalBookCard";
@@ -9,21 +7,36 @@ import BannerSlider from "@/components/home/BannerSlider";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+interface CategorySummary {
+  id: string;
+  name: string;
+}
+
+interface BookSummary {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  image?: string;
+  categoryId?: string;
+  category?: { name?: string | null } | string | null;
+}
+
 interface HomeClientProps {
-  banners: any[];
-  books: any[];
-  categories: any[];
+  banners: { id?: string; image?: string; title?: string; link?: string }[];
+  books: BookSummary[];
+  categories: CategorySummary[];
 }
 
 export default function HomeClient({ banners, books, categories }: HomeClientProps) {
   const getBooksByCategory = (catId: string, catName: string) => {
-    return books.filter(book => 
+    return books.filter((book) =>
         book.categoryId === catId || 
-        (typeof book.category === 'object' ? book.category?.name === catName : book.category === catName)
+        (typeof book.category === "object" ? book.category?.name === catName : book.category === catName)
     );
   };
 
-  const displayCategories = categories.filter(cat => 
+  const displayCategories = categories.filter((cat) =>
     getBooksByCategory(cat.id, cat.name).length > 0
   ).sort((a, b) => {
     if (a.name.toLowerCase() === "novel") return -1;
@@ -61,7 +74,7 @@ export default function HomeClient({ banners, books, categories }: HomeClientPro
               {/* Books Display */}
               <div className="relative">
                 <div className="flex overflow-x-auto no-scrollbar gap-8 px-6 lg:px-12 snap-x pb-4 scroll-px-6 lg:scroll-px-12">
-                  {catBooks.map(book => (
+                  {catBooks.map((book) => (
                     <div key={book.id} className="w-[300px] md:w-[450px] flex-shrink-0 snap-start">
                       <HorizontalBookCard {...book} />
                     </div>

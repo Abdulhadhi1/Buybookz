@@ -1,7 +1,22 @@
 import prisma from "@/lib/prisma";
 import HomeClient from "@/components/home/HomeClient";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+type HomeBook = {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  image: string | null;
+  categoryId: string | null;
+  category: { name: string } | null;
+};
+
+type HomeCategory = {
+  id: string;
+  name: string;
+};
 
 export default async function Home() {
   // Fetch banners, books, and categories directly on the server for maximum performance
@@ -27,9 +42,9 @@ export default async function Home() {
   ]);
 
   // Handle banners safely as empty array since table doesn't exist
-  const serializedBanners: any[] = [];
-  const serializedBooks = JSON.parse(JSON.stringify(books));
-  const serializedCategories = JSON.parse(JSON.stringify(categories));
+  const serializedBanners: [] = [];
+  const serializedBooks: HomeBook[] = JSON.parse(JSON.stringify(books));
+  const serializedCategories: HomeCategory[] = JSON.parse(JSON.stringify(categories));
 
   return (
     <HomeClient 

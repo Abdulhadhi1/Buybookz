@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "BuyBookz | Premium Online Bookstore",
+  title: "BuyBookz",
   description: "Browse, discover, and purchase your favorite books with a premium reading experience.",
 };
 

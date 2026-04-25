@@ -3,7 +3,7 @@ import ShopClient from "@/components/shop/ShopClient";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function ShopPage() {
     // Fetch initial data on the server for the fastest response

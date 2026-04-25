@@ -4,8 +4,8 @@ import { MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const WhatsAppButton = () => {
-  const phoneNumber = "919677201727"; // Admin WhatsApp
-  const message = "Hello BuyBookz! 👋\n\nI have a query regarding the bookstore.";
+  const phoneNumber = "919677201727";
+  const message = "Hello BuyBookz! I have a query regarding the bookstore.";
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
   return (
@@ -17,10 +17,11 @@ const WhatsAppButton = () => {
       animate={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.1, rotate: -5 }}
       whileTap={{ scale: 0.9 }}
-      className="fixed bottom-28 md:bottom-8 right-6 z-[100] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:bg-[#128C7E] transition-colors flex items-center justify-center border-4 border-white/20 backdrop-blur-sm"
+      className="fixed bottom-32 sm:bottom-36 md:bottom-8 right-4 sm:right-6 z-[110] bg-[#25D366] text-white p-3 sm:p-4 rounded-full shadow-2xl hover:bg-[#128C7E] transition-colors flex items-center justify-center border-4 border-white/20 backdrop-blur-sm"
       title="Chat on WhatsApp"
     >
-      <MessageCircle size={28} fill="currentColor" />
+      <MessageCircle size={24} className="sm:hidden" fill="currentColor" />
+      <MessageCircle size={28} className="hidden sm:block" fill="currentColor" />
       <span className="absolute -top-1 -right-1 flex h-4 w-4">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
         <span className="relative inline-flex rounded-full h-4 w-4 bg-white/50"></span>

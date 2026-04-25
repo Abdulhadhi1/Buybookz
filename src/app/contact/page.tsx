@@ -41,7 +41,7 @@ export default function ContactPage() {
                         </div>
                         <div>
                             <h4 className="text-sm font-black uppercase tracking-widest mb-1">Email Us</h4>
-                            <p className="text-lg text-muted-foreground italic">hello@buybookz.com</p>
+                            <p className="text-lg text-muted-foreground italic">bybookzbookz@gmail.com</p>
                         </div>
                     </div>
                     <div className="flex items-start space-x-6">
@@ -50,7 +50,7 @@ export default function ContactPage() {
                         </div>
                         <div>
                             <h4 className="text-sm font-black uppercase tracking-widest mb-1">Call Our Desk</h4>
-                            <p className="text-lg text-muted-foreground italic">+91 98765 43210</p>
+                            <p className="text-lg text-muted-foreground italic">+91 96772 01727</p>
                         </div>
                     </div>
                     <div className="flex items-start space-x-6">
