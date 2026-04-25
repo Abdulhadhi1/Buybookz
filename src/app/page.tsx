@@ -19,9 +19,10 @@ type HomeCategory = {
 };
 
 export default async function Home() {
-  // Fetch banners, books, and categories directly on the server for maximum performance
-  // Fetch books and categories directly on the server
-  const [books, categories] = await Promise.all([
+  const [banners, books, categories] = await Promise.all([
+    prisma.banner.findMany({
+      orderBy: { createdAt: "desc" },
+    }),
     prisma.book.findMany({
       select: {
         id: true,
@@ -41,8 +42,7 @@ export default async function Home() {
     }),
   ]);
 
-  // Handle banners safely as empty array since table doesn't exist
-  const serializedBanners: [] = [];
+  const serializedBanners = JSON.parse(JSON.stringify(banners));
   const serializedBooks: HomeBook[] = JSON.parse(JSON.stringify(books));
   const serializedCategories: HomeCategory[] = JSON.parse(JSON.stringify(categories));
 

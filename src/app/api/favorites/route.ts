@@ -21,6 +21,7 @@ export async function GET() {
 
     return NextResponse.json(favorites.map(f => f.book));
   } catch (error) {
+    console.error("GET Favorites Error:", error);
     return NextResponse.json({ error: "Failed to fetch favorites" }, { status: 500 });
   }
 }
@@ -58,6 +59,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Added to favorites", isFavorite: true });
     }
   } catch (error) {
+    console.error("TOGGLE Favorite Error:", error);
     return NextResponse.json({ error: "Failed to toggle favorite" }, { status: 500 });
   }
 }

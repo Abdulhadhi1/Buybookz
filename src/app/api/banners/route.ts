@@ -9,6 +9,7 @@ export async function GET() {
     });
     return NextResponse.json(banners);
   } catch (error) {
+    console.error("GET Banners Error:", error);
     return NextResponse.json({ error: "Failed to fetch banners" }, { status: 500 });
   }
 }
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(banner);
   } catch (error) {
+    console.error("POST Banners Error:", error);
     return NextResponse.json({ error: "Failed to create banner" }, { status: 500 });
   }
 }

@@ -77,11 +77,11 @@ export default function AdminDashboard() {
         bRes.json(), cRes.json(), sRes.json(), uRes.json(), banRes.json()
       ]);
 
-      setBooks(bData);
-      setCategories(cData);
+      setBooks(Array.isArray(bData) ? bData : []);
+      setCategories(Array.isArray(cData) ? cData : []);
       setStats(sData);
-      setUsers(uData);
-      setBanners(banData);
+      setUsers(Array.isArray(uData) ? uData : []);
+      setBanners(Array.isArray(banData) ? banData : []);
     } catch (err) {
       console.error(err);
     } finally {
