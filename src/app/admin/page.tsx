@@ -23,7 +23,9 @@ import {
   TrendingUp,
   ChevronRight,
   Home,
-  LogOut
+  LogOut,
+  CheckCircle2,
+  AlertCircle
 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import PriceDisplay from "@/components/ui/PriceDisplay";
