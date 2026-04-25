@@ -21,7 +21,7 @@ export async function GET() {
             })
         ]);
 
-        const totalRevenue = paidOrders.reduce((acc, order) => acc + order.totalAmount, 0);
+        const totalRevenue = paidOrders.reduce((acc: number, order: any) => acc + order.totalAmount, 0);
 
         return NextResponse.json({
             totalBooks,
