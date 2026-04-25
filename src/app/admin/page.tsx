@@ -28,7 +28,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import PriceDisplay from "@/components/ui/PriceDisplay";
 
-type Tab = "Overview" | "Inventory" | "Categories" | "Users" | "Revenue" | "Settings";
+type Tab = "Overview" | "Inventory" | "Categories" | "Banners" | "Users" | "Revenue" | "Settings";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
@@ -42,6 +42,8 @@ export default function AdminDashboard() {
   // Modals
   const [showAddBook, setShowAddBook] = useState(false);
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const [showAddBanner, setShowAddBanner] = useState(false);
+  const [banners, setBanners] = useState<any[]>([]);
   
   // Forms
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,17 +51,19 @@ export default function AdminDashboard() {
     id: "", title: "", author: "", price: "", stock: "", categoryId: "", description: "", image: "", languages: ["English"]
   });
   const [catForm, setCatForm] = useState({ name: "", id: "" }); // id for editing
+  const [bannerForm, setBannerForm] = useState({ image: "", title: "", link: "" });
   
   const router = useRouter();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [bRes, cRes, sRes, uRes] = await Promise.all([
+      const [bRes, cRes, sRes, uRes, banRes] = await Promise.all([
         fetch("/api/books"),
         fetch("/api/categories"),
         fetch("/api/admin/stats"),
-        fetch("/api/admin/users")
+        fetch("/api/admin/users"),
+        fetch("/api/banners")
       ]);
 
       if (bRes.status === 401) {
@@ -67,14 +71,15 @@ export default function AdminDashboard() {
         return;
       }
 
-      const [bData, cData, sData, uData] = await Promise.all([
-        bRes.json(), cRes.json(), sRes.json(), uRes.json()
+      const [bData, cData, sData, uData, banData] = await Promise.all([
+        bRes.json(), cRes.json(), sRes.json(), uRes.json(), banRes.json()
       ]);
 
       setBooks(bData);
       setCategories(cData);
       setStats(sData);
       setUsers(uData);
+      setBanners(banData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -177,6 +182,58 @@ export default function AdminDashboard() {
     }
   };
 
+  // --- Banner Actions ---
+  const handleBannerSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+        const res = await fetch("/api/banners", {
+            method: "POST",
+            body: JSON.stringify(bannerForm),
+            headers: { "Content-Type": "application/json" }
+        });
+        if (res.ok) {
+            setShowAddBanner(false);
+            setBannerForm({ image: "", title: "", link: "" });
+            fetchData();
+        }
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
+  const deleteBanner = async (id: string) => {
+    if (!confirm("Remove this banner from the stage?")) return;
+    try {
+        const res = await fetch(`/api/banners/${id}`, { method: "DELETE" });
+        if (res.ok) fetchData();
+    } catch (err) { console.error(err); }
+  };
+
+  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        setIsSubmitting(true);
+        const res = await fetch("/api/upload", {
+            method: "POST",
+            body: formData
+        });
+        const data = await res.json();
+        if (data.url) {
+            setBannerForm({ ...bannerForm, image: data.url });
+        }
+    } catch (err) {
+        console.error("Upload error", err);
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   const toggleLanguage = (lang: string) => {
     const current = bookForm.languages;
     if (current.includes(lang)) {
@@ -190,6 +247,7 @@ export default function AdminDashboard() {
     { id: "Overview", icon: <LayoutDashboard size={20} />, label: "Overview" },
     { id: "Inventory", icon: <BookOpen size={20} />, label: "Books" },
     { id: "Categories", icon: <Tag size={20} />, label: "Categories" },
+    { id: "Banners", icon: <Upload size={20} />, label: "Banners" },
     { id: "Users", icon: <Users size={20} />, label: "Users" },
     { id: "Revenue", icon: <TrendingUp size={20} />, label: "Revenue" },
     { id: "Settings", icon: <Settings size={20} />, label: "Settings" },
@@ -686,6 +744,68 @@ export default function AdminDashboard() {
                   </motion.div>
               </div>
           )}
+      </AnimatePresence>
+
+      {/* Add Banner Modal */}
+      <AnimatePresence>
+        {showAddBanner && (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddBanner(false)} className="absolute inset-0 bg-primary/40 backdrop-blur-md" />
+                <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="relative bg-[#FDFDFD] w-full max-w-2xl rounded-[4rem] shadow-2xl flex flex-col overflow-hidden">
+                    <div className="p-10 border-b border-border flex justify-between items-center bg-secondary/10">
+                        <div className="flex items-center space-x-5">
+                            <div className="w-12 h-12 bg-accent text-white rounded-2xl flex items-center justify-center shadow-lg">
+                                <Upload size={24} />
+                            </div>
+                            <h2 className="text-3xl font-serif font-bold text-primary">Add New Banner</h2>
+                        </div>
+                        <button onClick={() => setShowAddBanner(false)} className="p-3 hover:bg-white rounded-full transition-colors"><X size={24} /></button>
+                    </div>
+
+                    <form onSubmit={handleBannerSubmit} className="p-10 space-y-8">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-4">Banner Visual</label>
+                            <div className="group relative w-full aspect-[21/9] bg-secondary border-2 border-dashed border-border rounded-[2.5rem] flex items-center justify-center overflow-hidden hover:border-accent transition-all">
+                                {bannerForm.image ? (
+                                    <div className="relative w-full h-full">
+                                        <img src={bannerForm.image} className="w-full h-full object-cover" />
+                                        <button onClick={() => setBannerForm({...bannerForm, image: ""})} className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full shadow-lg"><X size={16} /></button>
+                                    </div>
+                                ) : (
+                                    <label className="flex flex-col items-center space-y-4 cursor-pointer">
+                                        <Upload className={isSubmitting ? "animate-bounce text-accent" : "text-primary/20"} size={48} />
+                                        <div className="text-center">
+                                            <p className="font-bold text-sm">Upload Hero Visual</p>
+                                            <p className="text-[10px] opacity-40 font-black uppercase tracking-widest mt-1">Click to browse media</p>
+                                        </div>
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleBannerImageUpload} />
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-4">Banner Heading (Optional)</label>
+                            <input placeholder="e.g. Summer Anthology Collection" className="w-full px-8 py-5 bg-white border border-border rounded-[2rem] outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent font-bold transition-all" value={bannerForm.title} onChange={(e) => setBannerForm({...bannerForm, title: e.target.value})} />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-4">Call to Action Link (Optional)</label>
+                            <input placeholder="e.g. /shop or https://..." className="w-full px-8 py-5 bg-white border border-border rounded-[2rem] outline-none focus:ring-4 focus:ring-accent/5 focus:border-accent font-bold transition-all font-mono text-xs" value={bannerForm.link} onChange={(e) => setBannerForm({...bannerForm, link: e.target.value})} />
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting || !bannerForm.image}
+                            className="w-full py-6 bg-accent text-white rounded-full font-bold shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale flex items-center justify-center space-x-3"
+                        >
+                            {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : <CheckCircle2 size={24} />}
+                            <span className="uppercase tracking-widest text-xs font-black">Publish to Frontstage</span>
+                        </button>
+                    </form>
+                </motion.div>
+            </div>
+        )}
       </AnimatePresence>
     </div>
   );
