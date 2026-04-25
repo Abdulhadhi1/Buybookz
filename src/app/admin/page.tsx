@@ -615,6 +615,42 @@ export default function AdminDashboard() {
                 </div>
             </motion.div>
         )}
+        {/* Tab: Banners */}
+        {activeTab === "Banners" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+                 <div className="flex justify-between items-center">
+                    <h2 className="text-4xl font-serif font-bold text-primary">Promotional Banners</h2>
+                    <button onClick={() => setShowAddBanner(true)} className="flex items-center space-x-3 px-8 py-5 bg-accent text-white rounded-full font-bold shadow-2xl hover:scale-105 transition-all">
+                        <Plus size={18} /><span>Add Banner</span>
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {banners.map(banner => (
+                        <div key={banner.id} className="bg-white rounded-[3.5rem] border border-border shadow-sm overflow-hidden group relative transition-all hover:border-accent">
+                             <div className="aspect-[21/9] relative overflow-hidden">
+                                 <img src={banner.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-8 text-white">
+                                     <h3 className="text-2xl font-serif font-bold">{banner.title || "Untitled Banner"}</h3>
+                                     {banner.link && <p className="text-xs opacity-70 mt-1 truncate">Link: {banner.link}</p>}
+                                 </div>
+                             </div>
+                             <button 
+                                onClick={() => deleteBanner(banner.id)} 
+                                className="absolute top-6 right-6 p-3 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-red-500 transition-all shadow-xl"
+                             >
+                                <Trash2 size={18} />
+                             </button>
+                        </div>
+                    ))}
+                    {banners.length === 0 && (
+                        <div className="col-span-2 py-24 text-center border-2 border-dashed border-border rounded-[4rem]">
+                            <p className="text-muted-foreground italic">No promotional banners active.</p>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        )}
       </main>
 
       {/* Add Book Modal */}
