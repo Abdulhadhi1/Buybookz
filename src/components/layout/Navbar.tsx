@@ -75,7 +75,6 @@ const Navbar = () => {
           <div className="flex items-baseline font-serif tracking-tighter transition-all duration-500 group-hover:scale-110">
             <span className="text-4xl lg:text-5xl font-black text-primary drop-shadow-sm select-none">Buy</span>
             <span className="text-4xl lg:text-5xl font-extralight italic text-accent ml-1 transition-all duration-500 group-hover:ml-2">Bookz</span>
-            <span className="text-5xl lg:text-6xl font-black text-accent ml-0.5">.</span>
           </div>
         </Link>
 
@@ -197,7 +196,6 @@ const Navbar = () => {
                     <div className="flex items-baseline font-serif tracking-tight">
                         <span className="text-3xl font-black text-primary">Buy</span>
                         <span className="text-3xl font-light italic text-accent -ml-0.5">Bookz</span>
-                        <span className="text-4xl font-black text-accent ml-0.5">.</span>
                     </div>
                     <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-secondary rounded-full transition-colors"><X size={20} /></button>
                 </div>

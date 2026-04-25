@@ -12,7 +12,6 @@ const Footer = () => {
             <div className="flex items-baseline font-serif tracking-tight transition-all duration-500 group-hover:scale-105">
               <span className="text-4xl font-black text-primary transition-colors duration-500 group-hover:text-accent">Buy</span>
               <span className="text-4xl font-light italic text-accent -ml-0.5 transition-all duration-500 group-hover:ml-1">Bookz</span>
-              <span className="text-5xl font-black text-accent ml-0.5">.</span>
             </div>
           </Link>
           <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
@@ -54,11 +53,11 @@ const Footer = () => {
           <ul className="space-y-4 text-sm">
             <li className="flex items-center space-x-3">
               <Mail size={18} className="text-accent" />
-              <span>support@buybookz.com</span>
+              <span>bybookzbookz@gmail.com</span>
             </li>
             <li className="flex items-center space-x-3">
               <Phone size={18} className="text-accent" />
-              <span>+91 98765 43210</span>
+              <span>+91 96772 01727</span>
             </li>
             <li className="flex items-center space-x-3">
               <MapPin size={18} className="text-accent" />
