@@ -180,6 +180,13 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-8">
               <AnimatePresence mode="popLayout">
                 {items.map((item) => (
+                  (() => {
+                    const categoryLabel =
+                      typeof item.book.category === "object"
+                        ? item.book.category?.name
+                        : item.book.category;
+
+                    return (
                   <motion.div
                     key={item.id}
                     layout
@@ -198,7 +205,7 @@ export default function CartPage() {
 
                     <div className="flex-grow space-y-4 text-center sm:text-left">
                         <div className="space-y-1">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-accent opacity-60">{item.book.category?.name || item.book.category}</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-accent opacity-60">{categoryLabel}</span>
                             <h3 className="text-2xl font-serif font-bold text-primary group-hover:text-accent transition-colors">
                               {item.book.title}
                             </h3>
@@ -240,6 +247,8 @@ export default function CartPage() {
                       </button>
                     </div>
                   </motion.div>
+                    );
+                  })()
                 ))}
               </AnimatePresence>
             </div>
