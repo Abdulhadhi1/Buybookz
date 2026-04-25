@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Star, Loader2, Minus, Plus, ShoppingCart, Heart } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface BookDetailClientProps {
   book: {
@@ -27,32 +29,16 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   const [selectedLanguage, setSelectedLanguage] = useState(book.languages?.[0] || "");
   const [adding, setAdding] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
   const { addToCart } = useCart();
-
-  useEffect(() => {
-    const checkFavorite = async () => {
-      try {
-        const favRes = await fetch("/api/favorites");
-        if (!favRes.ok) {
-          return;
-        }
-
-        const favorites = await favRes.json();
-        setIsFavorite(favorites.some((favorite: { id: string }) => favorite.id === book.id));
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    checkFavorite();
-  }, [book.id]);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { showToast } = useToast();
 
   const handleAddToCart = async () => {
     setAdding(true);
     try {
       await addToCart(book, quantity, selectedLanguage);
+      router.prefetch("/cart");
       router.push("/cart");
     } catch (err) {
       console.error(err);
@@ -62,25 +48,19 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   };
 
   const handleToggleFavorite = async () => {
-    try {
-      const res = await fetch("/api/favorites", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bookId: book.id }),
-      });
+    const result = await toggleFavorite(book.id);
 
-      if (res.status === 401) {
-        router.push(`/login?callbackUrl=/book/${book.id}`);
-        return;
-      }
-
-      if (res.ok) {
-        const data = await res.json();
-        setIsFavorite(data.isFavorite);
-      }
-    } catch (err) {
-      console.error(err);
+    if (result.requiresLogin) {
+      showToast(result.message, "warning");
+      return;
     }
+
+    if (!result.ok) {
+      showToast(result.message, "warning");
+      return;
+    }
+
+    showToast(result.message, "success");
   };
 
   const originalPrice = book.price * 1.2;
@@ -210,13 +190,13 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
                 <button
                   onClick={handleToggleFavorite}
                   className={`p-5 rounded-xl border-2 transition-all ${
-                    isFavorite
+                    isFavorite(book.id)
                       ? "bg-red-50 border-red-100 text-red-500"
                       : "border-border hover:border-red-200 hover:bg-red-50 hover:text-red-500 text-foreground/20"
                   }`}
                   aria-label="Toggle favorite"
                 >
-                  <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+                  <Heart size={20} fill={isFavorite(book.id) ? "currentColor" : "none"} />
                 </button>
               </div>
             </div>

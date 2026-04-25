@@ -1,33 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Plus, Minus, ArrowRight, ShoppingBag, Loader2 } from "lucide-react";
+import { Trash2, Plus, Minus, ArrowRight, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import PriceDisplay from "@/components/ui/PriceDisplay";
 
+interface CartBook {
+  id: string;
+  title: string;
+  author: string;
+  price: number;
+  image?: string | null;
+  category?: { name?: string | null } | string | null;
+}
+
+interface CartItem {
+  id: string;
+  quantity: number;
+  language?: string | null;
+  book: CartBook;
+}
+
 export default function CartPage() {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { refreshCartCount } = useCart();
   const router = useRouter();
 
-  const getGuestCart = () => {
+  const getGuestCart = useCallback((): CartItem[] => {
     if (typeof window === 'undefined') return [];
     const cart = localStorage.getItem('guestCart');
     return cart ? JSON.parse(cart) : [];
-  };
+  }, []);
 
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       const res = await fetch("/api/cart");
-      let allItems = [];
+      let allItems: CartItem[] = [];
       
       if (res.ok) {
         setIsLoggedIn(true);
@@ -44,11 +60,11 @@ export default function CartPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getGuestCart]);
 
   useEffect(() => {
     fetchCart();
-  }, []);
+  }, [fetchCart]);
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
@@ -68,7 +84,7 @@ export default function CartPage() {
        }
     } else {
        const guestCart = getGuestCart();
-       const index = guestCart.findIndex((i: any) => i.id === itemId);
+       const index = guestCart.findIndex((item) => item.id === itemId);
        if (index > -1) {
          guestCart[index].quantity = newQuantity;
          localStorage.setItem('guestCart', JSON.stringify(guestCart));
@@ -93,7 +109,7 @@ export default function CartPage() {
        }
     } else {
        const guestCart = getGuestCart();
-       const newCart = guestCart.filter((i: any) => i.id !== itemId);
+       const newCart = guestCart.filter((item) => item.id !== itemId);
        localStorage.setItem('guestCart', JSON.stringify(newCart));
        setItems(newCart);
        await refreshCartCount();
@@ -110,14 +126,6 @@ export default function CartPage() {
 
   const subtotal = items.reduce((acc, item) => acc + item.book.price * item.quantity, 0);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="animate-spin text-accent" size={48} />
-      </div>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-background">
       <Navbar />
@@ -128,12 +136,32 @@ export default function CartPage() {
                 <span className="text-xs font-black uppercase tracking-[0.3em] text-accent">Your Selection</span>
                 <h1 className="text-5xl md:text-7xl font-serif font-bold text-primary tracking-tight">Shopping Bag</h1>
             </div>
-            {items.length > 0 && (
+            {!loading && items.length > 0 && (
                 <p className="text-sm text-muted-foreground italic">You have {items.length} unique treasures in your bag.</p>
             )}
         </div>
 
-        {items.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start">
+            <div className="lg:col-span-2 space-y-8">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <div key={index} className="flex flex-col sm:flex-row items-center p-6 md:p-8 bg-white border border-border rounded-[3rem] gap-8 animate-pulse">
+                  <div className="w-32 h-44 rounded-2xl bg-secondary/70" />
+                  <div className="flex-grow space-y-4 w-full">
+                    <div className="h-3 w-24 rounded-full bg-secondary/70" />
+                    <div className="h-8 w-3/4 rounded-full bg-secondary/70" />
+                    <div className="h-4 w-1/2 rounded-full bg-secondary/70" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="bg-primary text-primary-foreground p-10 rounded-[3.5rem] space-y-6 animate-pulse">
+              <div className="h-4 w-32 rounded-full bg-white/10" />
+              <div className="h-10 w-40 rounded-full bg-white/10" />
+              <div className="h-14 w-full rounded-full bg-white/10" />
+            </div>
+          </div>
+        ) : items.length === 0 ? (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-40 bg-secondary/30 rounded-[4rem] border border-dashed border-border space-y-8">
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-sm">
                 <ShoppingBag className="text-accent/30" size={40} />

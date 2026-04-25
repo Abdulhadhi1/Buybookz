@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import { CartProvider } from "@/context/CartContext";
+import { FavoritesProvider } from "@/context/FavoritesContext";
 
 import MobileNav from "@/components/layout/MobileNav";
 
@@ -34,9 +36,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
-        <CartProvider>
-            {children}
-        </CartProvider>
+        <ToastProvider>
+          <CartProvider>
+            <FavoritesProvider>{children}</FavoritesProvider>
+          </CartProvider>
+        </ToastProvider>
         <WhatsAppButton />
         <MobileNav />
       </body>

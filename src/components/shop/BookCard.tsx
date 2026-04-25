@@ -3,17 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, Loader2, Plus, ShoppingBag } from "lucide-react";
+import { Star, Loader2, Plus, Heart } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
+import { useFavorites } from "@/context/FavoritesContext";
+import { useToast } from "@/components/ui/ToastProvider";
 
 interface BookCardProps {
   id: string;
   title: string;
   author: string;
   price: number;
-  image?: string;
+  image?: string | null;
   category?: { name?: string | null } | string | null;
   stock?: number;
 }
@@ -22,6 +24,8 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
   const [adding, setAdding] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { showToast } = useToast();
 
   const categoryName = typeof category === "object" ? category?.name : category;
   const hasDiscount = title.length % 2 === 0;
@@ -42,12 +46,32 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
         router.push("/login");
       } else if (res.ok) {
         await refreshCartCount();
+        router.prefetch("/cart");
       }
     } catch (err) {
       console.error(err);
     } finally {
       setAdding(false);
     }
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const result = await toggleFavorite(id);
+
+    if (result.requiresLogin) {
+      showToast(result.message, "warning");
+      return;
+    }
+
+    if (!result.ok) {
+      showToast(result.message, "warning");
+      return;
+    }
+
+    showToast(result.message, "success");
   };
 
   return (
@@ -59,6 +83,17 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
     >
       <Link href={`/book/${id}`} prefetch className="flex-grow flex flex-col space-y-5">
         <div className="relative aspect-[3/4] w-full bg-secondary rounded-xl overflow-hidden flex items-center justify-center p-6">
+          <button
+            onClick={handleToggleFavorite}
+            className={`absolute right-3 top-3 z-10 p-2 rounded-full border shadow-md transition-all ${
+              isFavorite(id)
+                ? "bg-red-50 border-red-100 text-red-500"
+                : "bg-white/90 border-white text-foreground/30 hover:text-red-500"
+            }`}
+            aria-label="Toggle favorite"
+          >
+            <Heart size={15} fill={isFavorite(id) ? "currentColor" : "none"} />
+          </button>
           {stock === 0 ? (
             <div className="absolute top-4 left-4 z-10 bg-primary/90 backdrop-blur-md text-white px-3 py-1 text-[8px] uppercase font-black tracking-widest rounded-full">
               Out of Archive
@@ -83,7 +118,7 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
             <button
               onClick={handleAddToCart}
               disabled={adding || stock === 0}
-              className="pointer-events-auto h-12 w-12 bg-white text-primary rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-accent hover:text-white"
+              className="pointer-events-auto absolute bottom-3 right-3 h-11 w-11 bg-white text-primary rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-accent hover:text-white"
             >
               {adding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={24} />}
             </button>
@@ -114,7 +149,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
                 <span className="text-[10px] text-foreground/20 line-through">{`Rs. ${originalPrice.toFixed(2)}`}</span>
               )}
             </div>
-            <ShoppingBag size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-accent" />
           </div>
         </div>
       </Link>
