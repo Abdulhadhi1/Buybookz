@@ -103,7 +103,7 @@ export default function ProfileClient() {
         phone: data.phone || ""
       });
     } catch (err) {
-      showToast("Failed to load profile", "error");
+      showToast("Failed to load profile", "warning");
     } finally {
       setLoading(false);
     }
@@ -121,10 +121,10 @@ export default function ProfileClient() {
         showToast("Profile updated successfully", "success");
         fetchProfile();
       } else {
-        showToast("Update failed", "error");
+        showToast("Update failed", "warning");
       }
     } catch (err) {
-      showToast("An error occurred", "error");
+      showToast("An error occurred", "warning");
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +145,7 @@ export default function ProfileClient() {
         fetchProfile();
       }
     } catch (err) {
-      showToast("Failed to add address", "error");
+      showToast("Failed to add address", "warning");
     } finally {
       setIsSubmitting(false);
     }
@@ -160,7 +160,7 @@ export default function ProfileClient() {
         fetchProfile();
       }
     } catch (err) {
-      showToast("Failed to delete address", "error");
+      showToast("Failed to delete address", "warning");
     }
   };
 
@@ -175,7 +175,7 @@ export default function ProfileClient() {
         fetchProfile();
       }
     } catch (err) {
-      showToast("Update failed", "error");
+      showToast("Update failed", "warning");
     }
   };
 
