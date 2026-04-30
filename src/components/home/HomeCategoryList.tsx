@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-interface Book {
-  image?: string | null;
-}
-
 interface Category {
   id: string;
   name: string;
-  books?: Book[];
+  image?: string | null;
 }
 
 interface HomeCategoryListProps {
