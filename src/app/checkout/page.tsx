@@ -118,7 +118,7 @@ export default function CheckoutPage() {
             }),
           });
           if (verifyRes.ok) {
-            router.push(`/orders`);
+            router.push(`/checkout/success?orderId=${orderData.orderId}`);
           } else {
             alert("Payment verification failed");
           }
