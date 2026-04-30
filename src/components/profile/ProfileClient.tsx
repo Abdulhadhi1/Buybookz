@@ -210,9 +210,12 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
   };
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-    router.refresh();
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   const menuItems = [
@@ -282,7 +285,7 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
                   exit={{ opacity: 0, y: -10 }}
                   className="space-y-6 sm:space-y-8"
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] sm:rounded-[3rem] shadow-sm border border-border/50">
                       <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Total Orders</p>
                       <div className="flex items-center justify-between">
@@ -295,13 +298,6 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
                       <div className="flex items-center justify-between">
                         <span className="text-3xl sm:text-4xl font-serif font-bold">{userData.addresses.length}</span>
                         <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center"><MapPin size={20} className="sm:w-6 sm:h-6" /></div>
-                      </div>
-                    </div>
-                    <div className="bg-white p-6 sm:p-8 rounded-[2.5rem] sm:rounded-[3rem] shadow-sm border border-border/50">
-                      <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Membership</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xl sm:text-2xl font-serif font-bold">Standard</span>
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black text-white rounded-2xl flex items-center justify-center"><ShieldCheck size={20} className="sm:w-6 sm:h-6" /></div>
                       </div>
                     </div>
                   </div>
