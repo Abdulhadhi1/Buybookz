@@ -34,13 +34,17 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">
       <Navbar />
 
-      {/* Hero Spacing - Old Style */}
-      <div className="pt-24 lg:pt-32"></div>
+      {/* Hero Spacing - Reduced gap */}
+      <div className="pt-24 lg:pt-28"></div>
 
-      {/* Circular Categories - Keeping the new style as it relates to "home page books style" */}
+      {/* Circular Categories */}
       <HomeCategoryList categories={categories} />
 
-      <div className="space-y-12 pb-24 relative mt-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-8">
+          <h1 className="text-xl sm:text-2xl font-black text-[#1E293B]">BuyBookz: #1 Online Bookstore</h1>
+      </div>
+
+      <div className="space-y-12 pb-24 relative mt-8">
         {/* New Arrivals / Best Selling Section */}
         {recentBooks.length > 0 && (
           <section className="relative max-w-7xl mx-auto px-6 lg:px-12">
@@ -48,7 +52,6 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
                 <div className="flex items-center space-x-3">
                   <h2 className="text-2xl md:text-3xl font-serif font-black leading-none tracking-tight capitalize">Best Selling</h2>
-                  <span className="px-2 py-0.5 bg-accent/10 text-accent text-[8px] font-black uppercase tracking-widest rounded-full border border-accent/20">Hot</span>
                 </div>
                 <Link 
                   href="/shop?sortBy=latest"
