@@ -31,6 +31,7 @@ export default function HomeCategoryList({ categories }: HomeCategoryListProps) 
               >
                 <Link 
                   href={`/shop?category=${encodeURIComponent(cat.name)}`}
+                  prefetch={true}
                   className="flex flex-col items-center group w-16 sm:w-24"
                 >
                   <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 border-[#F1F5F9] p-0.5 group-hover:border-red-500 transition-all duration-300 shadow-sm overflow-hidden">

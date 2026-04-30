@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import ShopClient from "@/components/shop/ShopClient";
-import { Suspense } from "react";
-import { Loader2 } from "lucide-react";
+import ShopSkeleton from "@/components/shop/ShopSkeleton";
 
 // Optimized caching to make page transitions instant
 export const revalidate = 60; 
@@ -54,11 +53,7 @@ export default async function ShopPage({
     const serializedCategories = JSON.parse(JSON.stringify(categories));
 
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
-                <Loader2 className="animate-spin text-red-500" size={48} />
-            </div>
-        }>
+        <Suspense fallback={<ShopSkeleton />}>
             <ShopClient 
                 initialBooks={serializedBooks} 
                 initialCategories={serializedCategories} 
