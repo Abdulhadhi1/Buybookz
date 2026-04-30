@@ -3,25 +3,24 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { ShoppingCart, Search, User, Menu, X, MessageCircle, ChevronDown } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 
 const desktopMenuItems = [
-  { label: "New Releases", href: "/shop?sortBy=latest" },
-  { label: "Special Offers", href: "/shop?discount=true" },
-  { label: "POD", href: "/shop" },
-  { label: "Out of Stock", href: "/shop?stock=false" },
+  { label: "Shop", href: "/shop" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const mobileMenuItems = [
-  { label: "New Releases", href: "/shop?sortBy=latest" },
-  { label: "Special Offers", href: "/shop?discount=true" },
-  { label: "POD", href: "/shop" },
-  { label: "Out of Stock", href: "/shop?stock=false" },
-  { label: "My Account", href: "/profile" },
+  { label: "Shop", href: "/shop" },
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Terms", href: "/terms-and-conditions" },
+  { label: "Privacy", href: "/privacy-policy" },
 ];
 
 interface SearchSuggestion {
@@ -39,20 +38,6 @@ const Navbar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // Check if logged in (simple cookie check simulation)
-    const checkAuth = async () => {
-        try {
-            const res = await fetch("/api/profile");
-            setIsLoggedIn(res.ok);
-        } catch (e) {
-            setIsLoggedIn(false);
-        }
-    }
-    checkAuth();
-  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -99,144 +84,135 @@ const Navbar = () => {
     }
 
     const query = searchTerm.trim();
+    router.prefetch(`/shop?query=${encodeURIComponent(query)}`);
     router.push(`/shop?query=${encodeURIComponent(query)}`);
     setShowSuggestions(false);
     closeMenu();
   };
 
+  const warmMenuRoutes = () => {
+    [...desktopMenuItems, ...mobileMenuItems].forEach((item) => router.prefetch(item.href));
+    router.prefetch("/profile");
+    router.prefetch("/cart");
+  };
+
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-[60] transition-all duration-300 px-4 sm:px-6 lg:px-12 py-3 sm:py-4",
-        "bg-white/95 backdrop-blur-md border-b border-border shadow-sm"
+        "fixed top-0 left-0 right-0 z-[60] transition-all duration-500 px-4 sm:px-6 lg:px-12 py-6 sm:py-8",
+        isScrolled ? "bg-white/90 backdrop-blur-xl py-4 sm:py-5 border-b border-border shadow-sm" : "bg-transparent"
       )}
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Top Bar: Logo, Menu, Action Buttons */}
-        <div className="flex items-center justify-between gap-4 mb-3">
-          <Link href="/" prefetch className="flex items-center group select-none">
-            <div className="flex items-center transition-all duration-500 hover:scale-105">
-                <div className="relative w-10 h-10 mr-2">
-                    <Image src="/favicon.ico" alt="Logo" fill className="object-contain" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xl font-black text-[#2D2D2D] leading-none">BOOKS</span>
-                    <span className="text-xl font-black text-red-600 leading-none flex items-center tracking-tight">
-                        <span className="w-2 h-2 rounded-full bg-red-600 mr-1 animate-pulse"></span>
-                        VIKATAN
-                    </span>
-                </div>
-            </div>
-          </Link>
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <Link href="/" prefetch className="flex items-center group select-none">
+          <div className="flex items-baseline font-serif tracking-tighter transition-all duration-500 group-hover:scale-110">
+            <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary drop-shadow-sm select-none">Buy</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl font-extralight italic text-accent ml-1 transition-all duration-500 group-hover:ml-2">Bookz</span>
+          </div>
+        </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center space-x-8">
+        <div className="hidden lg:flex items-center space-x-12">
+          <div className="relative group">
+            <form onSubmit={handleSearch} className="relative flex items-center">
+              <Search size={14} className="absolute left-4 text-primary/40" />
+              <input
+                type="text"
+                placeholder="Search the archives..."
+                className="pl-10 pr-4 py-2 bg-secondary/50 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent focus:border-accent/30 focus:bg-white transition-all w-64"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={() => searchTerm.length > 1 && setShowSuggestions(true)}
+              />
+            </form>
+
+            <AnimatePresence>
+              {showSuggestions && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="absolute top-full left-0 mt-2 w-full bg-white shadow-2xl rounded-2xl overflow-hidden border border-border z-[100]"
+                >
+                  <div className="p-2">
+                    <p className="px-3 py-2 text-[8px] font-black uppercase tracking-widest text-accent/50">Suggestions</p>
+                    {suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.id}
+                        onMouseEnter={() => router.prefetch(`/book/${suggestion.id}`)}
+                        onClick={() => {
+                          setSearchTerm("");
+                          setShowSuggestions(false);
+                          router.push(`/book/${suggestion.id}`);
+                        }}
+                        className="w-full text-left px-3 py-2 hover:bg-secondary rounded-lg transition-colors flex items-center space-x-3"
+                      >
+                        <div className="w-8 h-10 bg-secondary rounded overflow-hidden flex-shrink-0 relative">
+                          {suggestion.image && <Image src={suggestion.image} alt={suggestion.title} fill className="object-cover" />}
+                        </div>
+                        <div className="overflow-hidden">
+                          <p className="text-[10px] font-bold line-clamp-1">{suggestion.title}</p>
+                          <p className="text-[8px] text-foreground/40 font-medium">by {suggestion.author}</p>
+                        </div>
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => {
+                        router.push(`/shop?query=${encodeURIComponent(searchTerm.trim())}`);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full mt-2 py-2 px-3 border-t border-border text-[9px] font-black uppercase tracking-widest text-accent hover:bg-accent/5 transition-colors text-center"
+                    >
+                      Show All Collections
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <div className="flex items-center space-x-12">
             {desktopMenuItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="text-[13px] font-bold text-[#4D4D4D] hover:text-red-600 transition-colors whitespace-nowrap"
+                prefetch
+                className="group relative text-[10px] font-bold uppercase tracking-[0.3em] text-foreground/60 hover:text-foreground transition-colors"
               >
-                {item.label}
+                <span>{item.label}</span>
+                <span className="absolute -bottom-1 left-0 w-0 h-[1.5px] bg-accent transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
           </div>
-
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {isLoggedIn ? (
-                <Link href="/profile" target="_blank" className="text-[#4D4D4D] hover:text-red-600 transition-all p-2 rounded-full hover:bg-red-50">
-                    <User size={22} />
-                </Link>
-            ) : (
-                <Link 
-                    href="/login" 
-                    className="flex items-center space-x-2 px-6 py-2.5 bg-red-600 text-white rounded-xl font-bold text-sm shadow-lg shadow-red-200 hover:bg-red-700 transition-all active:scale-95"
-                >
-                    <LogOut size={16} className="rotate-180" />
-                    <span>Login</span>
-                </Link>
-            )}
-
-            <Link href="/cart" className="relative p-2 text-[#4D4D4D] hover:text-red-600 transition-all">
-                <ShoppingCart size={22} />
-                {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
-                    {cartCount}
-                  </span>
-                )}
-                <span className="hidden sm:inline-block ml-1 text-sm font-bold">Cart</span>
-            </Link>
-
-            <button
-              className="lg:hidden p-2 text-[#4D4D4D]"
-              onClick={() => setIsOpen((current) => !current)}
-            >
-              <Menu size={24} />
-            </button>
-          </div>
         </div>
 
-        {/* Search Bar Row (Desktop Only) */}
-        <div className="hidden lg:flex items-center justify-center max-w-2xl mx-auto">
-            <div className="relative w-full flex items-center bg-[#F4F6F8] rounded-xl border border-[#E2E8F0] focus-within:border-red-300 focus-within:bg-white transition-all shadow-sm">
-                <div className="flex items-center px-4 border-r border-[#E2E8F0] cursor-pointer group hover:text-red-600 transition-colors">
-                    <span className="text-xs font-bold text-[#4D4D4D] group-hover:text-red-600">Books</span>
-                    <ChevronDown size={14} className="ml-1 opacity-40 group-hover:opacity-100" />
-                </div>
-                <form onSubmit={handleSearch} className="flex-grow flex items-center">
-                    <input
-                        type="text"
-                        placeholder="Books name"
-                        className="w-full px-4 py-2.5 bg-transparent text-sm font-medium outline-none placeholder:text-[#94A3B8]"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                        onFocus={() => searchTerm.length > 1 && setShowSuggestions(true)}
-                    />
-                    <button type="submit" className="px-5 py-2.5 text-[#64748B] hover:text-red-600 transition-all border-l border-border/10">
-                        <Search size={20} />
-                    </button>
-                </form>
+        <div className="flex items-center space-x-3 sm:space-x-6">
+          <Link href="/profile" target="_blank" prefetch className="hidden sm:block text-foreground/60 hover:text-foreground transition-colors">
+            <User size={18} />
+          </Link>
 
-                {/* Suggestions Dropdown */}
-                <AnimatePresence>
-                    {showSuggestions && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 10 }}
-                            className="absolute top-full left-0 right-0 mt-2 bg-white shadow-2xl rounded-2xl overflow-hidden border border-[#E2E8F0] z-[100]"
-                        >
-                            <div className="p-2">
-                                <p className="px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">Suggested Books</p>
-                                {suggestions.map((suggestion) => (
-                                    <button
-                                        key={suggestion.id}
-                                        onClick={() => {
-                                            setSearchTerm("");
-                                            setShowSuggestions(false);
-                                            router.push(`/book/${suggestion.id}`);
-                                        }}
-                                        className="w-full text-left px-4 py-3 hover:bg-[#F8FAFC] rounded-xl transition-colors flex items-center space-x-4"
-                                    >
-                                        <div className="w-10 h-14 bg-[#F1F5F9] rounded-lg overflow-hidden flex-shrink-0 relative shadow-sm">
-                                            {suggestion.image && <Image src={suggestion.image} alt={suggestion.title} fill className="object-cover" />}
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-bold text-[#1E293B] line-clamp-1">{suggestion.title}</p>
-                                            <p className="text-xs text-[#64748B] font-medium mt-0.5">by {suggestion.author}</p>
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
+          <Link href="/cart" prefetch className="relative group p-2 text-foreground/60 hover:text-foreground transition-colors">
+            <ShoppingCart size={18} />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[8px] font-black text-white">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+
+          <button
+            className="lg:hidden p-2 text-foreground"
+            onClick={() => {
+              warmMenuRoutes();
+              setIsOpen((current) => !current);
+            }}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
         </div>
       </div>
 
-      {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (
           <>
@@ -251,40 +227,63 @@ const Navbar = () => {
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[80] p-8 flex flex-col shadow-2xl"
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[80] p-8 sm:p-10 flex flex-col shadow-2xl overflow-y-auto"
             >
               <div className="flex justify-between items-center mb-10">
-                <div className="flex items-center">
-                  <span className="text-2xl font-black text-[#2D2D2D]">Buy</span>
-                  <span className="text-2xl font-black text-red-600">Bookz</span>
+                <div className="flex items-baseline font-serif tracking-tight">
+                  <span className="text-3xl font-black text-primary">Buy</span>
+                  <span className="text-3xl font-light italic text-accent -ml-0.5">Bookz</span>
                 </div>
-                <button onClick={closeMenu} className="p-2 hover:bg-[#F1F5F9] rounded-full">
-                  <X size={24} />
+                <button onClick={closeMenu} className="p-2 hover:bg-secondary rounded-full transition-colors" aria-label="Close menu">
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="flex flex-col space-y-6">
+              <div className="mb-8 rounded-3xl border border-border bg-secondary/20 p-4">
+                <form onSubmit={handleSearch} className="relative flex items-center">
+                  <Search size={14} className="absolute left-4 text-primary/40" />
+                  <input
+                    type="text"
+                    placeholder="Search books..."
+                    className="w-full rounded-full border border-transparent bg-white pl-10 pr-4 py-3 text-[10px] font-bold uppercase tracking-wider outline-none focus:border-accent/30"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </form>
+              </div>
+
+              <div className="flex flex-col space-y-5">
                 {mobileMenuItems.map((item) => (
                   <Link
                     key={item.label}
                     href={item.href}
+                    prefetch
                     onClick={closeMenu}
-                    className="text-lg font-bold text-[#1E293B] hover:text-red-600 transition-colors"
+                    className="text-2xl font-serif font-bold text-primary hover:text-accent transition-colors"
                   >
                     {item.label}
                   </Link>
                 ))}
               </div>
 
-              <div className="mt-auto pt-10 border-t border-[#E2E8F0]">
+              <div className="mt-auto space-y-6 pt-10 border-t border-border">
+                <Link href="/profile" target="_blank" prefetch className="flex items-center space-x-4 text-xs font-black uppercase tracking-widest text-primary">
+                  <User size={16} />
+                  <span>My Account</span>
+                </Link>
                 <a
                   href="https://wa.me/919677201727"
                   target="_blank"
-                  className="flex items-center space-x-3 text-sm font-bold text-[#1E293B]"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-4 text-xs font-black uppercase tracking-widest text-primary"
                 >
-                  <MessageCircle size={18} className="text-green-500" />
+                  <MessageCircle size={16} />
                   <span>WhatsApp Support</span>
                 </a>
+                <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-widest italic leading-relaxed">
+                  (c) 2026 BuyBookz Archives.
+                </p>
               </div>
             </motion.div>
           </>
@@ -293,27 +292,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
-// Internal icon for login button
-function LogOut({ size, className }: { size: number; className?: string }) {
-    return (
-        <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            width={size} 
-            height={size} 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2.5" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className={className}
-        >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" x2="9" y1="12" y2="12" />
-        </svg>
-    )
-}
 
 export default Navbar;
