@@ -565,7 +565,6 @@ export default function AdminDashboard() {
                 </div>
             </motion.div>
         )}
-        )}
       </main>
 
       {/* Add Book Modal */}
