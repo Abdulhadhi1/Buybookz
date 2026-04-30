@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import prisma from "@/lib/prisma";
 import ShopClient from "@/components/shop/ShopClient";
 import ShopSkeleton from "@/components/shop/ShopSkeleton";
