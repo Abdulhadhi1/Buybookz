@@ -49,7 +49,7 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
     } else {
       params.set("category", catName);
     }
-    router.push(`/shop?${params.toString()}`);
+    router.push(`/shop?${params.toString()}`, { scroll: false });
   };
 
   const filteredBooks = initialBooks.filter((book) => {

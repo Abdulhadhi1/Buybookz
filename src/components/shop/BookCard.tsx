@@ -91,13 +91,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
             <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{discount}% off</span>
           </div>
 
-          {/* E-book Badge (As seen in screenshot) */}
-          <div className="mt-4">
-             <div className="inline-flex items-center space-x-2 bg-[#10B981] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">
-                <BookOpen size={12} />
-                <span>E-book only</span>
-             </div>
-          </div>
         </div>
       </Link>
       

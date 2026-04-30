@@ -3,14 +3,14 @@ import ShopClient from "@/components/shop/ShopClient";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 300;
-
+// Optimized caching to make page transitions instant
+export const revalidate = 60; 
 
 export default async function ShopPage() {
     // Fetch initial data on the server for the fastest response
     const [books, categories] = await Promise.all([
         prisma.book.findMany({
+            take: 200, // Limit to 200 books for the initial load to keep payload small and fast
             select: {
                 id: true,
                 title: true,
@@ -32,7 +32,11 @@ export default async function ShopPage() {
     const serializedCategories = JSON.parse(JSON.stringify(categories));
 
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="animate-spin text-accent" size={48} /></div>}>
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <Loader2 className="animate-spin text-accent" size={48} />
+            </div>
+        }>
             <ShopClient initialBooks={serializedBooks} initialCategories={serializedCategories} />
         </Suspense>
     );
