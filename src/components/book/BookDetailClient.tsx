@@ -3,11 +3,10 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Star, Loader2, Minus, Plus, ShoppingCart, Heart } from "lucide-react";
+import { Star, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
-import { useFavorites } from "@/context/FavoritesContext";
 import { useToast } from "@/components/ui/ToastProvider";
 
 interface BookDetailClientProps {
@@ -31,7 +30,6 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const router = useRouter();
   const { addToCart } = useCart();
-  const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
 
   const handleAddToCart = async () => {
@@ -47,22 +45,6 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
     }
   };
 
-  const handleToggleFavorite = async () => {
-    const result = await toggleFavorite(book.id);
-
-    if (result.requiresLogin) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    if (!result.ok) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    showToast(result.message, "success");
-  };
-
   const originalPrice = book.price * 1.2;
 
   return (
@@ -73,17 +55,6 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
           <div className="space-y-6">
             <div className="relative aspect-square w-full bg-[#F4F1EA] flex items-center justify-center p-12 overflow-hidden group rounded-[2rem]">
-              <button
-                onClick={handleToggleFavorite}
-                className={`absolute right-4 top-4 z-10 p-3 rounded-full border shadow-md transition-all ${
-                  isFavorite(book.id)
-                    ? "bg-red-50 border-red-100 text-red-500"
-                    : "bg-white/90 border-white text-foreground/30 hover:text-red-500"
-                }`}
-                aria-label="Toggle favorite"
-              >
-                <Heart size={18} fill={isFavorite(book.id) ? "currentColor" : "none"} />
-              </button>
               {book.image ? (
                 <Image
                   src={book.image}

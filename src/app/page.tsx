@@ -21,11 +21,27 @@ type HomeCategory = {
 };
 
 export default async function Home() {
-  const [banners, books, categories] = await Promise.all([
-    prisma.banner.findMany({
-      orderBy: { createdAt: "desc" },
+  const [categories, recentBooks, uncategorizedBooks] = await Promise.all([
+    prisma.category.findMany({
+      include: {
+        books: {
+          take: 40,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            price: true,
+            image: true,
+            categoryId: true,
+          }
+        }
+      },
+      orderBy: { name: "asc" },
     }),
     prisma.book.findMany({
+      take: 20,
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         title: true,
@@ -34,25 +50,33 @@ export default async function Home() {
         image: true,
         categoryId: true,
         category: { select: { name: true } }
-      },
-      take: 120,
+      }
+    }),
+    prisma.book.findMany({
+      where: { categoryId: null },
+      take: 20,
       orderBy: { createdAt: "desc" },
-    }),
-    prisma.category.findMany({
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        price: true,
+        image: true,
+        categoryId: true,
+        category: { select: { name: true } }
+      }
+    })
   ]);
 
-  const serializedBanners = JSON.parse(JSON.stringify(banners));
-  const serializedBooks: HomeBook[] = JSON.parse(JSON.stringify(books));
-  const serializedCategories: HomeCategory[] = JSON.parse(JSON.stringify(categories));
+  const serializedCategories = JSON.parse(JSON.stringify(categories));
+  const serializedRecentBooks = JSON.parse(JSON.stringify(recentBooks));
+  const serializedUncategorizedBooks = JSON.parse(JSON.stringify(uncategorizedBooks));
 
   return (
     <HomeClient 
-      banners={serializedBanners}
-      books={serializedBooks} 
-      categories={serializedCategories} 
+      categories={serializedCategories}
+      recentBooks={serializedRecentBooks}
+      uncategorizedBooks={serializedUncategorizedBooks}
     />
   );
 }

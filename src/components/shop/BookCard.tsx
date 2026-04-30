@@ -3,11 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, Loader2, Plus, Heart } from "lucide-react";
+import { Star, Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useFavorites } from "@/context/FavoritesContext";
 import { useToast } from "@/components/ui/ToastProvider";
 
 interface BookCardProps {
@@ -24,7 +23,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
   const [adding, setAdding] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
-  const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
 
   const categoryName = typeof category === "object" ? category?.name : category;
@@ -55,25 +53,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
     }
   };
 
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const result = await toggleFavorite(id);
-
-    if (result.requiresLogin) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    if (!result.ok) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    showToast(result.message, "success");
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -83,17 +62,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
     >
       <Link href={`/book/${id}`} prefetch className="flex-grow flex flex-col space-y-5">
         <div className="relative aspect-[3/4] w-full bg-secondary rounded-xl overflow-hidden flex items-center justify-center p-6">
-          <button
-            onClick={handleToggleFavorite}
-            className={`absolute right-3 top-3 z-10 p-2 rounded-full border shadow-md transition-all ${
-              isFavorite(id)
-                ? "bg-red-50 border-red-100 text-red-500"
-                : "bg-white/90 border-white text-foreground/30 hover:text-red-500"
-            }`}
-            aria-label="Toggle favorite"
-          >
-            <Heart size={15} fill={isFavorite(id) ? "currentColor" : "none"} />
-          </button>
           {stock === 0 ? (
             <div className="absolute top-4 left-4 z-10 bg-primary/90 backdrop-blur-md text-white px-3 py-1 text-[8px] uppercase font-black tracking-widest rounded-full">
               Out of Archive

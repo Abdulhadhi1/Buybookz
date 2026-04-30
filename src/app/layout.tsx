@@ -3,6 +3,8 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import { CartProvider } from "@/context/CartContext";
+import MobileNav from "@/components/layout/MobileNav";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,11 +21,6 @@ export const metadata: Metadata = {
   description: "Browse, discover, and purchase your favorite books with a premium reading experience.",
 };
 
-import { CartProvider } from "@/context/CartContext";
-import { FavoritesProvider } from "@/context/FavoritesContext";
-
-import MobileNav from "@/components/layout/MobileNav";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,9 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
         <ToastProvider>
-          <CartProvider>
-            <FavoritesProvider>{children}</FavoritesProvider>
-          </CartProvider>
+          <CartProvider>{children}</CartProvider>
         </ToastProvider>
         <WhatsAppButton />
         <MobileNav />

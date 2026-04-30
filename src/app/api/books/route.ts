@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     }
 
     const { title, author, price, description, image, stock, categoryId, languages } = await req.json();
-    
+
     const book = await prisma.book.create({
       data: {
         title,

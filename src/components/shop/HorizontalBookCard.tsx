@@ -3,8 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Heart } from "lucide-react";
-import { useFavorites } from "@/context/FavoritesContext";
+import { ArrowRight } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 
 interface HorizontalBookCardProps {
@@ -18,26 +17,7 @@ interface HorizontalBookCardProps {
 
 const HorizontalBookCard = ({ id, title, author, price, image, category }: HorizontalBookCardProps) => {
   const categoryName = typeof category === "object" ? category?.name : category;
-  const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
-
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const result = await toggleFavorite(id);
-
-    if (result.requiresLogin) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    if (!result.ok) {
-      showToast(result.message, "warning");
-      return;
-    }
-
-    showToast(result.message, "success");
-  };
 
   return (
     <motion.div
@@ -46,17 +26,6 @@ const HorizontalBookCard = ({ id, title, author, price, image, category }: Horiz
     >
       <Link href={`/book/${id}`} prefetch className="flex space-x-4 md:space-x-6 h-32 md:h-40">
         <div className="relative w-24 md:w-32 h-full bg-secondary rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
-          <button
-            onClick={handleToggleFavorite}
-            className={`absolute right-2 top-2 z-10 p-2 rounded-full border shadow-md transition-all ${
-              isFavorite(id)
-                ? "bg-red-50 border-red-100 text-red-500"
-                : "bg-white/90 border-white text-foreground/30 hover:text-red-500"
-            }`}
-            aria-label="Toggle favorite"
-          >
-            <Heart size={14} fill={isFavorite(id) ? "currentColor" : "none"} />
-          </button>
           {image ? (
             <Image src={image} alt={title} fill className="object-cover transform group-hover:scale-110 transition-transform duration-700" />
           ) : (

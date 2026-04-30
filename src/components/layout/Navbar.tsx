@@ -11,14 +11,12 @@ import { useRouter } from "next/navigation";
 
 const desktopMenuItems = [
   { label: "Shop", href: "/shop" },
-  { label: "Favorites", href: "/favorites" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
 const mobileMenuItems = [
   { label: "Shop", href: "/shop" },
-  { label: "Favorites", href: "/favorites" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "Terms", href: "/terms-and-conditions" },
