@@ -65,9 +65,9 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
     <main className="min-h-screen bg-white text-[#1E293B]">
       <Navbar />
 
-      <div className="pt-24 lg:pt-28 pb-24 max-w-7xl mx-auto px-6 lg:px-12">
+      <div className="pt-24 lg:pt-28 pb-24 max-w-7xl mx-auto px-4 lg:px-12">
         {/* Breadcrumbs */}
-        <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-6 lg:mb-10 overflow-hidden whitespace-nowrap">
+        <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-6 lg:mb-10 overflow-hidden whitespace-nowrap px-2">
             <Link href="/" className="hover:text-primary">Home</Link>
             <ChevronRight size={10} />
             <Link href={`/shop?category=${book.category?.name}`} className="hover:text-primary">{book.category?.name}</Link>
@@ -75,20 +75,20 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
             <span className="text-primary font-bold truncate">{book.title}</span>
         </nav>
 
-        {/* Mobile View: Specific Order */}
+        {/* Layout: Sequential for Mobile, Three-Column for Desktop */}
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 items-start">
           
-          {/* 1. Book Image (Top on Mobile) */}
-          <div className="w-full lg:w-[25%] flex-shrink-0">
+          {/* 1. Book Image - Large as per screenshot */}
+          <div className="w-full lg:w-[30%] flex-shrink-0 px-2 sm:px-0">
             <div className="lg:sticky lg:top-28">
-                <div className="relative aspect-[3/4.5] w-full max-w-[300px] mx-auto lg:max-w-none bg-[#F8FAFC] rounded-2xl overflow-hidden shadow-xl border border-border/10">
+                <div className="relative aspect-[3/3.8] w-full max-w-[400px] mx-auto bg-transparent rounded-2xl overflow-hidden shadow-lg border border-border/5">
                 {book.image ? (
                     <Image
                     src={book.image}
                     alt={book.title}
                     fill
                     priority
-                    className="object-cover"
+                    className="object-contain"
                     />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl font-serif text-[#CBD5E1]">{book.title[0]}</div>
@@ -97,17 +97,16 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
             </div>
           </div>
 
-          {/* 2. Title, Author & Purchase Logic (Middle on Desktop, Sequential on Mobile) */}
-          <div className="flex-grow w-full lg:w-[45%] space-y-6 lg:space-y-10">
+          {/* 2. Details Column */}
+          <div className="flex-grow w-full lg:w-[40%] space-y-6 lg:space-y-10 px-4 sm:px-0">
             <div className="space-y-2 lg:space-y-4">
-              <h1 className="text-xl md:text-2xl lg:text-4xl font-serif font-black text-[#1E293B] leading-tight">{book.title}</h1>
-              <p className="text-base lg:text-lg font-bold text-muted-foreground italic">Author : {book.author}</p>
+              <h1 className="text-xl md:text-2xl lg:text-4xl font-sans font-bold text-[#1E293B] leading-tight">{book.title}</h1>
+              <p className="text-base lg:text-lg font-bold text-muted-foreground">Author : {book.author}</p>
             </div>
 
-            {/* Mobile-Only Purchase Section (Following Title/Author) */}
+            {/* Mobile-Only Purchase Section */}
             <div className="lg:hidden space-y-6">
                 <div className="inline-block p-4 border-2 border-red-500 rounded-2xl bg-white shadow-sm w-full sm:w-auto">
-                    <p className="text-xs font-bold text-muted-foreground mb-1">Print book</p>
                     <div className="flex items-baseline space-x-3">
                         <span className="text-2xl font-black">₹{book.price.toFixed(0)}</span>
                         <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toFixed(0)}</span>
@@ -131,37 +130,37 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
                     <button 
                         onClick={handleAddToCart}
                         disabled={adding || book.stock === 0}
-                        className="w-full py-3.5 border-2 border-red-500 text-red-500 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-red-50 transition-all flex items-center justify-center space-x-2"
+                        className="w-full py-4 border-2 border-red-500 text-red-500 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-red-50"
                     >
                         {adding ? <Loader2 size={16} className="animate-spin" /> : <span>Add to Cart</span>}
                     </button>
                     <button 
                         onClick={handleBuyNow}
                         disabled={adding || book.stock === 0}
-                        className="w-full py-4 bg-red-500 text-white rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-red-100"
+                        className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-lg shadow-red-100"
                     >
                         Buy Now
                     </button>
                 </div>
 
                 <div className="space-y-4 pt-4 border-t border-border">
-                    <TrustItem icon={<Truck size={18} />} text="புத்தகம் 3 - 7 நாட்களில் அனுப்பி வைக்கப்படும்." />
-                    <TrustItem icon={<RotateCcw size={18} />} text="15 Days Replacement Policy" />
+                    <TrustItem icon={<Truck size={20} />} text="புத்தகம் 3 - 7 நாட்களில் அனுப்பி வைக்கப்படும்." />
+                    <TrustItem icon={<RotateCcw size={20} />} text="15 Days Replacement Policy" />
                 </div>
             </div>
 
-            {/* Description (Bottom on Mobile) */}
+            {/* Description */}
             <div className="space-y-4 pt-4 lg:pt-0">
                <div className="flex items-center space-x-2">
                     <span className="px-4 py-1.5 bg-[#4A4A4A] text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Description</span>
                </div>
                <div className="text-[15px] leading-relaxed text-[#4A4A4A] space-y-4">
                     <p className={isDescriptionExpanded ? "" : "line-clamp-4 lg:line-clamp-6"}>
-                        {book.description || "A masterfully crafted narrative that resonates with the deep traditions and cultural richness of its origins. This title represents a significant contribution to its genre, offering readers an immersive journey through its carefully constructed world and compelling character arcs."}
+                        {book.description || "A masterfully crafted narrative that resonates with the deep traditions and cultural richness of its origins."}
                     </p>
                     <button
                         onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                        className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center space-x-1 hover:underline"
+                        className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center space-x-1"
                     >
                         <span>{isDescriptionExpanded ? "Read Less" : "Read More"}</span>
                         <ChevronDown size={12} className={isDescriptionExpanded ? "rotate-180" : ""} />
@@ -182,7 +181,7 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
             </div>
           </div>
 
-          {/* 3. Desktop Sidebar (Hidden on Mobile) */}
+          {/* 3. Desktop Sidebar */}
           <div className="hidden lg:block lg:w-[30%]">
             <div className="sticky top-28 space-y-6">
                 <div className="bg-white rounded-3xl border border-border p-8 shadow-sm space-y-8">
@@ -234,9 +233,9 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
           </div>
         </div>
 
-        {/* Related Books Section */}
+        {/* Related Books */}
         {relatedBooks.length > 0 && (
-            <div className="mt-20 lg:mt-32 space-y-8 lg:space-y-12">
+            <div className="mt-20 lg:mt-32 space-y-8 lg:space-y-12 px-2 lg:px-0">
                 <div className="flex items-center justify-between border-b border-border pb-4">
                     <h2 className="text-xl lg:text-2xl font-serif font-black text-[#1E293B]">Books you may like</h2>
                     <Link href="/shop" className="group flex items-center space-x-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors">
