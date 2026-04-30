@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Loader2, BookOpen } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
@@ -20,8 +20,7 @@ interface BookCardProps {
 
 const BookCard = ({ id, title, author, price, image, category, stock = 10 }: BookCardProps) => {
   const [adding, setAdding] = useState(false);
-  const router = useRouter();
-  const { refreshCartCount } = useCart();
+  const { addToCart } = useCart();
 
   const originalPrice = price * 1.3;
   const discount = 30;
@@ -30,18 +29,8 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
     e.preventDefault();
     e.stopPropagation();
     setAdding(true);
-
     try {
-      const res = await fetch("/api/cart", {
-        method: "POST",
-        body: JSON.stringify({ bookId: id, quantity: 1 }),
-      });
-
-      if (res.status === 401) {
-        router.push("/login");
-      } else if (res.ok) {
-        await refreshCartCount();
-      }
+      await addToCart({ id, title, author, price, image }, 1);
     } catch (err) {
       console.error(err);
     } finally {
@@ -90,7 +79,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
             <span className="text-xs text-[#94A3B8] line-through decoration-red-400">₹{originalPrice.toFixed(0)}</span>
             <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{discount}% off</span>
           </div>
-
         </div>
       </Link>
       

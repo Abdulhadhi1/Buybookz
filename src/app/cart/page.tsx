@@ -31,7 +31,7 @@ export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { refreshCartCount } = useCart();
+  const { refreshCart } = useCart();
   const router = useRouter();
 
   const getGuestCart = useCallback((): CartItem[] => {
@@ -112,7 +112,7 @@ export default function CartPage() {
        const newCart = guestCart.filter((item) => item.id !== itemId);
        localStorage.setItem('guestCart', JSON.stringify(newCart));
        setItems(newCart);
-       await refreshCartCount();
+       await refreshCart();
     }
   };
 
