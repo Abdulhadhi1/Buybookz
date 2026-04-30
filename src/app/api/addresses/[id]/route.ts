@@ -4,13 +4,13 @@ import { getSession } from "@/lib/auth";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
     const body = await req.json();
 
     // Verify ownership
@@ -49,13 +49,13 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
 
     // Verify ownership
     const existingAddress = await prisma.address.findUnique({
