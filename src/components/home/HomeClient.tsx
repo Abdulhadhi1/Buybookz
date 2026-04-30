@@ -34,24 +34,21 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">
       <Navbar />
 
-      {/* Hero Spacing - Reduced gap */}
+      {/* Hero Spacing - Clean */}
       <div className="pt-24 lg:pt-28"></div>
 
-      {/* Circular Categories */}
+      {/* Circular Categories - Scrollable */}
       <HomeCategoryList categories={categories} />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 pt-8">
-          <h1 className="text-xl sm:text-2xl font-black text-[#1E293B]">BuyBookz: #1 Online Bookstore</h1>
-      </div>
-
-      <div className="space-y-12 pb-24 relative mt-8">
-        {/* New Arrivals / Best Selling Section */}
+      <div className="space-y-4 pb-24 relative mt-8">
+        {/* New Arrivals / Best Selling Section - Smooth Horizontal Scroll */}
         {recentBooks.length > 0 && (
-          <section className="relative max-w-7xl mx-auto px-6 lg:px-12">
-            <div className="mb-8">
+          <section className="relative w-full">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-6">
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
                 <div className="flex items-center space-x-3">
-                  <h2 className="text-2xl md:text-3xl font-serif font-black leading-none tracking-tight capitalize">Best Selling</h2>
+                  <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">Best Selling</h2>
+                  <span className="px-2 py-0.5 bg-accent/10 text-accent text-[8px] font-black uppercase tracking-widest rounded-full border border-accent/20">Latest</span>
                 </div>
                 <Link 
                   href="/shop?sortBy=latest"
@@ -63,20 +60,22 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {recentBooks.slice(0, 6).map((book, index) => (
-                    <RankedBookCard key={book.id} {...book} rank={index + 1} />
+            <div className="overflow-x-auto no-scrollbar pb-8 flex space-x-6 px-6 lg:px-12 snap-x scroll-smooth">
+                {recentBooks.map((book, index) => (
+                    <div key={book.id} className="w-[180px] sm:w-[220px] flex-shrink-0 snap-start">
+                        <RankedBookCard {...book} rank={index + 1} />
+                    </div>
                 ))}
             </div>
           </section>
         )}
 
-        {/* Categories Sections */}
+        {/* Categories Sections - Smooth Horizontal Scroll */}
         {displayCategories.map((cat) => (
-          <section key={cat.id} className="relative max-w-7xl mx-auto px-6 lg:px-12">
-            <div className="mb-8">
+          <section key={cat.id} className="relative w-full">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-6">
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
-                <h2 className="text-2xl md:text-3xl font-serif font-black leading-none tracking-tight capitalize">{cat.name} Collections</h2>
+                <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">{cat.name} Collections</h2>
                 <Link 
                   href={`/shop?category=${cat.name}`}
                   className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
@@ -87,20 +86,22 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {cat.books.slice(0, 6).map((book) => (
-                    <RankedBookCard key={book.id} {...book} />
+            <div className="overflow-x-auto no-scrollbar pb-8 flex space-x-6 px-6 lg:px-12 snap-x scroll-smooth">
+                {cat.books.map((book) => (
+                    <div key={book.id} className="w-[180px] sm:w-[220px] flex-shrink-0 snap-start">
+                        <RankedBookCard {...book} />
+                    </div>
                 ))}
             </div>
           </section>
         ))}
 
-        {/* Uncategorized / Best Deal Section */}
+        {/* Uncategorized / Best Deal Section - Smooth Horizontal Scroll */}
         {uncategorizedBooks.length > 0 && (
-          <section className="relative max-w-7xl mx-auto px-6 lg:px-12">
-            <div className="mb-8">
+          <section className="relative w-full">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-6">
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
-                <h2 className="text-2xl md:text-3xl font-serif font-black leading-none tracking-tight capitalize">Best Deal of Month</h2>
+                <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">Best Deal of Month</h2>
                 <Link 
                   href="/shop?discount=true"
                   className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
@@ -111,9 +112,11 @@ export default function HomeClient({ categories, recentBooks, uncategorizedBooks
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {uncategorizedBooks.slice(0, 6).map((book) => (
-                    <RankedBookCard key={book.id} {...book} />
+            <div className="overflow-x-auto no-scrollbar pb-8 flex space-x-6 px-6 lg:px-12 snap-x scroll-smooth">
+                {uncategorizedBooks.map((book) => (
+                    <div key={book.id} className="w-[180px] sm:w-[220px] flex-shrink-0 snap-start">
+                        <RankedBookCard {...book} />
+                    </div>
                 ))}
             </div>
           </section>
