@@ -5,21 +5,23 @@ import HomeClient from "@/components/home/HomeClient";
 export const revalidate = 60; 
 
 export default async function Home() {
-  // 1. Fetch Categories for the circular icons (only need the latest book's image for each)
-  const categories = await prisma.category.findMany({
-    include: {
-      books: {
-        take: 1, // Only need 1 book for the icon image
-        orderBy: { createdAt: "desc" },
-        select: { image: true }
-      }
+  // 1. Fetch Categories for the circular icons (ONLY get the image and name)
+  const categoriesRaw = await prisma.category.findMany({
+    select: {
+        id: true,
+        name: true,
+        books: {
+            take: 1,
+            orderBy: { createdAt: "desc" },
+            select: { image: true }
+        }
     },
     orderBy: { name: "asc" },
   });
 
-  // 2. Fetch Best Selling / Recent Books
+  // 2. Fetch Best Selling / Recent Books (Limit to 8)
   const recentBooks = await prisma.book.findMany({
-    take: 10,
+    take: 8,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -32,31 +34,33 @@ export default async function Home() {
     }
   });
 
-  // 3. Fetch Featured Categories (Limit to top 6 categories on home page to keep it fast)
-  const featuredCategoryIds = categories.slice(0, 6).map(c => c.id);
+  // 3. Fetch Featured Categories (Limit to top 4 categories for home page)
+  const featuredCategoryIds = categoriesRaw.slice(0, 4).map(c => c.id);
   const featuredCategories = await prisma.category.findMany({
     where: { id: { in: featuredCategoryIds } },
-    include: {
-      books: {
-        take: 10, // Only show top 10 books per category on home page
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          author: true,
-          price: true,
-          image: true,
-          categoryId: true,
+    select: {
+        id: true,
+        name: true,
+        books: {
+            take: 8, // Only 8 books per category
+            orderBy: { createdAt: "desc" },
+            select: {
+                id: true,
+                title: true,
+                author: true,
+                price: true,
+                image: true,
+                categoryId: true,
+            }
         }
-      }
     },
     orderBy: { name: "asc" },
   });
 
-  // 4. Fetch Uncategorized / Deals
+  // 4. Fetch Uncategorized / Deals (Limit to 4)
   const uncategorizedBooks = await prisma.book.findMany({
     where: { categoryId: null },
-    take: 10,
+    take: 4,
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -67,6 +71,13 @@ export default async function Home() {
       categoryId: true,
     }
   });
+
+  // Map categories to a cleaner structure for the icon list
+  const categories = categoriesRaw.map(cat => ({
+    id: cat.id,
+    name: cat.name,
+    image: cat.books?.[0]?.image || null
+  }));
 
   const serializedData = JSON.parse(JSON.stringify({
     categories,

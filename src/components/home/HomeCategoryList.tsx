@@ -23,7 +23,7 @@ export default function HomeCategoryList({ categories }: HomeCategoryListProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-6">
         <div className="flex items-start justify-start lg:justify-center overflow-x-auto no-scrollbar gap-4 sm:gap-8 pb-2 scroll-smooth">
           {categories.map((cat, index) => {
-            const latestBookImage = cat.books?.[0]?.image;
+            const latestBookImage = cat.image;
             
             return (
               <motion.div
