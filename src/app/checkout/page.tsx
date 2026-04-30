@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [processing, setProcessing] = useState(false);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addingAddress, setAddingAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
   
   // Detailed Address Form State
   const [addressForm, setAddressForm] = useState({
@@ -51,16 +52,37 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleEditAddress = (addr: any) => {
+    // Basic parser for the combined address string
+    const parts = addr.address.split(", ");
+    setAddressForm({
+        country: "India",
+        fullName: user?.name || "",
+        mobileNumber: "08248496243", // Fallback or from user
+        emailAddress: user?.email || "",
+        houseNo: parts[0] || "",
+        buildingName: parts[1] || "",
+        landmark: parts[2] || "",
+        pincode: addr.pincode,
+        city: addr.city,
+        state: addr.state
+    });
+    setEditingAddressId(addr.id);
+    setShowAddressForm(true);
+  };
+
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddingAddress(true);
     
-    // Construct full address string for the existing schema
     const fullAddress = `${addressForm.houseNo}, ${addressForm.buildingName}${addressForm.landmark ? ', ' + addressForm.landmark : ''}`;
     
     try {
-        const res = await fetch("/api/addresses", {
-            method: "POST",
+        const url = editingAddressId ? `/api/addresses/${editingAddressId}` : "/api/addresses";
+        const method = editingAddressId ? "PATCH" : "POST";
+        
+        const res = await fetch(url, {
+            method,
             body: JSON.stringify({ 
                 address: fullAddress, 
                 city: addressForm.city, 
@@ -69,9 +91,15 @@ export default function CheckoutPage() {
                 isDefault: addresses.length === 0 
             }),
         });
+
         if (res.ok) {
+            const savedAddr = await res.json();
             await fetchAddresses();
+            setSelectedAddressId(editingAddressId || savedAddr.id);
             setShowAddressForm(false);
+            setEditingAddressId(null);
+            // Move to next step automatically
+            setActiveStep(1);
         }
     } catch (err) {
         console.error(err);
@@ -206,7 +234,7 @@ export default function CheckoutPage() {
                             <div className="flex items-center justify-between mb-8">
                                 <h2 className="text-xl font-bold">Select a delivery address</h2>
                                 {addresses.length > 0 && !showAddressForm && (
-                                    <button onClick={() => setShowAddressForm(true)} className="text-sm font-bold text-blue-600 hover:underline">+ Add address</button>
+                                    <button onClick={() => { setShowAddressForm(true); setEditingAddressId(null); }} className="text-sm font-bold text-blue-600 hover:underline">+ Add address</button>
                                 )}
                             </div>
 
@@ -221,7 +249,7 @@ export default function CheckoutPage() {
                                                 <div className="flex flex-col md:flex-row justify-between gap-6">
                                                     <div className="space-y-1">
                                                         <p className="font-bold text-lg">{user?.name || 'Customer'}</p>
-                                                        <p className="text-sm font-bold">{addressForm.mobileNumber || '9999999999'}</p>
+                                                        <p className="text-sm font-bold">08248496243</p>
                                                         <p className="text-sm text-muted-foreground">{user?.email}</p>
                                                         <p className="text-sm text-muted-foreground mt-2">{addr.address}</p>
                                                         <p className="text-sm text-muted-foreground">{addr.city}, {addr.pincode},</p>
@@ -237,7 +265,12 @@ export default function CheckoutPage() {
                                                         >
                                                             Deliver this address
                                                         </button>
-                                                        <button className="text-sm font-bold text-blue-600 hover:underline">Edit address</button>
+                                                        <button 
+                                                            onClick={() => handleEditAddress(addr)}
+                                                            className="text-sm font-bold text-blue-600 hover:underline"
+                                                        >
+                                                            Edit address
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -249,7 +282,7 @@ export default function CheckoutPage() {
                                     )}
                                     
                                     {addresses.length > 0 && (
-                                        <button onClick={() => setShowAddressForm(true)} className="text-sm font-bold text-blue-600 hover:underline flex items-center space-x-2">
+                                        <button onClick={() => { setShowAddressForm(true); setEditingAddressId(null); }} className="text-sm font-bold text-blue-600 hover:underline flex items-center space-x-2">
                                             <span>+ Add address</span>
                                         </button>
                                     )}
