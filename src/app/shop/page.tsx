@@ -10,7 +10,7 @@ export default async function ShopPage() {
     // Fetch initial data on the server for the fastest response
     const [books, categories] = await Promise.all([
         prisma.book.findMany({
-            take: 200, // Limit to 200 books for the initial load to keep payload small and fast
+            take: 40, // Reduced to 40 books for the initial load to prevent oversized ISR pages
             select: {
                 id: true,
                 title: true,
