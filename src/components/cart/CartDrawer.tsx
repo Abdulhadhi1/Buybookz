@@ -13,9 +13,13 @@ export default function CartDrawer() {
 
   const subtotal = cartItems.reduce((acc, item) => acc + (item.book.price * item.quantity), 0);
 
-  const handleCheckout = () => {
+  const handleGoToCart = () => {
     closeDrawer();
-    router.push("/checkout");
+    router.push("/cart");
+  };
+
+  const handleContinueShopping = () => {
+    closeDrawer();
   };
 
   return (
@@ -45,9 +49,9 @@ export default function CartDrawer() {
                 <div className="bg-primary/5 p-2 rounded-xl">
                     <ShoppingBag className="text-primary" size={20} />
                 </div>
-                <h2 className="text-lg font-black text-primary uppercase tracking-widest">Your Cart</h2>
-                <span className="bg-primary text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-                    {cartItems.length}
+                <h2 className="text-lg font-black text-primary uppercase tracking-widest">Shopping Cart</h2>
+                <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                    {cartItems.reduce((acc, i) => acc + i.quantity, 0)}
                 </span>
               </div>
               <button 
@@ -94,7 +98,7 @@ export default function CartDrawer() {
                             </button>
                         </div>
                         <div className="flex items-center space-x-3">
-                            <span className="text-sm font-black text-primary">₹{item.book.price * item.quantity}</span>
+                            <span className="text-sm font-black text-primary">₹{(item.book.price * item.quantity).toFixed(0)}</span>
                             <button 
                                 onClick={() => removeItem(item.id)}
                                 className="text-muted-foreground hover:text-red-500 transition-colors"
@@ -111,12 +115,12 @@ export default function CartDrawer() {
                     <div className="bg-secondary p-6 rounded-full">
                         <ShoppingBag size={48} className="text-muted-foreground opacity-20" />
                     </div>
-                    <p className="text-muted-foreground font-medium italic">Your cart is feeling a bit empty...</p>
+                    <p className="text-muted-foreground font-medium italic">Your cart is empty.</p>
                     <button 
-                        onClick={closeDrawer}
+                        onClick={handleContinueShopping}
                         className="text-xs font-black uppercase tracking-widest text-primary hover:underline"
                     >
-                        Start Shopping
+                        Continue Shopping
                     </button>
                 </div>
               )}
@@ -126,27 +130,26 @@ export default function CartDrawer() {
             {cartItems.length > 0 && (
               <div className="p-6 border-t border-border bg-secondary/30 space-y-6">
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Subtotal</span>
+                    <span className="text-sm font-bold text-[#4A4A4A] uppercase tracking-widest">Subtotal</span>
                     <span className="text-xl font-black text-primary">₹{subtotal.toFixed(0)}</span>
                 </div>
                 
                 <div className="grid grid-cols-1 gap-3">
                     <button 
-                        onClick={handleCheckout}
-                        className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center space-x-2"
+                        onClick={handleGoToCart}
+                        className="w-full py-4 bg-red-600 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-red-100 hover:opacity-90 transition-all flex items-center justify-center space-x-2"
                     >
-                        <span>Proceed to Checkout</span>
+                        <span>Go to Cart</span>
                         <ArrowRight size={14} />
                     </button>
-                    <Link 
-                        href="/cart" 
-                        onClick={closeDrawer}
-                        className="w-full py-4 border-2 border-border text-primary rounded-2xl font-black uppercase tracking-widest text-[11px] text-center hover:bg-white transition-all"
+                    <button 
+                        onClick={handleContinueShopping}
+                        className="w-full py-4 border-2 border-border text-primary rounded-xl font-black uppercase tracking-widest text-[11px] text-center hover:bg-white transition-all"
                     >
-                        View Full Cart
-                    </Link>
+                        Continue Shopping
+                    </button>
                 </div>
-                <p className="text-center text-[10px] text-muted-foreground font-medium">Shipping & taxes calculated at checkout</p>
+                <p className="text-center text-[10px] text-muted-foreground font-medium italic">Shipping & taxes calculated at checkout</p>
               </div>
             )}
           </motion.div>
