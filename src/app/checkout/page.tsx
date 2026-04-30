@@ -8,6 +8,7 @@ import { Loader2, CheckCircle2, MapPin, ShoppingBag, CreditCard, ChevronRight } 
 import Script from "next/script";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { useToast } from "@/components/ui/ToastProvider";
 
 const STEPS = ["Shipping Address", "Order Summary", "Payment"];
 
