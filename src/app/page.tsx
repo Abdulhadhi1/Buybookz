@@ -1,67 +1,86 @@
 import prisma from "@/lib/prisma";
 import HomeClient from "@/components/home/HomeClient";
 
-// Removed force-dynamic to allow ISR (Incremental Static Regeneration)
-// This will make the page load instantly from cache
-export const revalidate = 60; // Revalidate every minute
+// Optimized ISR configuration to prevent oversized pages
+export const revalidate = 60; 
 
 export default async function Home() {
-  const [categories, recentBooks, uncategorizedBooks] = await Promise.all([
-    prisma.category.findMany({
-      include: {
-        books: {
-          take: 20, // Reduced from 40 for faster query
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            author: true,
-            price: true,
-            image: true,
-            categoryId: true,
-          }
-        }
-      },
-      orderBy: { name: "asc" },
-    }),
-    prisma.book.findMany({
-      take: 12, // Reduced from 20 for faster initial load
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        price: true,
-        image: true,
-        categoryId: true,
-        category: { select: { name: true } }
+  // 1. Fetch Categories for the circular icons (only need the latest book's image for each)
+  const categories = await prisma.category.findMany({
+    include: {
+      books: {
+        take: 1, // Only need 1 book for the icon image
+        orderBy: { createdAt: "desc" },
+        select: { image: true }
       }
-    }),
-    prisma.book.findMany({
-      where: { categoryId: null },
-      take: 12, // Reduced from 20 for faster initial load
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        price: true,
-        image: true,
-        categoryId: true,
-        category: { select: { name: true } }
-      }
-    })
-  ]);
+    },
+    orderBy: { name: "asc" },
+  });
 
-  const serializedCategories = JSON.parse(JSON.stringify(categories));
-  const serializedRecentBooks = JSON.parse(JSON.stringify(recentBooks));
-  const serializedUncategorizedBooks = JSON.parse(JSON.stringify(uncategorizedBooks));
+  // 2. Fetch Best Selling / Recent Books
+  const recentBooks = await prisma.book.findMany({
+    take: 10,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      author: true,
+      price: true,
+      image: true,
+      categoryId: true,
+      category: { select: { name: true } }
+    }
+  });
+
+  // 3. Fetch Featured Categories (Limit to top 6 categories on home page to keep it fast)
+  const featuredCategoryIds = categories.slice(0, 6).map(c => c.id);
+  const featuredCategories = await prisma.category.findMany({
+    where: { id: { in: featuredCategoryIds } },
+    include: {
+      books: {
+        take: 10, // Only show top 10 books per category on home page
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          author: true,
+          price: true,
+          image: true,
+          categoryId: true,
+        }
+      }
+    },
+    orderBy: { name: "asc" },
+  });
+
+  // 4. Fetch Uncategorized / Deals
+  const uncategorizedBooks = await prisma.book.findMany({
+    where: { categoryId: null },
+    take: 10,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      author: true,
+      price: true,
+      image: true,
+      categoryId: true,
+    }
+  });
+
+  const serializedData = JSON.parse(JSON.stringify({
+    categories,
+    featuredCategories,
+    recentBooks,
+    uncategorizedBooks
+  }));
 
   return (
     <HomeClient 
-      categories={serializedCategories}
-      recentBooks={serializedRecentBooks}
-      uncategorizedBooks={serializedUncategorizedBooks}
+      categories={serializedData.categories}
+      featuredCategories={serializedData.featuredCategories}
+      recentBooks={serializedData.recentBooks}
+      uncategorizedBooks={serializedData.uncategorizedBooks}
     />
   );
 }

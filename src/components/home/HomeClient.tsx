@@ -22,13 +22,14 @@ interface CategoryWithBooks {
 }
 
 interface HomeClientProps {
-  categories: CategoryWithBooks[];
+  categories: any[];
+  featuredCategories: CategoryWithBooks[];
   recentBooks: BookSummary[];
   uncategorizedBooks: BookSummary[];
 }
 
-export default function HomeClient({ categories, recentBooks, uncategorizedBooks }: HomeClientProps) {
-  const displayCategories = categories.filter((cat) => cat.books.length > 0);
+export default function HomeClient({ categories, featuredCategories, recentBooks, uncategorizedBooks }: HomeClientProps) {
+  const displayCategories = featuredCategories;
 
   return (
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">
