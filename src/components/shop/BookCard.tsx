@@ -60,11 +60,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
               {title[0]}
             </div>
           )}
-          
-          {/* Discount Badge */}
-          <div className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-md shadow-lg">
-             {discount}% OFF
-          </div>
         </div>
 
         {/* Book Details */}
@@ -76,8 +71,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
           
           <div className="mt-3 flex items-center gap-2">
             <span className="text-base font-black text-[#1E293B]">₹{price.toFixed(0)}</span>
-            <span className="text-xs text-[#94A3B8] line-through decoration-red-400">₹{originalPrice.toFixed(0)}</span>
-            <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{discount}% off</span>
           </div>
         </div>
       </Link>

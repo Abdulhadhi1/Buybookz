@@ -59,8 +59,6 @@ export default function RankedBookCard({ id, title, author, price, image, rank }
           
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-sm font-black text-[#1E293B]">₹{price.toFixed(0)}</span>
-            <span className="text-[11px] text-[#94A3B8] line-through decoration-red-400">₹{originalPrice.toFixed(0)}</span>
-            <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{discount}% off</span>
           </div>
         </div>
       </Link>

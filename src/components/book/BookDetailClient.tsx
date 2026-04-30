@@ -106,11 +106,9 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
 
             {/* Mobile-Only Purchase Section */}
             <div className="lg:hidden space-y-6">
-                <div className="inline-block p-4 border-2 border-red-500 rounded-2xl bg-white shadow-sm w-full sm:w-auto">
+                <div className="inline-block p-4 border border-border rounded-2xl bg-white shadow-sm w-full sm:w-auto">
                     <div className="flex items-baseline space-x-3">
                         <span className="text-2xl font-black">₹{book.price.toFixed(0)}</span>
-                        <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toFixed(0)}</span>
-                        <span className="text-xs font-bold text-green-600">{savingsPercent}% off</span>
                     </div>
                 </div>
 
@@ -192,8 +190,6 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
 
                     <div className="space-y-2">
                         <p className="text-4xl font-black text-[#1E293B]">₹{book.price.toFixed(0)}</p>
-                        <p className="text-sm text-muted-foreground">M.R.P: <span className="line-through">₹{originalPrice.toFixed(0)}</span></p>
-                        <p className="text-xs font-bold text-red-500">Save: ₹{savings.toFixed(0)} ({savingsPercent}%)</p>
                     </div>
 
                     <div className="flex items-center space-x-4">
