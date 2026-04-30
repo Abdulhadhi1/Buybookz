@@ -116,19 +116,30 @@ export default function CheckoutPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const cartRes = await fetch("/api/cart");
+      // Parallelize fetches for maximum speed
+      const [cartRes, sessionRes] = await Promise.all([
+        fetch("/api/cart"),
+        fetch("/api/auth/session")
+      ]);
+
       if (cartRes.status === 401) {
           router.push("/login");
           return;
       }
-      const cartItems = await cartRes.json();
-      setItems(cartItems);
+      
+      const [cartItems, sessionData] = await Promise.all([
+        cartRes.json(),
+        sessionRes.ok ? sessionRes.json() : Promise.resolve({ user: null })
+      ]);
 
-      const sessionRes = await fetch("/api/auth/session");
-      if (sessionRes.ok) {
-          const sessionData = await sessionRes.json();
+      setItems(cartItems);
+      if (sessionData.user) {
           setUser(sessionData.user);
-          setAddressForm(prev => ({ ...prev, fullName: sessionData.user.name || "", emailAddress: sessionData.user.email || "" }));
+          setAddressForm(prev => ({ 
+            ...prev, 
+            fullName: sessionData.user.name || "", 
+            emailAddress: sessionData.user.email || "" 
+          }));
       }
 
       await fetchAddresses();
@@ -302,7 +313,7 @@ export default function CheckoutPage() {
                                         {/* Country */}
                                         <div className="md:col-span-2 space-y-2">
                                             <label className="text-sm font-bold">Country<span className="text-red-500">*</span></label>
-                                            <select className="w-full p-3 bg-white border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.country} onChange={e => setAddressForm({...addressForm, country: e.target.value})}>
+                                            <select className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium" value={addressForm.country} onChange={e => setAddressForm({...addressForm, country: e.target.value})}>
                                                 <option>India</option>
                                                 <option>USA</option>
                                                 <option>UK</option>
@@ -312,47 +323,47 @@ export default function CheckoutPage() {
                                         {/* Name & Mobile */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">Full Name<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.fullName} onChange={e => setAddressForm({...addressForm, fullName: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.fullName} onChange={e => setAddressForm({...addressForm, fullName: e.target.value})} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">Mobile Number<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.mobileNumber} onChange={e => setAddressForm({...addressForm, mobileNumber: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.mobileNumber} onChange={e => setAddressForm({...addressForm, mobileNumber: e.target.value})} />
                                         </div>
 
                                         {/* Email & House No */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">Email Address<span className="text-red-500">*</span></label>
-                                            <input required type="email" className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.emailAddress} onChange={e => setAddressForm({...addressForm, emailAddress: e.target.value})} />
+                                            <input required type="email" className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.emailAddress} onChange={e => setAddressForm({...addressForm, emailAddress: e.target.value})} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">House / Flat / Block no.<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.houseNo} onChange={e => setAddressForm({...addressForm, houseNo: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.houseNo} onChange={e => setAddressForm({...addressForm, houseNo: e.target.value})} />
                                         </div>
 
                                         {/* Building / Street */}
                                         <div className="md:col-span-2 space-y-2">
                                             <label className="text-sm font-bold">Building name, Apartment Area, Street, Village<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.buildingName} onChange={e => setAddressForm({...addressForm, buildingName: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.buildingName} onChange={e => setAddressForm({...addressForm, buildingName: e.target.value})} />
                                         </div>
 
                                         {/* Landmark & Pincode */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-muted-foreground">Landmark (optional)</label>
-                                            <input className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.landmark} onChange={e => setAddressForm({...addressForm, landmark: e.target.value})} />
+                                            <input className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.landmark} onChange={e => setAddressForm({...addressForm, landmark: e.target.value})} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">Pincode<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.pincode} onChange={e => setAddressForm({...addressForm, pincode: e.target.value})} />
                                         </div>
 
                                         {/* Town & State */}
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">Town/City<span className="text-red-500">*</span></label>
-                                            <input required className="w-full p-3 border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} />
+                                            <input required className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium placeholder:text-slate-400" value={addressForm.city} onChange={e => setAddressForm({...addressForm, city: e.target.value})} />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold">State<span className="text-red-500">*</span></label>
-                                            <select className="w-full p-3 bg-white border border-border rounded-lg outline-none focus:border-red-500" value={addressForm.state} onChange={e => setAddressForm({...addressForm, state: e.target.value})}>
+                                            <select className="w-full p-3 bg-slate-50 border border-border rounded-lg outline-none focus:border-red-500 text-slate-900 font-medium" value={addressForm.state} onChange={e => setAddressForm({...addressForm, state: e.target.value})}>
                                                 <option>Tamil Nadu</option>
                                                 <option>Kerala</option>
                                                 <option>Karnataka</option>
