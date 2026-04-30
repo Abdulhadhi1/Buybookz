@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Search, ChevronDown, X, ChevronRight, LayoutGrid, List } from "lucide-react";
+import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BookCard from "@/components/shop/BookCard";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ShopBook {
   id: string;
@@ -32,9 +33,12 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
   const searchParams = useSearchParams();
   const router = useRouter();
   const categoryFromUrl = searchParams.get("category") || "All";
+  
   const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl);
   const [sortBy, setSortBy] = useState("relevance");
   const [showInStockOnly, setShowInStockOnly] = useState(true);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
 
   // Sync state with URL
   useEffect(() => {
@@ -50,6 +54,7 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
       params.set("category", catName);
     }
     router.push(`/shop?${params.toString()}`, { scroll: false });
+    setIsMobileFilterOpen(false);
   };
 
   const filteredBooks = initialBooks.filter((book) => {
@@ -65,6 +70,107 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
     if (sortBy === "price-high-low") return b.price - a.price;
     return 0;
   });
+
+  const FilterContent = () => (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+          <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
+          <button 
+              onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
+              className="text-[10px] font-bold text-accent hover:underline"
+          >
+              Clear all
+          </button>
+      </div>
+
+      {/* Active Filters */}
+      <div className="flex flex-wrap gap-2">
+          {selectedCategory !== "All" && (
+              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                  <span>{selectedCategory}</span>
+                  <button onClick={() => handleCategorySelect("All")}><X size={10} /></button>
+              </div>
+          )}
+          {showInStockOnly && (
+              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                  <span>In stock</span>
+                  <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
+              </div>
+          )}
+      </div>
+
+      <div className="space-y-4 pt-4">
+          {/* Categories Accordion */}
+          <div className="border-t border-border pt-4">
+              <div 
+                className="flex items-center justify-between cursor-pointer group"
+                onClick={() => setOpenAccordion(openAccordion === 'categories' ? null : 'categories')}
+              >
+                  <span className={`text-xs font-bold ${openAccordion === 'categories' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Categories</span>
+                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'categories' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+              </div>
+              <AnimatePresence>
+                {openAccordion === 'categories' && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
+                        {["All", ...initialCategories.map(c => c.name)].map((cat) => (
+                            <label key={cat} className="flex items-center space-x-3 cursor-pointer group py-1">
+                                <input 
+                                    type="radio" 
+                                    name="category"
+                                    checked={selectedCategory === cat} 
+                                    onChange={() => handleCategorySelect(cat)}
+                                    className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary" 
+                                />
+                                <span className={`text-xs font-medium ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
+                            </label>
+                        ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+          </div>
+
+          {/* Availability Accordion */}
+          <div className="border-t border-border pt-4">
+              <div 
+                className="flex items-center justify-between cursor-pointer group"
+                onClick={() => setOpenAccordion(openAccordion === 'availability' ? null : 'availability')}
+              >
+                  <span className={`text-xs font-bold ${openAccordion === 'availability' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Availability</span>
+                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'availability' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+              </div>
+              <AnimatePresence>
+                {openAccordion === 'availability' && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 space-y-3">
+                        <label className="flex items-center space-x-3 cursor-pointer group">
+                            <input 
+                                type="checkbox" 
+                                checked={showInStockOnly} 
+                                onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary" 
+                            />
+                            <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">Show In Stock</span>
+                        </label>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+          </div>
+      </div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
@@ -86,74 +192,27 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-        {/* 2. Breadcrumbs */}
-        <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-8">
-            <Link href="/" className="hover:text-primary">Home</Link>
-            <ChevronRight size={10} />
-            <span className="text-primary font-bold">{selectedCategory}</span>
-        </nav>
+        {/* 2. Breadcrumbs & Mobile Filter Toggle */}
+        <div className="flex items-center justify-between mb-8">
+            <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground">
+                <Link href="/" className="hover:text-primary">Home</Link>
+                <ChevronRight size={10} />
+                <span className="text-primary font-bold">{selectedCategory}</span>
+            </nav>
+            <button 
+                onClick={() => setIsMobileFilterOpen(true)}
+                className="lg:hidden flex items-center space-x-2 px-4 py-2 bg-white border border-border rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm"
+            >
+                <Filter size={14} />
+                <span>Filters</span>
+            </button>
+        </div>
 
         <div className="flex flex-col lg:flex-row gap-12">
-            {/* 3. Left Sidebar (Filters) */}
-            <aside className="w-full lg:w-64 flex-shrink-0 space-y-8">
-                <div className="bg-white rounded-2xl border border-border p-6 space-y-6 shadow-sm">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
-                        <button 
-                            onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
-                            className="text-[10px] font-bold text-accent hover:underline"
-                        >
-                            Clear all
-                        </button>
-                    </div>
-
-                    {/* Active Filters */}
-                    <div className="flex flex-wrap gap-2">
-                        {selectedCategory !== "All" && (
-                            <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                                <span>{selectedCategory}</span>
-                                <button onClick={() => handleCategorySelect("All")}><X size={10} /></button>
-                            </div>
-                        )}
-                        {showInStockOnly && (
-                            <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                                <span>In stock</span>
-                                <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="space-y-4 pt-4">
-                        <div className="border-t border-border pt-4 group">
-                            <div className="flex items-center justify-between cursor-pointer">
-                                <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">Categories</span>
-                                <ChevronDown size={14} className="text-muted-foreground" />
-                            </div>
-                        </div>
-                        <div className="border-t border-border pt-4 group">
-                            <div className="flex items-center justify-between cursor-pointer">
-                                <span className="text-xs font-bold text-muted-foreground group-hover:text-primary">Authors</span>
-                                <ChevronDown size={14} className="text-muted-foreground" />
-                            </div>
-                        </div>
-                        <div className="border-t border-border pt-4 group">
-                            <div className="flex items-center justify-between cursor-pointer text-primary">
-                                <span className="text-xs font-bold">Availability</span>
-                                <ChevronDown size={14} />
-                            </div>
-                            <div className="mt-4 space-y-3">
-                                <label className="flex items-center space-x-3 cursor-pointer group">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={showInStockOnly} 
-                                        onChange={(e) => setShowInStockOnly(e.target.checked)}
-                                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary" 
-                                    />
-                                    <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">Show In Stock</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
+            {/* 3. Desktop Sidebar (Filters) */}
+            <aside className="hidden lg:block w-64 flex-shrink-0">
+                <div className="bg-white rounded-2xl border border-border p-6 shadow-sm sticky top-32">
+                    <FilterContent />
                 </div>
             </aside>
 
@@ -169,20 +228,23 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
                             <List size={16} className="cursor-pointer hover:text-primary transition-colors" />
                          </div>
                          <div className="h-6 w-[1px] bg-border hidden md:block" />
-                         <select 
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="bg-white border border-border px-4 py-2.5 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20 shadow-sm"
-                         >
-                            <option value="relevance">By Relevance</option>
-                            <option value="price-low-high">Price: Low to High</option>
-                            <option value="price-high-low">Price: High to Low</option>
-                         </select>
+                         <div className="flex items-center space-x-3 px-4 py-2 bg-white border border-border rounded-xl shadow-sm">
+                            <SlidersHorizontal size={14} className="text-muted-foreground" />
+                            <select 
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="bg-transparent text-xs font-bold outline-none cursor-pointer min-w-[120px]"
+                            >
+                                <option value="relevance">By Relevance</option>
+                                <option value="price-low-high">Price: Low to High</option>
+                                <option value="price-high-low">Price: High to Low</option>
+                            </select>
+                         </div>
                     </div>
                 </div>
 
                 {filteredBooks.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12">
                         {filteredBooks.map((book) => (
                             <BookCard key={book.id} {...book} />
                         ))}
@@ -201,6 +263,37 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
             </div>
         </div>
       </div>
+
+      {/* 5. Mobile Bottom Sheet Filter */}
+      <AnimatePresence>
+        {isMobileFilterOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileFilterOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[99]"
+            />
+            <motion.div 
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-[100] p-8 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl"
+            >
+              <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-8" />
+              <FilterContent />
+              <button 
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="w-full mt-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"
+              >
+                Apply Filters
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <Footer />
     </main>
