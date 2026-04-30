@@ -77,7 +77,7 @@ export default function CartPage() {
          });
          if (res.ok) {
            await fetchCart();
-           await refreshCartCount();
+           await refreshCart();
          }
        } catch (err) {
          console.error(err);
@@ -89,7 +89,7 @@ export default function CartPage() {
          guestCart[index].quantity = newQuantity;
          localStorage.setItem('guestCart', JSON.stringify(guestCart));
          setItems(guestCart);
-         await refreshCartCount();
+         await refreshCart();
        }
     }
   };
@@ -102,7 +102,7 @@ export default function CartPage() {
          });
          if (res.ok) {
            await fetchCart();
-           await refreshCartCount();
+           await refreshCart();
          }
        } catch (err) {
          console.error(err);
