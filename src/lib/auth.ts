@@ -27,13 +27,13 @@ export async function login(user: any) {
 
   // Save the session in a cookie
   const cookieStore = await cookies();
-  cookieStore.set("session", session, { expires, httpOnly: true });
+  cookieStore.set("session", session, { expires, httpOnly: true, path: "/" });
 }
 
 export async function logout() {
   // Destroy the session
   const cookieStore = await cookies();
-  cookieStore.set("session", "", { expires: new Date(0) });
+  cookieStore.set("session", "", { expires: new Date(0), path: "/" });
 }
 
 export async function getSession() {

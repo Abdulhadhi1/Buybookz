@@ -22,6 +22,7 @@ export default function CheckoutPage() {
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [addingAddress, setAddingAddress] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+  const { showToast } = useToast();
   
   // Detailed Address Form State
   const [addressForm, setAddressForm] = useState({
@@ -71,6 +72,19 @@ export default function CheckoutPage() {
     setShowAddressForm(true);
   };
 
+  const handleDeleteAddress = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this address?")) return;
+    try {
+        const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
+        if (res.ok) {
+            showToast("Address deleted successfully", "info");
+            fetchAddresses();
+        }
+    } catch (err) {
+        showToast("Failed to delete address", "warning");
+    }
+  };
+
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddingAddress(true);
@@ -98,7 +112,7 @@ export default function CheckoutPage() {
         if (res.ok) {
             await fetchAddresses();
             const newId = editingAddressId || data.id;
-            setSelectedAddressId(newId);
+            showToast(editingAddressId ? "Address updated" : "Address saved", "success");
             setShowAddressForm(false);
             setEditingAddressId(null);
             setActiveStep(1); // Advance to Order Summary
@@ -286,6 +300,12 @@ export default function CheckoutPage() {
                                                             className="text-sm font-bold text-blue-600 hover:underline"
                                                         >
                                                             Edit address
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteAddress(addr.id)}
+                                                            className="text-sm font-bold text-red-500 hover:underline"
+                                                        >
+                                                            Delete
                                                         </button>
                                                     </div>
                                                 </div>

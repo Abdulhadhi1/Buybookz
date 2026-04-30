@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, Lock, Loader2, ArrowLeft } from "lucide-react";
+import { useToast } from "@/components/ui/ToastProvider";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { showToast } = useToast();
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -28,12 +30,15 @@ export default function LoginPage() {
       const data = await res.json();
 
       if (res.ok) {
+        showToast("Welcome back! Login successful", "success");
         if (data.user.role === "ADMIN") {
             router.push("/admin");
         } else {
             router.push("/");
         }
-        router.refresh();
+        setTimeout(() => {
+            router.refresh();
+        }, 100);
       } else {
         setError(data.error || "Login failed");
       }

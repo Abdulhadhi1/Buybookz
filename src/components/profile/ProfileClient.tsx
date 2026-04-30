@@ -212,7 +212,10 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
-      window.location.href = "/";
+      showToast("Logged out successfully", "info");
+      setTimeout(() => {
+          window.location.href = "/";
+      }, 500);
     } catch (error) {
       console.error("Logout failed:", error);
     }

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface CartItem {
   id: string;
@@ -34,6 +35,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartCount, setCartCount] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { showToast } = useToast();
 
   const getGuestCart = () => {
     if (typeof window === 'undefined') return [];
@@ -90,6 +92,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
          return [...prev, newItem];
      });
      setCartCount(prev => prev + quantity);
+     showToast(`${book.title} added to your bag`, "success");
 
      // 3. Background Sync - No 'await' here to prevent blocking UI
      fetch("/api/cart", {
@@ -131,6 +134,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   const removeItem = async (itemId: string) => {
     setCartItems(prev => prev.filter(item => item.id !== itemId));
+    showToast("Item removed from bag", "info");
     try {
         await fetch(`/api/cart/${itemId}`, { method: "DELETE" });
         await refreshCart();
