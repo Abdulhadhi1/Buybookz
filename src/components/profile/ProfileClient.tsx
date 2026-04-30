@@ -377,7 +377,7 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
                   ))}
                   {userData.orders.length === 0 && (
                     <div className="text-center py-16 sm:py-24 bg-white rounded-[3rem] sm:rounded-[4rem] border-2 border-dashed border-border">
-                      <Package className="mx-auto text-muted-foreground/30 mb-6" size={56} sm:size={64} />
+                      <Package className="mx-auto text-muted-foreground/30 mb-6" size={64} />
                       <p className="text-muted-foreground italic">No orders found.</p>
                       <button onClick={() => router.push('/shop')} className="mt-8 px-10 py-4 bg-primary text-white rounded-full font-bold uppercase tracking-widest text-[10px]">Shop Now</button>
                     </div>
@@ -437,7 +437,7 @@ export default function ProfileClient({ initialData }: { initialData: UserData }
 
                   {userData.addresses.length === 0 && (
                     <div className="text-center py-16 sm:py-24 bg-white rounded-[3rem] sm:rounded-[4rem] border-2 border-dashed border-border">
-                      <MapPin className="mx-auto text-muted-foreground/30 mb-6" size={56} sm:size={64} />
+                      <MapPin className="mx-auto text-muted-foreground/30 mb-6" size={64} />
                       <p className="text-muted-foreground italic">No addresses saved.</p>
                     </div>
                   )}
