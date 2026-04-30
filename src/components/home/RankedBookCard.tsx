@@ -25,7 +25,7 @@ export default function RankedBookCard({ id, title, author, price, image, rank }
       viewport={{ once: true }}
       className="group relative flex flex-col h-full bg-white rounded-2xl p-2 transition-all duration-300 hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.1)] border border-transparent hover:border-[#F1F5F9]"
     >
-      <Link href={`/book/${id}`} className="flex flex-col h-full">
+      <Link href={`/book/${id}`} prefetch={true} className="flex flex-col h-full">
         {/* Image Container with Rank */}
         <div className="relative aspect-[3/4.5] w-full rounded-xl bg-[#F8FAFC] overflow-hidden shadow-sm">
           {image ? (
