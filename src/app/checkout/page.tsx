@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle2, MapPin, ShoppingBag, CreditCard, ChevronRight } from "lucide-react";
