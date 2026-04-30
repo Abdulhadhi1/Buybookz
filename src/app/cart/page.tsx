@@ -32,7 +32,9 @@ export default function CartPage() {
 
   useEffect(() => {
     refreshCart().finally(() => setLoading(false));
-  }, []);
+    // Prefetch checkout for instant transition
+    router.prefetch("/checkout");
+  }, [router, refreshCart]);
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.book.price * item.quantity, 0);
 
@@ -144,12 +146,12 @@ export default function CartPage() {
                     </div>
 
                     <div className="space-y-4 pt-4">
-                        <button 
-                            onClick={handleCheckout}
-                            className="w-full py-4 bg-red-600 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-red-100 hover:bg-red-700 transition-colors"
+                        <Link 
+                            href="/checkout"
+                            className="w-full py-4 bg-red-600 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-red-100 hover:bg-red-700 transition-colors block text-center"
                         >
                             Proceed to checkout
-                        </button>
+                        </Link>
                         <button 
                             onClick={() => router.push("/shop")}
                             className="w-full text-center text-sm font-bold text-green-600 hover:underline block"

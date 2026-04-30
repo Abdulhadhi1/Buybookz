@@ -135,13 +135,14 @@ export default function CartDrawer() {
                 </div>
                 
                 <div className="grid grid-cols-1 gap-3">
-                    <button 
-                        onClick={handleGoToCart}
+                    <Link 
+                        href="/cart"
+                        onClick={closeDrawer}
                         className="w-full py-4 bg-red-600 text-white rounded-xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-red-100 hover:opacity-90 transition-all flex items-center justify-center space-x-2"
                     >
                         <span>Go to Cart</span>
                         <ArrowRight size={14} />
-                    </button>
+                    </Link>
                     <button 
                         onClick={handleContinueShopping}
                         className="w-full py-4 border-2 border-border text-primary rounded-xl font-black uppercase tracking-widest text-[11px] text-center hover:bg-white transition-all"
