@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, Loader2, Minus, Plus, ShoppingCart } from "lucide-react";
+import { Loader2, Minus, Plus, Truck, RotateCcw, ShieldCheck, ChevronRight } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
-import { useToast } from "@/components/ui/ToastProvider";
+import RankedBookCard from "@/components/home/RankedBookCard";
 
-interface BookDetailClientProps {
-  book: {
+interface Book {
     id: string;
     title: string;
     author: string;
@@ -20,24 +20,29 @@ interface BookDetailClientProps {
     stock: number;
     languages: string[];
     category: { name: string } | null;
-  };
 }
 
-export default function BookDetailClient({ book }: BookDetailClientProps) {
+interface BookDetailClientProps {
+  book: Book;
+  relatedBooks: any[];
+}
+
+export default function BookDetailClient({ book, relatedBooks }: BookDetailClientProps) {
   const [quantity, setQuantity] = useState(1);
-  const [selectedLanguage, setSelectedLanguage] = useState(book.languages?.[0] || "");
   const [adding, setAdding] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const router = useRouter();
   const { addToCart } = useCart();
-  const { showToast } = useToast();
+
+  const originalPrice = book.price * 1.3;
+  const savings = originalPrice - book.price;
+  const savingsPercent = 30;
 
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      await addToCart(book, quantity, selectedLanguage);
-      router.prefetch("/cart");
-      router.push("/cart");
+      await addToCart(book, quantity, book.languages?.[0] || "English");
+      // Don't auto-redirect, just show success or let them click Buy Now
     } catch (err) {
       console.error(err);
     } finally {
@@ -45,148 +50,209 @@ export default function BookDetailClient({ book }: BookDetailClientProps) {
     }
   };
 
-  const originalPrice = book.price * 1.2;
+  const handleBuyNow = async () => {
+    setAdding(true);
+    try {
+      await addToCart(book, quantity, book.languages?.[0] || "English");
+      router.push("/checkout");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAdding(false);
+    }
+  };
 
   return (
-    <main className="min-h-screen bg-[#FDFAF5] text-primary relative">
+    <main className="min-h-screen bg-white text-[#1E293B]">
       <Navbar />
 
-      <div className="pt-32 pb-24 px-6 lg:px-12 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <div className="space-y-6">
-            <div className="relative aspect-square w-full bg-[#F4F1EA] flex items-center justify-center p-12 overflow-hidden group rounded-[2rem]">
-              {book.image ? (
-                <Image
-                  src={book.image}
-                  alt={book.title}
-                  fill
-                  priority
-                  className="object-contain p-8 transform group-hover:scale-105 transition-transform duration-1000 shadow-2xl"
-                />
-              ) : (
-                <div className="text-9xl font-serif italic text-white/50">{book.title[0]}</div>
-              )}
+      <div className="pt-24 lg:pt-32 pb-24 max-w-7xl mx-auto px-6 lg:px-12">
+        {/* Breadcrumbs */}
+        <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-10 overflow-hidden whitespace-nowrap">
+            <Link href="/" className="hover:text-primary">Home</Link>
+            <ChevronRight size={10} />
+            <Link href={`/shop?category=${book.category?.name}`} className="hover:text-primary">{book.category?.name}</Link>
+            <ChevronRight size={10} />
+            <span className="text-primary font-bold truncate">{book.title}</span>
+        </nav>
 
-              <div className="absolute top-4 left-4 bg-[#D1B89C] text-white px-3 py-1 text-[10px] font-bold rounded-full">
-                10% Off
-              </div>
-            </div>
-
-            <div className="flex space-x-4">
-              <div className="w-24 h-24 bg-[#F4F1EA] p-2 flex items-center justify-center border-2 border-[#D1B89C] rounded-2xl">
-                <div className="relative w-full h-full">
-                  {book.image && <Image src={book.image} alt={`${book.title} preview`} fill className="object-contain" />}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          {/* Left Column: Image */}
+          <div className="lg:w-[35%] flex-shrink-0">
+            <div className="sticky top-32 space-y-6">
+                <div className="relative aspect-[3/4.5] w-full bg-[#F8FAFC] rounded-2xl overflow-hidden shadow-xl border border-border/10">
+                {book.image ? (
+                    <Image
+                    src={book.image}
+                    alt={book.title}
+                    fill
+                    priority
+                    className="object-cover"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-6xl font-serif text-[#CBD5E1]">{book.title[0]}</div>
+                )}
                 </div>
-              </div>
-              <div className="w-24 h-24 bg-[#F4F1EA] p-2 flex items-center justify-center border border-border rounded-2xl">
-                <div className="relative w-full h-full opacity-50 grayscale">
-                  {book.image && <Image src={book.image} alt={`${book.title} alternate preview`} fill className="object-contain" />}
-                </div>
-              </div>
             </div>
           </div>
 
-          <div className="flex flex-col justify-center space-y-8">
+          {/* Middle Column: Details */}
+          <div className="lg:w-[40%] space-y-10">
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight">{book.title}</h1>
-
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star key={star} size={16} fill="currentColor" stroke="none" className="text-black" />
-                  ))}
-                </div>
-                <span className="text-xs text-[#999999] font-medium">(1 customer review)</span>
-              </div>
-
-              <div className="flex items-baseline space-x-4">
-                <span className="text-[#BBBBBB] line-through text-2xl">Rs. {originalPrice.toFixed(2)}</span>
-                <span className="text-3xl font-medium text-primary">Rs. {book.price.toFixed(2)}</span>
-              </div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-black text-[#1E293B] leading-tight">{book.title}</h1>
+              <p className="text-lg font-bold text-muted-foreground italic">Author : {book.author}</p>
             </div>
 
-            <div className="text-[#666666] leading-relaxed text-base space-y-2">
-              <p className={isDescriptionExpanded ? "" : "line-clamp-2"}>
-                {book.description || "A thoughtfully selected title from the BuyBookz collection."}
-              </p>
-              {book.description && book.description.length > 100 && (
-                <button
-                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                  className="text-[10px] font-black uppercase tracking-widest text-accent hover:underline"
-                >
-                  {isDescriptionExpanded ? "Read Less" : "Read More"}
-                </button>
-              )}
+            {/* Print Book Badge - Clean style */}
+            <div className="inline-block p-4 border-2 border-red-500 rounded-2xl bg-white shadow-sm">
+                <p className="text-xs font-bold text-muted-foreground mb-1">Print book</p>
+                <div className="flex items-baseline space-x-3">
+                    <span className="text-2xl font-black">₹{book.price.toFixed(0)}</span>
+                    <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toFixed(0)}</span>
+                    <span className="text-xs font-bold text-green-600">{savingsPercent}% off</span>
+                </div>
             </div>
 
-            <div className="space-y-8 pt-4">
-              {book.languages && book.languages.length > 0 && (
-                <div className="space-y-3">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#999999]">Choose Variation</span>
-                  <div className="flex flex-wrap gap-2">
-                    {book.languages.map((language) => (
-                      <button
-                        key={language}
-                        onClick={() => setSelectedLanguage(language)}
-                        className={`px-6 py-2 border-2 text-xs font-bold transition-all ${
-                          selectedLanguage === language
-                            ? "border-[#2D1B14] bg-[#2D1B14] text-white"
-                            : "border-border hover:border-[#D1B89C]"
-                        }`}
-                      >
-                        {language}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6">
-                <div className="flex items-center border-2 border-border p-1 rounded-xl w-fit">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:text-accent transition-colors"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus size={16} />
-                  </button>
-                  <span className="w-12 text-center font-bold">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:text-accent transition-colors"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus size={16} />
-                  </button>
-                </div>
-
-                <button
-                  onClick={handleAddToCart}
-                  disabled={adding || book.stock === 0}
-                  className="flex-grow py-5 bg-[#2D1B14] text-white rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center space-x-3 disabled:opacity-50"
-                >
-                  {adding ? <Loader2 className="animate-spin" size={20} /> : <ShoppingCart size={20} />}
-                  <span className="uppercase tracking-widest text-xs">{book.stock === 0 ? "Out of Stock" : "Add to Cart"}</span>
-                </button>
-
-              </div>
+            <div className="space-y-4">
+               <div className="flex items-center space-x-2">
+                    <span className="px-4 py-1.5 bg-[#4A4A4A] text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Description</span>
+               </div>
+               <div className="text-[15px] leading-relaxed text-[#4A4A4A] space-y-4">
+                    <p className={isDescriptionExpanded ? "" : "line-clamp-6"}>
+                        {book.description || "A masterfully crafted narrative that resonates with the deep traditions and cultural richness of its origins. This title represents a significant contribution to its genre, offering readers an immersive journey through its carefully constructed world and compelling character arcs."}
+                    </p>
+                    <button
+                        onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                        className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center space-x-1 hover:underline"
+                    >
+                        <span>{isDescriptionExpanded ? "Read Less" : "Read More"}</span>
+                        <ChevronDown size={12} className={isDescriptionExpanded ? "rotate-180" : ""} />
+                    </button>
+               </div>
             </div>
 
-            <div className="pt-8 space-y-2 border-t border-border">
-              <div className="flex items-center space-x-2 text-xs text-[#999999] uppercase tracking-widest font-bold">
-                <span>Category:</span>
-                <span className="text-primary">{book.category?.name || "Fiction"}</span>
-              </div>
-              <div className="flex items-center space-x-2 text-xs text-[#999999] uppercase tracking-widest font-bold">
-                <span>Author:</span>
-                <span className="text-primary">{book.author}</span>
-              </div>
+            {/* Product Details Section */}
+            <div className="space-y-6 pt-10 border-t border-border">
+                <h3 className="text-lg font-serif font-black text-[#1E293B]">Product details</h3>
+                <div className="space-y-4">
+                    <DetailItem label="Generic Name" value="Book" />
+                    <DetailItem label="Book code" value={book.id.slice(0, 8)} />
+                    <DetailItem label="Publisher" value="Vikatan Publications" />
+                    <DetailItem label="Language" value={book.languages?.[0] || "Tamil"} />
+                    <DetailItem label="Country of Origin" value="India" />
+                    <DetailItem label="Contact us" value="books@vikatan.com" isLink />
+                </div>
+            </div>
+          </div>
+
+          {/* Right Column: Sticky Purchase Card */}
+          <div className="lg:w-[25%]">
+            <div className="sticky top-32 space-y-6">
+                <div className="bg-white rounded-3xl border border-border p-8 shadow-sm space-y-8">
+                    <div className="flex items-center justify-between border-b border-border pb-4">
+                        <span className="text-lg font-black text-red-500">Print</span>
+                        <span className="text-sm font-black text-[#10B981]">In Stock</span>
+                    </div>
+
+                    <div className="space-y-2">
+                        <p className="text-4xl font-black text-[#1E293B]">₹{book.price.toFixed(0)}</p>
+                        <p className="text-sm text-muted-foreground">M.R.P: <span className="line-through">₹{originalPrice.toFixed(0)}</span></p>
+                        <p className="text-xs font-bold text-red-500">Save: ₹{savings.toFixed(0)} ({savingsPercent}%)</p>
+                    </div>
+
+                    <div className="flex items-center space-x-4">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Quantity</span>
+                        <div className="flex items-center border border-border rounded-xl p-1">
+                            <button 
+                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                className="p-2 hover:text-primary transition-colors"
+                            >
+                                <Minus size={14} />
+                            </button>
+                            <span className="w-8 text-center text-sm font-black">{quantity}</span>
+                            <button 
+                                onClick={() => setQuantity(quantity + 1)}
+                                className="p-2 hover:text-red-500 transition-colors"
+                            >
+                                <Plus size={14} className="text-red-500" />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <button 
+                            onClick={handleAddToCart}
+                            disabled={adding || book.stock === 0}
+                            className="w-full py-4 border-2 border-red-500 text-red-500 rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-red-50 transition-all flex items-center justify-center space-x-2"
+                        >
+                            {adding ? <Loader2 size={16} className="animate-spin" /> : <span>Add to Cart</span>}
+                        </button>
+                        <button 
+                             onClick={handleBuyNow}
+                             disabled={adding || book.stock === 0}
+                             className="w-full py-4 bg-red-500 text-white rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-red-600 shadow-xl shadow-red-200 transition-all active:scale-95"
+                        >
+                            Buy Now
+                        </button>
+                        <p className="text-center text-[10px] text-muted-foreground font-medium">+ Additional Delivery charges will apply</p>
+                    </div>
+
+                    <div className="space-y-4 pt-6 border-t border-border">
+                        <TrustItem icon={<Truck size={20} />} text="புத்தகம் 3 - 7 நாட்களில் அனுப்பி வைக்கப்படும்." />
+                        <TrustItem icon={<RotateCcw size={20} />} text="15 Days Replacement Policy" />
+                        <TrustItem icon={<ShieldCheck size={20} />} text="நீங்கள் புத்தகம் வாங்கும்போது பாதுகாப்பான பரிவர்த்தனை" />
+                    </div>
+                </div>
             </div>
           </div>
         </div>
+
+        {/* Related Books Section */}
+        {relatedBooks.length > 0 && (
+            <div className="mt-32 space-y-12">
+                <div className="flex items-center justify-between border-b border-border pb-4">
+                    <h2 className="text-2xl font-serif font-black text-[#1E293B]">Books you may like</h2>
+                    <Link href="/shop" className="group flex items-center space-x-2 text-xs font-bold text-muted-foreground hover:text-primary transition-colors">
+                        <span>View all</span>
+                        <div className="bg-green-600 text-white p-1 rounded-full group-hover:scale-110 transition-transform">
+                            <ChevronRight size={14} />
+                        </div>
+                    </Link>
+                </div>
+                <div className="overflow-x-auto no-scrollbar flex space-x-8 pb-8">
+                    {relatedBooks.map((relatedBook) => (
+                        <div key={relatedBook.id} className="w-[180px] flex-shrink-0">
+                            <RankedBookCard {...relatedBook} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
       </div>
 
       <Footer />
     </main>
   );
+}
+
+function DetailItem({ label, value, isLink }: { label: string, value: string, isLink?: boolean }) {
+    return (
+        <div className="flex items-start text-xs">
+            <span className="w-32 font-bold text-[#1E293B] flex-shrink-0">{label} :</span>
+            {isLink ? (
+                <a href={`mailto:${value}`} className="text-primary font-bold hover:underline truncate">{value}</a>
+            ) : (
+                <span className="text-[#4A4A4A] font-medium">{value}</span>
+            )}
+        </div>
+    );
+}
+
+function TrustItem({ icon, text }: { icon: React.ReactNode, text: string }) {
+    return (
+        <div className="flex items-start space-x-4 text-[#10B981]">
+            <div className="mt-0.5">{icon}</div>
+            <p className="text-[11px] font-bold leading-relaxed text-muted-foreground">{text}</p>
+        </div>
+    );
 }
