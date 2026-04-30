@@ -356,7 +356,7 @@ export default function AdminDashboard() {
                                         </td>
                                         <td className="px-6 py-6">
                                             <div className="flex flex-wrap items-center justify-center gap-2">
-                                                {book.languages.map((l: string) => (
+                                                {(book.languages || []).map((l: string) => (
                                                     <span key={l} className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 bg-secondary rounded border border-border">{l}</span>
                                                 ))}
                                             </div>
@@ -405,7 +405,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {categories.map(cat => (
+                    {(categories || []).map(cat => (
                         <div key={cat.id} className="bg-white p-10 rounded-[4rem] border border-border shadow-sm group hover:border-accent transition-all relative overflow-hidden">
                              <div className="space-y-4">
                                 <div className="w-14 h-14 bg-secondary rounded-[1.5rem] flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
@@ -442,7 +442,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
-                                {users.map(user => (
+                                {(users || []).map(user => (
                                     <tr key={user.id} className="hover:bg-secondary/5 transition-colors">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center space-x-4">
@@ -630,7 +630,7 @@ export default function AdminDashboard() {
                                         onChange={(e) => setBookForm({...bookForm, categoryId: e.target.value})}
                                     >
                                         <option value="">Select Category</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                        {(categories || []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </select>
                                 </div>
 
