@@ -1,31 +1,16 @@
 import prisma from "@/lib/prisma";
 import HomeClient from "@/components/home/HomeClient";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 300;
-
-
-type HomeBook = {
-  id: string;
-  title: string;
-  author: string;
-  price: number;
-  image: string | null;
-  categoryId: string | null;
-  category: { name: string } | null;
-};
-
-type HomeCategory = {
-  id: string;
-  name: string;
-};
+// Removed force-dynamic to allow ISR (Incremental Static Regeneration)
+// This will make the page load instantly from cache
+export const revalidate = 60; // Revalidate every minute
 
 export default async function Home() {
   const [categories, recentBooks, uncategorizedBooks] = await Promise.all([
     prisma.category.findMany({
       include: {
         books: {
-          take: 40,
+          take: 20, // Reduced from 40 for faster query
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -40,7 +25,7 @@ export default async function Home() {
       orderBy: { name: "asc" },
     }),
     prisma.book.findMany({
-      take: 20,
+      take: 12, // Reduced from 20 for faster initial load
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
@@ -54,7 +39,7 @@ export default async function Home() {
     }),
     prisma.book.findMany({
       where: { categoryId: null },
-      take: 20,
+      take: 12, // Reduced from 20 for faster initial load
       orderBy: { createdAt: "desc" },
       select: {
         id: true,

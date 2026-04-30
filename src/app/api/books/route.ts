@@ -10,6 +10,7 @@ export async function GET(req: Request) {
     const query = searchParams.get("query");
     const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
 
+    // Use select instead of include for faster database response
     const books = await prisma.book.findMany({
       where: query ? {
         OR: [
@@ -17,11 +18,26 @@ export async function GET(req: Request) {
           { author: { contains: query, mode: "insensitive" } },
         ]
       } : {},
-      include: { category: true },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        price: true,
+        image: true,
+        category: {
+          select: { name: true }
+        }
+      },
       orderBy: { createdAt: "desc" },
-      take: limit || undefined,
+      take: limit || 10, // Default limit for safety
     });
-    return NextResponse.json(books);
+
+    // Add Cache-Control header for faster client-side response on repeat searches
+    return NextResponse.json(books, {
+        headers: {
+            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
+        }
+    });
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 });
   }
