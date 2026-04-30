@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Minus, Plus, Truck, RotateCcw, ShieldCheck, ChevronRight } from "lucide-react";
+import { Loader2, Minus, Plus, Truck, RotateCcw, ShieldCheck, ChevronRight, ChevronDown } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
