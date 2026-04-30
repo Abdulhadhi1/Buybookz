@@ -42,7 +42,6 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
     setAdding(true);
     try {
       await addToCart(book, quantity, book.languages?.[0] || "English");
-      // Don't auto-redirect, just show success or let them click Buy Now
     } catch (err) {
       console.error(err);
     } finally {
@@ -66,7 +65,7 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
     <main className="min-h-screen bg-white text-[#1E293B]">
       <Navbar />
 
-      <div className="pt-24 lg:pt-32 pb-24 max-w-7xl mx-auto px-6 lg:px-12">
+      <div className="pt-24 lg:pt-28 pb-24 max-w-7xl mx-auto px-6 lg:px-12">
         {/* Breadcrumbs */}
         <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-10 overflow-hidden whitespace-nowrap">
             <Link href="/" className="hover:text-primary">Home</Link>
@@ -76,10 +75,10 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
             <span className="text-primary font-bold truncate">{book.title}</span>
         </nav>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
-          {/* Left Column: Image */}
-          <div className="lg:w-[35%] flex-shrink-0">
-            <div className="sticky top-32 space-y-6">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+          {/* Left Column: Decreased Image Size */}
+          <div className="lg:w-[25%] flex-shrink-0">
+            <div className="sticky top-28 space-y-6">
                 <div className="relative aspect-[3/4.5] w-full bg-[#F8FAFC] rounded-2xl overflow-hidden shadow-xl border border-border/10">
                 {book.image ? (
                     <Image
@@ -97,20 +96,10 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
           </div>
 
           {/* Middle Column: Details */}
-          <div className="lg:w-[40%] space-y-10">
+          <div className="lg:w-[45%] space-y-10">
             <div className="space-y-4">
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-serif font-black text-[#1E293B] leading-tight">{book.title}</h1>
               <p className="text-lg font-bold text-muted-foreground italic">Author : {book.author}</p>
-            </div>
-
-            {/* Print Book Badge - Clean style */}
-            <div className="inline-block p-4 border-2 border-red-500 rounded-2xl bg-white shadow-sm">
-                <p className="text-xs font-bold text-muted-foreground mb-1">Print book</p>
-                <div className="flex items-baseline space-x-3">
-                    <span className="text-2xl font-black">₹{book.price.toFixed(0)}</span>
-                    <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toFixed(0)}</span>
-                    <span className="text-xs font-bold text-green-600">{savingsPercent}% off</span>
-                </div>
             </div>
 
             <div className="space-y-4">
@@ -137,20 +126,19 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
                 <div className="space-y-4">
                     <DetailItem label="Generic Name" value="Book" />
                     <DetailItem label="Book code" value={book.id.slice(0, 8)} />
-                    <DetailItem label="Publisher" value="Vikatan Publications" />
                     <DetailItem label="Language" value={book.languages?.[0] || "Tamil"} />
                     <DetailItem label="Country of Origin" value="India" />
-                    <DetailItem label="Contact us" value="books@vikatan.com" isLink />
+                    <DetailItem label="Contact us" value="bybookzbookz@gmail.com" isLink />
                 </div>
             </div>
           </div>
 
-          {/* Right Column: Sticky Purchase Card */}
-          <div className="lg:w-[25%]">
-            <div className="sticky top-32 space-y-6">
+          {/* Right Column: Sticky Purchase Card - Moved Up */}
+          <div className="lg:w-[30%]">
+            <div className="sticky top-28 space-y-6">
                 <div className="bg-white rounded-3xl border border-border p-8 shadow-sm space-y-8">
                     <div className="flex items-center justify-between border-b border-border pb-4">
-                        <span className="text-lg font-black text-red-500">Print</span>
+                        <span className="text-lg font-black text-[#1E293B]">Details</span>
                         <span className="text-sm font-black text-[#10B981]">In Stock</span>
                     </div>
 
@@ -183,14 +171,14 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
                         <button 
                             onClick={handleAddToCart}
                             disabled={adding || book.stock === 0}
-                            className="w-full py-4 border-2 border-red-500 text-red-500 rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-red-50 transition-all flex items-center justify-center space-x-2"
+                            className="w-full py-4 border-2 border-primary text-primary rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-primary/5 transition-all flex items-center justify-center space-x-2"
                         >
                             {adding ? <Loader2 size={16} className="animate-spin" /> : <span>Add to Cart</span>}
                         </button>
                         <button 
                              onClick={handleBuyNow}
                              disabled={adding || book.stock === 0}
-                             className="w-full py-4 bg-red-500 text-white rounded-full font-black uppercase tracking-widest text-[10px] hover:bg-red-600 shadow-xl shadow-red-200 transition-all active:scale-95"
+                             className="w-full py-4 bg-primary text-white rounded-full font-black uppercase tracking-widest text-[10px] hover:opacity-90 shadow-xl shadow-primary/10 transition-all active:scale-95"
                         >
                             Buy Now
                         </button>
