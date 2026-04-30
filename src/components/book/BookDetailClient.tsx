@@ -41,7 +41,7 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
   const handleAddToCart = async () => {
     setAdding(true);
     try {
-      await addToCart(book, quantity, book.languages?.[0] || "English");
+      await addToCart(book, quantity, book.languages?.[0] || "Tamil");
     } catch (err) {
       console.error(err);
     } finally {
