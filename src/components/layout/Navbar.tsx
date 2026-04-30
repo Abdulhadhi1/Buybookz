@@ -188,7 +188,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-3 sm:space-x-6">
-            <Link href="/profile" prefetch className="hidden sm:block text-foreground/60 hover:text-foreground transition-colors">
+            <Link href="/profile" prefetch={false} className="hidden sm:block text-foreground/60 hover:text-foreground transition-colors">
               <User size={18} />
             </Link>
 
@@ -272,7 +272,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="mt-auto space-y-6 pt-10 border-t border-border">
-                  <Link href="/profile" prefetch onClick={closeMenu} className="flex items-center space-x-4 text-xs font-black uppercase tracking-widest text-primary">
+                  <Link href="/profile" prefetch={false} onClick={closeMenu} className="flex items-center space-x-4 text-xs font-black uppercase tracking-widest text-primary">
                     <User size={16} />
                     <span>My Account</span>
                   </Link>

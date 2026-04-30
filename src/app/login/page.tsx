@@ -31,14 +31,13 @@ export default function LoginPage() {
 
       if (res.ok) {
         showToast("Welcome back! Login successful", "success");
-        if (data.user.role === "ADMIN") {
-            router.push("/admin");
-        } else {
-            router.push("/");
-        }
         setTimeout(() => {
-            router.refresh();
-        }, 100);
+          if (data.user.role === "ADMIN") {
+              window.location.href = "/admin";
+          } else {
+              window.location.href = "/";
+          }
+        }, 800); // Give time for toast
       } else {
         setError(data.error || "Login failed");
       }
