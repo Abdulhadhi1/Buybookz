@@ -83,6 +83,7 @@ export default function CheckoutPage() {
         
         const res = await fetch(url, {
             method,
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
                 address: fullAddress, 
                 city: addressForm.city, 
@@ -92,17 +93,21 @@ export default function CheckoutPage() {
             }),
         });
 
+        const data = await res.json();
+
         if (res.ok) {
-            const savedAddr = await res.json();
             await fetchAddresses();
-            setSelectedAddressId(editingAddressId || savedAddr.id);
+            const newId = editingAddressId || data.id;
+            setSelectedAddressId(newId);
             setShowAddressForm(false);
             setEditingAddressId(null);
-            // Move to next step automatically
-            setActiveStep(1);
+            setActiveStep(1); // Advance to Order Summary
+        } else {
+            alert(data.error || "Failed to save address. Please check all fields.");
         }
     } catch (err) {
-        console.error(err);
+        console.error("Save Address Error:", err);
+        alert("An error occurred while saving. Please try again.");
     } finally {
         setAddingAddress(false);
     }
