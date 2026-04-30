@@ -64,7 +64,10 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const addToCart = async (book: any, quantity: number, language?: string) => {
-     // Optimistic Update for instant feedback
+     // 1. Instant UI Feedback - Open Drawer Immediately
+     setIsDrawerOpen(true);
+
+     // 2. Optimistic Update - Update List Immediately
      const newItem: CartItem = {
          id: `temp-${Date.now()}`,
          bookId: book.id,
@@ -87,31 +90,28 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
          return [...prev, newItem];
      });
      setCartCount(prev => prev + quantity);
-     setIsDrawerOpen(true);
 
-     try {
-       const res = await fetch("/api/cart", {
+     // 3. Background Sync - No 'await' here to prevent blocking UI
+     fetch("/api/cart", {
          method: "POST",
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ bookId: book.id, quantity, language }),
-       });
-       
-       if (res.status === 401) {
-         const guestCart = getGuestCart();
-         const existingIndex = guestCart.findIndex((item: any) => item.bookId === book.id && item.language === language);
-         
-         if (existingIndex > -1) {
-           guestCart[existingIndex].quantity += quantity;
-         } else {
-           guestCart.push(newItem);
-         }
-         localStorage.setItem('guestCart', JSON.stringify(guestCart));
-       }
-       await refreshCart(); // Sync with server after response
-     } catch (err) {
-       console.error("Add to cart failed", err);
-       await refreshCart(); // Revert or sync on error
-     }
+     }).then(async (res) => {
+        if (res.status === 401) {
+            const guestCart = getGuestCart();
+            const existingIndex = guestCart.findIndex((item: any) => item.bookId === book.id && item.language === language);
+            if (existingIndex > -1) {
+              guestCart[existingIndex].quantity += quantity;
+            } else {
+              guestCart.push(newItem);
+            }
+            localStorage.setItem('guestCart', JSON.stringify(guestCart));
+        }
+        refreshCart(); // Sync final state
+     }).catch(err => {
+        console.error("Background sync failed", err);
+        refreshCart();
+     });
   };
 
   const updateQuantity = async (itemId: string, quantity: number) => {

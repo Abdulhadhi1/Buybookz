@@ -5,6 +5,7 @@ import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { CartProvider } from "@/context/CartContext";
 import MobileNav from "@/components/layout/MobileNav";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,7 +35,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
         <ToastProvider>
-          <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            {children}
+            <CartDrawer />
+          </CartProvider>
         </ToastProvider>
         <WhatsAppButton />
         <MobileNav />

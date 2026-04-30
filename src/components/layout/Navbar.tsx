@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import CartDrawer from "@/components/cart/CartDrawer";
 
 const desktopMenuItems = [
   { label: "Shop", href: "/shop" },
@@ -295,8 +294,6 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </nav>
-      {/* Global Cart Drawer */}
-      <CartDrawer />
     </>
   );
 };
