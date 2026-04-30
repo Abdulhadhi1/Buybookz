@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orderId = params.id;
+    const { id: orderId } = await params;
 
     const order = await prisma.order.findUnique({
       where: {
