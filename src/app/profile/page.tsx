@@ -1,19 +1,7 @@
-"use client";
+import ProfileClient from "@/components/profile/ProfileClient";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+export const dynamic = "force-dynamic";
 
-export default function ProfileRedirect() {
-    const router = useRouter();
-
-    useEffect(() => {
-        router.replace("/orders");
-    }, [router]);
-
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Loader2 className="animate-spin text-accent" size={48} />
-        </div>
-    );
+export default function ProfilePage() {
+  return <ProfileClient />;
 }
