@@ -6,17 +6,39 @@ import { Loader2 } from "lucide-react";
 // Optimized caching to make page transitions instant
 export const revalidate = 60; 
 
-export default async function ShopPage() {
-    // Fetch initial data on the server for the fastest response
+export default async function ShopPage({ 
+    searchParams 
+}: { 
+    searchParams: Promise<{ category?: string, query?: string }> 
+}) {
+    const params = await searchParams;
+    const category = params.category;
+    const query = params.query;
+
+    // Fetch initial data on the server with filtering
     const [books, categories] = await Promise.all([
         prisma.book.findMany({
-            take: 40, // Reduced to 40 books for the initial load to prevent oversized ISR pages
+            where: {
+                AND: [
+                    category && category !== "All" ? {
+                        category: { name: category }
+                    } : {},
+                    query ? {
+                        OR: [
+                            { title: { contains: query, mode: "insensitive" } },
+                            { author: { contains: query, mode: "insensitive" } }
+                        ]
+                    } : {}
+                ]
+            },
+            take: 100, // Show up to 100 relevant books
             select: {
                 id: true,
                 title: true,
                 author: true,
                 price: true,
                 image: true,
+                stock: true,
                 categoryId: true,
                 category: { select: { name: true } }
             },
@@ -33,11 +55,14 @@ export default async function ShopPage() {
 
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="animate-spin text-accent" size={48} />
+            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+                <Loader2 className="animate-spin text-red-500" size={48} />
             </div>
         }>
-            <ShopClient initialBooks={serializedBooks} initialCategories={serializedCategories} />
+            <ShopClient 
+                initialBooks={serializedBooks} 
+                initialCategories={serializedCategories} 
+            />
         </Suspense>
     );
 }
