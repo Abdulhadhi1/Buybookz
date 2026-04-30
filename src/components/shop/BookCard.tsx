@@ -3,11 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Star, Loader2, Plus } from "lucide-react";
+import { Loader2, BookOpen } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { useToast } from "@/components/ui/ToastProvider";
 
 interface BookCardProps {
   id: string;
@@ -23,11 +22,9 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
   const [adding, setAdding] = useState(false);
   const router = useRouter();
   const { refreshCartCount } = useCart();
-  const { showToast } = useToast();
 
-  const categoryName = typeof category === "object" ? category?.name : category;
-  const hasDiscount = title.length % 2 === 0;
-  const originalPrice = hasDiscount ? price * 1.2 : null;
+  const originalPrice = price * 1.3;
+  const discount = 30;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,7 +41,6 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
         router.push("/login");
       } else if (res.ok) {
         await refreshCartCount();
-        router.prefetch("/cart");
       }
     } catch (err) {
       console.error(err);
@@ -55,71 +51,63 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group relative flex flex-col h-full cursor-pointer bg-white/50 dark:bg-white/5 rounded-2xl p-4 transition-all duration-500 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] border border-border/20"
+      className="group flex flex-col h-full bg-transparent"
     >
-      <Link href={`/book/${id}`} prefetch className="flex-grow flex flex-col space-y-5">
-        <div className="relative aspect-[3/4] w-full bg-secondary rounded-xl overflow-hidden flex items-center justify-center p-6">
-          {stock === 0 ? (
-            <div className="absolute top-4 left-4 z-10 bg-primary/90 backdrop-blur-md text-white px-3 py-1 text-[8px] uppercase font-black tracking-widest rounded-full">
-              Out of Archive
+      <Link href={`/book/${id}`} className="flex flex-col h-full">
+        {/* Vertical Image Container */}
+        <div className="relative aspect-[3/4.5] w-full bg-[#E2E8F0] rounded-2xl overflow-hidden shadow-sm group-hover:shadow-xl transition-all duration-500 border border-border/20">
+          {image ? (
+            <Image 
+              src={image} 
+              alt={title} 
+              fill 
+              className="object-cover transform group-hover:scale-105 transition-transform duration-700" 
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-white text-3xl font-serif text-[#CBD5E1]">
+              {title[0]}
             </div>
-          ) : hasDiscount ? (
-            <div className="absolute top-4 left-4 z-10 bg-accent text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-lg">
-              Collector&apos;s Pick
-            </div>
-          ) : null}
-
-          <div className="relative w-full h-full transform transition-transform duration-700 group-hover:scale-105 shadow-2xl">
-            {image ? (
-              <Image src={image} alt={title} fill className="object-cover rounded-sm" />
-            ) : (
-              <div className="w-full h-full bg-white flex items-center justify-center">
-                <span className="text-4xl font-serif italic text-primary/5">{title[0]}</span>
-              </div>
-            )}
-          </div>
-
-          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-            <button
-              onClick={handleAddToCart}
-              disabled={adding || stock === 0}
-              className="pointer-events-auto absolute bottom-3 right-3 h-11 w-11 bg-white text-primary rounded-full flex items-center justify-center shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-accent hover:text-white"
-            >
-              {adding ? <Loader2 size={20} className="animate-spin" /> : <Plus size={24} />}
-            </button>
+          )}
+          
+          {/* Discount Badge */}
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-md shadow-lg">
+             {discount}% OFF
           </div>
         </div>
 
-        <div className="space-y-2 px-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-accent bg-accent/10 px-2 py-0.5 rounded-full">
-              {categoryName || "Literature"}
-            </span>
-            <div className="flex items-center space-x-1">
-              <Star size={10} fill="currentColor" stroke="none" className="text-accent" />
-              <span className="text-[10px] font-bold opacity-40">4.9</span>
-            </div>
-          </div>
-
-          <h3 className="text-sm md:text-md font-serif font-medium text-foreground group-hover:text-accent transition-colors leading-snug line-clamp-1">
+        {/* Book Details */}
+        <div className="mt-4 flex flex-col flex-grow">
+          <h3 className="text-[14px] font-bold text-[#1E293B] line-clamp-2 leading-tight group-hover:text-primary transition-colors">
             {title}
           </h3>
+          <p className="text-[12px] text-muted-foreground mt-1 line-clamp-1 italic">{author}</p>
+          
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-base font-black text-[#1E293B]">₹{price.toFixed(0)}</span>
+            <span className="text-xs text-[#94A3B8] line-through decoration-red-400">₹{originalPrice.toFixed(0)}</span>
+            <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">{discount}% off</span>
+          </div>
 
-          <p className="text-[11px] font-medium text-foreground/40 italic">by {author}</p>
-
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-bold text-foreground">{`Rs. ${price.toFixed(2)}`}</span>
-              {originalPrice && (
-                <span className="text-[10px] text-foreground/20 line-through">{`Rs. ${originalPrice.toFixed(2)}`}</span>
-              )}
-            </div>
+          {/* E-book Badge (As seen in screenshot) */}
+          <div className="mt-4">
+             <div className="inline-flex items-center space-x-2 bg-[#10B981] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm">
+                <BookOpen size={12} />
+                <span>E-book only</span>
+             </div>
           </div>
         </div>
       </Link>
+      
+      <button
+        onClick={handleAddToCart}
+        disabled={adding || stock === 0}
+        className="mt-4 w-full py-2.5 bg-primary/5 text-primary border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all active:scale-95 flex items-center justify-center space-x-2"
+      >
+        {adding ? <Loader2 size={14} className="animate-spin" /> : <span>Add to Cart</span>}
+      </button>
     </motion.div>
   );
 };
