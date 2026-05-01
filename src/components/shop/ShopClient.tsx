@@ -164,15 +164,19 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                   >
                     <div className="mt-4 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
                         {["All", ...initialCategories.map(c => c.name)].map((cat) => (
-                            <label key={cat} className="flex items-center space-x-3 cursor-pointer group py-1">
+                            <label 
+                              key={cat} 
+                              className="flex items-center space-x-3 cursor-pointer group py-1"
+                              onClick={() => handleCategorySelect(cat)}
+                            >
                                 <input 
                                     type="radio" 
                                     name="category"
                                     checked={selectedCategory === cat} 
-                                    onChange={() => handleCategorySelect(cat)}
-                                    className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary" 
+                                    readOnly
+                                    className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary cursor-pointer" 
                                 />
-                                <span className={`text-xs font-medium ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
+                                <span className={`text-xs font-medium cursor-pointer ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
                             </label>
                         ))}
                     </div>
@@ -204,9 +208,9 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                                 type="checkbox" 
                                 checked={showInStockOnly} 
                                 onChange={(e) => setShowInStockOnly(e.target.checked)}
-                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary" 
+                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
                             />
-                            <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">Show In Stock</span>
+                            <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>
                         </label>
                     </div>
                   </motion.div>
