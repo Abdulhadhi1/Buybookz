@@ -54,6 +54,7 @@ const BookCard = ({ id, title, author, price, image, category, stock = 10 }: Boo
               alt={title} 
               fill 
               className="object-cover transform group-hover:scale-105 transition-transform duration-700" 
+              sizes="(max-width: 640px) 150px, (max-width: 1024px) 250px, 300px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-white text-3xl font-serif text-[#CBD5E1]">

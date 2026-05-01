@@ -34,6 +34,7 @@ export default function RankedBookCard({ id, title, author, price, image, rank }
               alt={title} 
               fill 
               className="object-cover transform group-hover:scale-105 transition-transform duration-700" 
+              sizes="(max-width: 640px) 180px, 220px"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-2xl font-serif text-[#CBD5E1]">

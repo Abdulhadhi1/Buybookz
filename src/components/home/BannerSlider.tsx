@@ -72,6 +72,7 @@ const BannerSlider = ({ banners }: BannerSliderProps) => {
                   fill
                   className="object-cover"
                   priority
+                  sizes="100vw"
                 />
               ) : (
                 <div className="absolute inset-0 bg-secondary flex items-center justify-center p-12 text-center">

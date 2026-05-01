@@ -39,10 +39,12 @@ export default function HomeCategoryList({ categories }: HomeCategoryListProps) 
                     <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 border-[#F1F5F9] p-0.5 group-hover:border-red-500 transition-all duration-300 shadow-sm overflow-hidden">
                       <div className="w-full h-full rounded-full bg-[#F8FAFC] overflow-hidden relative">
                         {latestBookImage ? (
-                          <img 
+                          <Image 
                             src={latestBookImage} 
                             alt={cat.name}
-                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                            fill
+                            className="object-cover transform group-hover:scale-110 transition-transform duration-500"
+                            sizes="(max-width: 640px) 56px, 80px"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-accent/5 text-accent font-bold text-xs sm:text-base">

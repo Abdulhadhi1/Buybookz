@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import dynamic from "next/dynamic";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { CartProvider } from "@/context/CartContext";
-import MobileNav from "@/components/layout/MobileNav";
-import CartDrawer from "@/components/cart/CartDrawer";
+
+const WhatsAppButton = dynamic(() => import("@/components/ui/WhatsAppButton"), { ssr: false });
+const MobileNav = dynamic(() => import("@/components/layout/MobileNav"), { ssr: false });
+const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"), { ssr: false });
 
 const inter = Inter({
   variable: "--font-inter",
