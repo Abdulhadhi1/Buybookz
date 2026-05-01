@@ -66,8 +66,8 @@ export const getShopCatalog = unstable_cache(
       AND: [
         query ? {
           OR: [
-            { title: { contains: query, mode: "insensitive" } },
-            { author: { contains: query, mode: "insensitive" } },
+            { title: { contains: query, mode: "insensitive" as const } },
+            { author: { contains: query, mode: "insensitive" as const } },
           ],
         } : {},
         category && category !== "All" ? {
@@ -115,8 +115,8 @@ export const getApiBooks = unstable_cache(
       AND: [
         query ? {
           OR: [
-            { title: { contains: query, mode: "insensitive" } },
-            { author: { contains: query, mode: "insensitive" } },
+            { title: { contains: query, mode: "insensitive" as const } },
+            { author: { contains: query, mode: "insensitive" as const } },
           ],
         } : {},
         category && category !== "All" ? {
