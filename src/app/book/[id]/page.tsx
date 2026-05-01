@@ -20,26 +20,32 @@ export async function generateMetadata(
 
   const description = book.description?.slice(0, 160) || `Buy ${book.title} by ${book.author} online at BuyBookz. Best prices on premium literature.`;
   
-  // Ensure the image URL is absolute for social platforms
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://buybookzs.com';
+  
+  // WhatsApp and other crawlers require ABSOLUTE URLs for images
   const imageUrl = book.image 
     ? (book.image.startsWith('http') ? book.image : `${siteUrl}${book.image}`)
-    : `${siteUrl}/logo.png`; // Fallback to logo
+    : `${siteUrl}/newlogo.png`; 
 
   return {
     metadataBase: new URL(siteUrl),
     title: `${book.title} | ${book.author} | BuyBookz`,
     description: description,
     openGraph: {
-      title: `Buy ${book.title} by ${book.author} Online`,
+      title: book.title,
       description: `₹${book.price} - ${description}`,
-      images: [{
-        url: imageUrl,
-        width: 1200,
-        height: 630,
-        alt: book.title,
-      }],
-      type: "article",
+      url: `/book/${id}`,
+      siteName: "BuyBookz",
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 800, // WhatsApp prefers square or 1.91:1
+          alt: book.title,
+        },
+      ],
+      locale: "en_IN",
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",

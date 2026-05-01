@@ -7,19 +7,22 @@ const CACHE_SECONDS = 300;
 
 export const getHomeCatalog = unstable_cache(
   async () => {
-    // 1. Fetch the 4 categories we want to show
+    // 1. Fetch 10 categories
     const categoriesRaw = await prisma.category.findMany({
-      take: 4,
+      take: 10,
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     });
 
-    // 2. For each category, fetch 10 books in parallel for speed
-    const categoriesWithBooks = await Promise.all(
-      categoriesRaw.map(async (cat) => {
+    // 2. For each category, fetch data needed (10 books for rows, or 1 book for icon)
+    const processedCategories = await Promise.all(
+      categoriesRaw.map(async (cat, index) => {
+        // Fetch 10 books for the first 4 categories, otherwise just 1 for the icon
+        const limit = index < 4 ? 10 : 1;
+        
         const books = await prisma.book.findMany({
           where: { categoryId: cat.id },
-          take: 10,
+          take: limit,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -30,6 +33,7 @@ export const getHomeCatalog = unstable_cache(
             categoryId: true,
           },
         });
+
         return {
           ...cat,
           books,
@@ -53,13 +57,17 @@ export const getHomeCatalog = unstable_cache(
     });
 
     return {
-      categories: categoriesWithBooks.map(c => ({ id: c.id, name: c.name, image: c.image })),
-      featuredCategories: categoriesWithBooks.filter(c => c.books.length > 0),
+      // Top circles list (All 10 categories)
+      categories: processedCategories.map(c => ({ id: c.id, name: c.name, image: c.image })),
+      
+      // Bottom rows (First 4 categories with books)
+      featuredCategories: processedCategories.slice(0, 4).filter(c => c.books.length > 0),
+      
       recentBooks,
-      uncategorizedBooks: [], // Removing this to clean up the UI as requested "view all only not explore"
+      uncategorizedBooks: [],
     };
   },
-  ["home-catalog-v3"],
+  ["home-catalog-v5"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
 
