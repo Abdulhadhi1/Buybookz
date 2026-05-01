@@ -7,58 +7,62 @@ const CACHE_SECONDS = 300;
 
 export const getHomeCatalog = unstable_cache(
   async () => {
-    const [categoriesRaw, homeBooks] = await Promise.all([
-      prisma.category.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-      }),
-      prisma.book.findMany({
-        take: HOME_BOOK_LIMIT,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          author: true,
-          price: true,
-          image: true,
-          categoryId: true,
-        },
-      }),
-    ]);
+    // 1. Fetch the 4 categories we want to show
+    const categoriesRaw = await prisma.category.findMany({
+      take: 4,
+      orderBy: { name: "asc" },
+      select: { id: true, name: true },
+    });
 
-    const booksByCategory = homeBooks.reduce<Record<string, typeof homeBooks>>((acc, book) => {
-      if (!book.categoryId) return acc;
-      acc[book.categoryId] = acc[book.categoryId] || [];
-      if (acc[book.categoryId].length < 8) {
-        acc[book.categoryId].push(book);
-      }
-      return acc;
-    }, {});
+    // 2. For each category, fetch 10 books in parallel for speed
+    const categoriesWithBooks = await Promise.all(
+      categoriesRaw.map(async (cat) => {
+        const books = await prisma.book.findMany({
+          where: { categoryId: cat.id },
+          take: 10,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            price: true,
+            image: true,
+            categoryId: true,
+          },
+        });
+        return {
+          ...cat,
+          books,
+          image: books[0]?.image || null,
+        };
+      })
+    );
 
-    const categories = categoriesRaw.map((cat) => ({
-      id: cat.id,
-      name: cat.name,
-      image: booksByCategory[cat.id]?.[0]?.image || null,
-    }));
-
-    const featuredCategories = categoriesRaw
-      .map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        books: booksByCategory[cat.id] || [],
-      }))
-      .filter((cat) => cat.books.length > 0);
+    // 3. Fetch 12 recent books for the "Best Selling" section
+    const recentBooks = await prisma.book.findMany({
+      take: 12,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        price: true,
+        image: true,
+        categoryId: true,
+      },
+    });
 
     return {
-      categories,
-      featuredCategories,
-      recentBooks: homeBooks.slice(0, 12),
-      uncategorizedBooks: homeBooks.filter((book) => !book.categoryId).slice(0, 8),
+      categories: categoriesWithBooks.map(c => ({ id: c.id, name: c.name, image: c.image })),
+      featuredCategories: categoriesWithBooks.filter(c => c.books.length > 0),
+      recentBooks,
+      uncategorizedBooks: [], // Removing this to clean up the UI as requested "view all only not explore"
     };
   },
-  ["home-catalog-v2"],
+  ["home-catalog-v3"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
+
 
 export const getShopCatalog = unstable_cache(
   async (query = "", category = "") => {

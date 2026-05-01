@@ -71,9 +71,18 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 20);
     };
 
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   const closeMenu = () => setIsOpen(false);
 
@@ -230,14 +239,14 @@ const Navbar = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={closeMenu}
-                className="fixed inset-0 bg-black/40 z-[70] backdrop-blur-sm"
+                className="fixed inset-0 bg-black/40 z-[105] backdrop-blur-sm"
               />
               <motion.div
                 initial={{ x: "100%" }}
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[80] p-8 sm:p-10 flex flex-col shadow-2xl overflow-y-auto"
+                transition={{ type: "spring", damping: 40, stiffness: 400, mass: 0.8 }}
+                className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[110] p-8 sm:p-10 flex flex-col shadow-2xl overflow-y-auto"
               >
                 <div className="flex justify-between items-center mb-10">
                   <div className="relative h-10 w-32">

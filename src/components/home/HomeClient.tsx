@@ -44,7 +44,7 @@ export default function HomeClient({ categories, featuredCategories, recentBooks
             href="/categories"
             className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest text-accent hover:text-primary transition-all whitespace-nowrap"
           >
-            <span>Explore All Categories</span>
+            <span>View All</span>
             <ArrowUpRight size={12} className="transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </Link>
       </div>
@@ -115,10 +115,10 @@ export default function HomeClient({ categories, featuredCategories, recentBooks
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
                 <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">Best Deal of Month</h2>
                 <Link 
-                  href="/shop?discount=true"
+                  href="/shop"
                   className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
                 >
-                  <span>Explore More</span>
+                  <span>View All</span>
                   <ArrowUpRight size={12} className="transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </Link>
               </div>
