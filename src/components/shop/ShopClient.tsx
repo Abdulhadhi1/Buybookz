@@ -122,13 +122,13 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
       <Navbar />
 
       {/* 1. Horizontal Category Bar (Top) */}
-      <div className="pt-24 bg-white border-b border-border shadow-sm overflow-hidden">
+      <div className="pt-28 sm:pt-36 bg-white border-b border-border shadow-sm overflow-hidden sticky top-0 z-[50]">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-3 overflow-x-auto no-scrollbar flex items-center space-x-8 whitespace-nowrap">
             {["All", ...initialCategories.map(c => c.name)].map((cat) => (
                 <button 
                     key={cat} 
                     onClick={() => handleCategorySelect(cat)}
-                    className={`text-xs font-bold transition-all ${selectedCategory === cat ? 'text-primary border-b-2 border-primary pb-1' : 'text-muted-foreground hover:text-primary'}`}
+                    className={`text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all cursor-pointer ${selectedCategory === cat ? 'text-primary border-b-2 border-primary pb-1' : 'text-muted-foreground hover:text-primary'}`}
                 >
                     {cat}
                 </button>
