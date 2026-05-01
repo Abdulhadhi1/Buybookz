@@ -37,7 +37,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   
   const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl);
   const [sortBy, setSortBy] = useState("relevance");
-  const [showInStockOnly, setShowInStockOnly] = useState(true);
+  const [showInStockOnly, setShowInStockOnly] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
   const [books, setBooks] = useState(initialBooks);
@@ -103,10 +103,14 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   };
 
   const filteredBooks = books.filter((book) => {
-    const bookCategoryName = typeof book.category === "object" ? book.category?.name : book.category;
-    const matchesCategory = selectedCategory === "All" ||
-                           bookCategoryName?.trim().toLowerCase() === selectedCategory.trim().toLowerCase();
+    // Normalize both for comparison (handles different Tamil character encodings)
+    const normalize = (s: string) => s.trim().toLowerCase().normalize('NFC');
     
+    const bookCategoryName = typeof book.category === "object" ? book.category?.name : book.category;
+    const targetCategory = normalize(selectedCategory);
+    const currentBookCategory = bookCategoryName ? normalize(bookCategoryName) : "";
+
+    const matchesCategory = selectedCategory === "All" || currentBookCategory === targetCategory;
     const matchesStock = showInStockOnly ? (book.stock ?? 10) > 0 : true;
     
     return matchesCategory && matchesStock;
