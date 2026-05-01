@@ -103,7 +103,7 @@ export const getShopCatalog = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: category },
+          category: { name: { equals: category, mode: "insensitive" as const } },
         } : {},
       ],
     };
@@ -152,7 +152,7 @@ export const getApiBooks = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: category },
+          category: { name: { equals: category, mode: "insensitive" as const } },
         } : {},
       ],
     };
