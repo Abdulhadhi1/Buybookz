@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BookCard from "@/components/shop/BookCard";
@@ -39,11 +39,19 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
   const [showInStockOnly, setShowInStockOnly] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
+  const [books, setBooks] = useState(initialBooks);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length >= 6);
 
   // Sync state with URL
   useEffect(() => {
     setSelectedCategory(searchParams.get("category") || "All");
   }, [searchParams]);
+
+  useEffect(() => {
+    setBooks(initialBooks);
+    setHasMoreBooks(initialBooks.length >= 6);
+  }, [initialBooks]);
 
   const handleCategorySelect = (catName: string) => {
     setSelectedCategory(catName);
@@ -57,7 +65,34 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
     setIsMobileFilterOpen(false);
   };
 
-  const filteredBooks = initialBooks.filter((book) => {
+  const loadMoreBooks = async () => {
+    if (isLoadingMore || !hasMoreBooks) return;
+    setIsLoadingMore(true);
+
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("limit", "6");
+      params.set("skip", String(books.length));
+      if (selectedCategory !== "All") {
+        params.set("category", selectedCategory);
+      } else {
+        params.delete("category");
+      }
+
+      const res = await fetch(`/api/books?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to load more books");
+
+      const nextBooks: ShopBook[] = await res.json();
+      setBooks((current) => [...current, ...nextBooks]);
+      setHasMoreBooks(nextBooks.length >= 6);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const filteredBooks = books.filter((book) => {
     const bookCategoryName = typeof book.category === "object" ? book.category?.name : book.category;
     const matchesCategory = selectedCategory === "All" ||
                            bookCategoryName?.trim().toLowerCase() === selectedCategory.trim().toLowerCase();
@@ -257,6 +292,19 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
                             className="px-8 py-3.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
                         >
                             Reset Filters
+                        </button>
+                    </div>
+                )}
+
+                {filteredBooks.length > 0 && hasMoreBooks && (
+                    <div className="flex justify-center mt-12">
+                        <button
+                            onClick={loadMoreBooks}
+                            disabled={isLoadingMore}
+                            className="min-w-40 px-8 py-3.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+                        >
+                            {isLoadingMore && <Loader2 size={14} className="animate-spin" />}
+                            <span>{isLoadingMore ? "Loading" : "Load More"}</span>
                         </button>
                     </div>
                 )}

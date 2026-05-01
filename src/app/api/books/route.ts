@@ -1,44 +1,29 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { getApiBooks } from "@/lib/book-data";
+import { revalidateTag } from "next/cache";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("query");
-    const limit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined;
+    const query = searchParams.get("query")?.trim() || "";
+    const category = searchParams.get("category")?.trim() || "";
+    const requestedLimit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 6;
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 12) : 6;
+    const requestedSkip = searchParams.get("skip") ? parseInt(searchParams.get("skip")!) : 0;
+    const skip = Number.isFinite(requestedSkip) ? Math.max(requestedSkip, 0) : 0;
 
-    // Use select instead of include for faster database response
-    const books = await prisma.book.findMany({
-      where: query ? {
-        OR: [
-          { title: { contains: query, mode: "insensitive" } },
-          { author: { contains: query, mode: "insensitive" } },
-        ]
-      } : {},
-      select: {
-        id: true,
-        title: true,
-        author: true,
-        price: true,
-        image: true,
-        category: {
-          select: { name: true }
-        }
-      },
-      orderBy: { createdAt: "desc" },
-      take: limit || 10, // Default limit for safety
-    });
+    const books = await getApiBooks(query, category, limit, skip);
 
-    // Add Cache-Control header for faster client-side response on repeat searches
     return NextResponse.json(books, {
-        headers: {
-            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=30",
-        }
+      headers: {
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+      },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 });
   }
 }
@@ -64,6 +49,7 @@ export async function POST(req: Request) {
         languages: languages || ["English"]
       },
     });
+    revalidateTag("books", "max");
     return NextResponse.json(book);
   } catch (error) {
     console.error(error);

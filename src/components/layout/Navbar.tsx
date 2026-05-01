@@ -106,9 +106,14 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <Link href="/" prefetch className="flex items-center group select-none">
-            <div className="flex items-baseline font-serif tracking-tighter transition-all duration-500 group-hover:scale-110">
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary drop-shadow-sm select-none">Buy</span>
-              <span className="text-3xl sm:text-4xl lg:text-5xl font-extralight italic text-accent ml-1 transition-all duration-500 group-hover:ml-2">Bookz</span>
+            <div className="relative h-12 w-40 sm:h-16 sm:w-56 transition-all duration-500 group-hover:scale-105">
+              <Image 
+                src="/newlogo.png" 
+                alt="BuyBookz Logo" 
+                fill 
+                priority
+                className="object-contain" 
+              />
             </div>
           </Link>
 
@@ -235,9 +240,14 @@ const Navbar = () => {
                 className="fixed top-0 right-0 bottom-0 w-[84%] max-w-[340px] bg-white z-[80] p-8 sm:p-10 flex flex-col shadow-2xl overflow-y-auto"
               >
                 <div className="flex justify-between items-center mb-10">
-                  <div className="flex items-baseline font-serif tracking-tight">
-                    <span className="text-3xl font-black text-primary">Buy</span>
-                    <span className="text-3xl font-light italic text-accent -ml-0.5">Bookz</span>
+                  <div className="relative h-10 w-32">
+                    <Image 
+                      src="/newlogo.png" 
+                      alt="BuyBookz Logo" 
+                      fill 
+                      priority
+                      className="object-contain" 
+                    />
                   </div>
                   <button onClick={closeMenu} className="p-2 hover:bg-secondary rounded-full transition-colors" aria-label="Close menu">
                     <X size={20} />
