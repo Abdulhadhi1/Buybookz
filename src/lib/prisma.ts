@@ -51,20 +51,44 @@ const getEffectiveInstance = () => {
 const prisma = new Proxy({} as PrismaClient, {
   get: (target, prop) => {
     // Prevent crashes during Next.js static data collection or build-time checks
-    if (process.env.NEXT_PHASE === 'phase-production-build' && !process.env.DATABASE_URL) {
-        return () => Promise.resolve(null);
-    }
-    
+    // if the database connection isn't available.
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    const hasDbUrl = !!(process.env.DATABASE_URL || process.env.POSTGRES_URL);
+
     // Symbol and internal Property ignore
     if (typeof prop === 'symbol' || prop === '$$typeof' || prop === 'then') return undefined;
-    
-    const instance = getEffectiveInstance();
-    const value = (instance as any)[prop];
-    
-    if (typeof value === 'function') {
-        return value.bind(instance);
+
+    try {
+        const instance = getEffectiveInstance();
+        const value = (instance as any)[prop];
+        
+        if (value !== undefined) {
+            if (typeof value === 'function') {
+                return value.bind(instance);
+            }
+            return value;
+        }
+    } catch (err: any) {
+        if (!isBuildPhase) throw err;
+        console.warn(`Prisma access error for "${String(prop)}" during build:`, err?.message || err);
     }
-    return value;
+
+    // Fallback for build phase or missing connection
+    if (isBuildPhase || !hasDbUrl) {
+        // Return a "safe" object that can be accessed and called indefinitely
+        const createSafeMock = (): any => {
+            const mock: any = () => Promise.resolve([]);
+            return new Proxy(mock, {
+                get: (t, p) => {
+                    if (p === 'then') return undefined;
+                    return createSafeMock();
+                }
+            });
+        };
+        return createSafeMock();
+    }
+
+    return undefined;
   }
 });
 
