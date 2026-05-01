@@ -13,7 +13,7 @@ export default async function ShopPage({
     const params = await searchParams;
     const query = params.query?.trim() || "";
     const category = params.category?.trim() || "";
-    const { books, categories } = await getShopCatalog(query, category);
+    const { books, categories, totalCount } = await getShopCatalog(query, category);
 
     const serializedBooks = JSON.parse(JSON.stringify(books));
     const serializedCategories = JSON.parse(JSON.stringify(categories));
@@ -23,6 +23,7 @@ export default async function ShopPage({
             <ShopClient 
                 initialBooks={serializedBooks} 
                 initialCategories={serializedCategories} 
+                totalCount={totalCount}
             />
         </Suspense>
     );

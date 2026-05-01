@@ -16,9 +16,9 @@ export async function GET(req: Request) {
     const requestedSkip = searchParams.get("skip") ? parseInt(searchParams.get("skip")!) : 0;
     const skip = Number.isFinite(requestedSkip) ? Math.max(requestedSkip, 0) : 0;
 
-    const books = await getApiBooks(query, category, limit, skip);
+    const data = await getApiBooks(query, category, limit, skip);
 
-    return NextResponse.json(books, {
+    return NextResponse.json(data, {
       headers: {
         "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
       },

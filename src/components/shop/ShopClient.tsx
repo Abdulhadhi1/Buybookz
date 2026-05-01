@@ -27,9 +27,10 @@ interface ShopCategory {
 interface ShopClientProps {
   initialBooks: ShopBook[];
   initialCategories: ShopCategory[];
+  totalCount: number;
 }
 
-export default function ShopClient({ initialBooks, initialCategories }: ShopClientProps) {
+export default function ShopClient({ initialBooks, initialCategories, totalCount: serverTotalCount }: ShopClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const categoryFromUrl = searchParams.get("category") || "All";
@@ -41,7 +42,8 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
   const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
   const [books, setBooks] = useState(initialBooks);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length >= 6);
+  const [totalCount, setTotalCount] = useState(serverTotalCount);
+  const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length < serverTotalCount);
 
   // Sync state with URL
   useEffect(() => {
@@ -50,8 +52,9 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
 
   useEffect(() => {
     setBooks(initialBooks);
-    setHasMoreBooks(initialBooks.length >= 6);
-  }, [initialBooks]);
+    setTotalCount(serverTotalCount);
+    setHasMoreBooks(initialBooks.length < serverTotalCount);
+  }, [initialBooks, serverTotalCount]);
 
   const handleCategorySelect = (catName: string) => {
     setSelectedCategory(catName);
@@ -71,7 +74,7 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
 
     try {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("limit", "6");
+      params.set("limit", "12"); // Load more at once for better feel
       params.set("skip", String(books.length));
       if (selectedCategory !== "All") {
         params.set("category", selectedCategory);
@@ -82,9 +85,13 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
       const res = await fetch(`/api/books?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to load more books");
 
-      const nextBooks: ShopBook[] = await res.json();
+      const data = await res.json();
+      const nextBooks: ShopBook[] = data.books || data;
+      const nextTotal: number = data.totalCount ?? totalCount;
+
       setBooks((current) => [...current, ...nextBooks]);
-      setHasMoreBooks(nextBooks.length >= 6);
+      setTotalCount(nextTotal);
+      setHasMoreBooks(books.length + nextBooks.length < nextTotal);
     } catch (err) {
       console.error(err);
     } finally {
@@ -254,9 +261,12 @@ export default function ShopClient({ initialBooks, initialCategories }: ShopClie
             {/* 4. Main Content Area */}
             <div className="flex-grow">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                    <h1 className="text-2xl md:text-3xl font-serif font-bold text-primary">
-                        {selectedCategory === "All" ? "Explore Our Archive" : `${selectedCategory} Books`}
-                    </h1>
+                    <div className="space-y-1">
+                        <h1 className="text-2xl md:text-3xl font-serif font-bold text-primary">
+                            {selectedCategory === "All" ? "Explore Our Archive" : `${selectedCategory} Books`}
+                        </h1>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{totalCount} Books Found</p>
+                    </div>
                     <div className="flex items-center space-x-4">
                          <div className="flex items-center space-x-2 text-muted-foreground">
                             <LayoutGrid size={16} className="text-primary cursor-pointer" />
