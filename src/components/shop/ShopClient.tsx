@@ -116,110 +116,6 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     return 0;
   });
 
-  const FilterContent = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-          <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
-          <button 
-              onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
-              className="text-[10px] font-bold text-accent hover:underline"
-          >
-              Clear all
-          </button>
-      </div>
-
-      {/* Active Filters */}
-      <div className="flex flex-wrap gap-2">
-          {selectedCategory !== "All" && (
-              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                  <span>{selectedCategory}</span>
-                  <button onClick={() => handleCategorySelect("All")}><X size={10} /></button>
-              </div>
-          )}
-          {showInStockOnly && (
-              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                  <span>In stock</span>
-                  <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
-              </div>
-          )}
-      </div>
-
-      <div className="space-y-4 pt-4">
-          {/* Categories Accordion */}
-          <div className="border-t border-border pt-4">
-              <div 
-                className="flex items-center justify-between cursor-pointer group"
-                onClick={() => setOpenAccordion(openAccordion === 'categories' ? null : 'categories')}
-              >
-                  <span className={`text-xs font-bold ${openAccordion === 'categories' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Categories</span>
-                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'categories' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <AnimatePresence>
-                {openAccordion === 'categories' && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-4 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
-                        {["All", ...initialCategories.map(c => c.name)].map((cat) => (
-                            <label 
-                              key={cat} 
-                              className="flex items-center space-x-3 cursor-pointer group py-1"
-                              onClick={() => handleCategorySelect(cat)}
-                            >
-                                <input 
-                                    type="radio" 
-                                    name="category"
-                                    checked={selectedCategory === cat} 
-                                    readOnly
-                                    className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary cursor-pointer" 
-                                />
-                                <span className={`text-xs font-medium cursor-pointer ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
-                            </label>
-                        ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-          </div>
-
-          {/* Availability Accordion */}
-          <div className="border-t border-border pt-4">
-              <div 
-                className="flex items-center justify-between cursor-pointer group"
-                onClick={() => setOpenAccordion(openAccordion === 'availability' ? null : 'availability')}
-              >
-                  <span className={`text-xs font-bold ${openAccordion === 'availability' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Availability</span>
-                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'availability' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
-              </div>
-              <AnimatePresence>
-                {openAccordion === 'availability' && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-4 space-y-3">
-                        <label className="flex items-center space-x-3 cursor-pointer group">
-                            <input 
-                                type="checkbox" 
-                                checked={showInStockOnly} 
-                                onChange={(e) => setShowInStockOnly(e.target.checked)}
-                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
-                            />
-                            <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>
-                        </label>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-          </div>
-      </div>
-    </div>
-  );
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
@@ -261,7 +157,107 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
             {/* 3. Desktop Sidebar (Filters) */}
             <aside className="hidden lg:block w-64 flex-shrink-0">
                 <div className="bg-white rounded-2xl border border-border p-6 shadow-sm sticky top-32">
-                    <FilterContent />
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                          <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
+                          <button 
+                              onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
+                              className="text-[10px] font-bold text-accent hover:underline"
+                          >
+                              Clear all
+                          </button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                          {selectedCategory !== "All" && (
+                              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                                  <span>{selectedCategory}</span>
+                                  <button onClick={() => handleCategorySelect("All")}><X size={10} /></button>
+                              </div>
+                          )}
+                          {showInStockOnly && (
+                              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                                  <span>In stock</span>
+                                  <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
+                              </div>
+                          )}
+                      </div>
+
+                      <div className="space-y-4 pt-4">
+                          {/* Categories Accordion */}
+                          <div className="border-t border-border pt-4">
+                              <div 
+                                className="flex items-center justify-between cursor-pointer group"
+                                onClick={() => setOpenAccordion(openAccordion === 'categories' ? null : 'categories')}
+                              >
+                                  <span className={`text-xs font-bold ${openAccordion === 'categories' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Categories</span>
+                                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'categories' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+                              </div>
+                              <AnimatePresence>
+                                {openAccordion === 'categories' && (
+                                  <motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="mt-4 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
+                                        {["All", ...initialCategories.map(c => c.name)].map((cat) => (
+                                            <label 
+                                              key={cat} 
+                                              className="flex items-center space-x-3 cursor-pointer group py-1"
+                                              onClick={() => handleCategorySelect(cat)}
+                                            >
+                                                <input 
+                                                    type="radio" 
+                                                    name="category"
+                                                    checked={selectedCategory === cat} 
+                                                    readOnly
+                                                    className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary cursor-pointer" 
+                                                />
+                                                <span className={`text-xs font-medium cursor-pointer ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                          </div>
+
+                          {/* Availability Accordion */}
+                          <div className="border-t border-border pt-4">
+                              <div 
+                                className="flex items-center justify-between cursor-pointer group"
+                                onClick={() => setOpenAccordion(openAccordion === 'availability' ? null : 'availability')}
+                              >
+                                  <span className={`text-xs font-bold ${openAccordion === 'availability' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Availability</span>
+                                  <ChevronDown size={14} className={`transition-transform ${openAccordion === 'availability' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+                              </div>
+                              <AnimatePresence>
+                                {openAccordion === 'availability' && (
+                                  <motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="mt-4 space-y-3">
+                                        <label className="flex items-center space-x-3 cursor-pointer group">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={showInStockOnly} 
+                                                onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                                className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                                            />
+                                            <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>
+                                        </label>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                          </div>
+                      </div>
+                    </div>
                 </div>
             </aside>
 
@@ -353,7 +349,105 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
               className="fixed bottom-0 left-0 right-0 bg-white rounded-t-[2.5rem] z-[100] p-8 max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl"
             >
               <div className="w-12 h-1.5 bg-border rounded-full mx-auto mb-8" />
-              <FilterContent />
+              <div className="space-y-6 text-left">
+                  <div className="flex items-center justify-between">
+                      <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
+                      <button 
+                          onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); setIsMobileFilterOpen(false); router.push("/shop")}}
+                          className="text-[10px] font-bold text-accent hover:underline"
+                      >
+                          Clear all
+                      </button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                      {selectedCategory !== "All" && (
+                          <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                              <span>{selectedCategory}</span>
+                              <button onClick={() => handleCategorySelect("All")}><X size={10} /></button>
+                          </div>
+                      )}
+                      {showInStockOnly && (
+                          <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                              <span>In stock</span>
+                              <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
+                          </div>
+                      )}
+                  </div>
+
+                  <div className="space-y-4 pt-4">
+                      <div className="border-t border-border pt-4">
+                          <div 
+                            className="flex items-center justify-between cursor-pointer group"
+                            onClick={() => setOpenAccordion(openAccordion === 'categories' ? null : 'categories')}
+                          >
+                              <span className={`text-xs font-bold ${openAccordion === 'categories' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Categories</span>
+                              <ChevronDown size={14} className={`transition-transform ${openAccordion === 'categories' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+                          </div>
+                          <AnimatePresence>
+                            {openAccordion === 'categories' && (
+                              <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-4 space-y-2 max-h-48 overflow-y-auto no-scrollbar">
+                                    {["All", ...initialCategories.map(c => c.name)].map((cat) => (
+                                        <label 
+                                          key={cat} 
+                                          className="flex items-center space-x-3 cursor-pointer group py-1"
+                                          onClick={() => handleCategorySelect(cat)}
+                                        >
+                                            <input 
+                                                type="radio" 
+                                                name="category"
+                                                checked={selectedCategory === cat} 
+                                                readOnly
+                                                className="w-4 h-4 rounded-full border-border text-primary focus:ring-primary cursor-pointer" 
+                                            />
+                                            <span className={`text-xs font-medium cursor-pointer ${selectedCategory === cat ? 'text-primary font-bold' : 'text-muted-foreground group-hover:text-primary'}`}>{cat}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                      </div>
+
+                      <div className="border-t border-border pt-4">
+                          <div 
+                            className="flex items-center justify-between cursor-pointer group"
+                            onClick={() => setOpenAccordion(openAccordion === 'availability' ? null : 'availability')}
+                          >
+                              <span className={`text-xs font-bold ${openAccordion === 'availability' ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`}>Availability</span>
+                              <ChevronDown size={14} className={`transition-transform ${openAccordion === 'availability' ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
+                          </div>
+                          <AnimatePresence>
+                            {openAccordion === 'availability' && (
+                              <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-4 space-y-3">
+                                    <label className="flex items-center space-x-3 cursor-pointer group">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={showInStockOnly} 
+                                            onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                            className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
+                                        />
+                                        <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>
+                                    </label>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                      </div>
+                  </div>
+              </div>
               <button 
                 onClick={() => setIsMobileFilterOpen(false)}
                 className="w-full mt-8 py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-primary/20"

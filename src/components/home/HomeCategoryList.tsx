@@ -59,16 +59,6 @@ export default function HomeCategoryList({ categories }: HomeCategoryListProps) 
               );
             })}
           </div>
-
-          <Link 
-            href="/categories" 
-            className="flex-shrink-0 flex flex-col items-center group w-16 sm:w-24"
-          >
-             <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-[#CBD5E1] p-0.5 group-hover:border-red-500 group-hover:bg-red-50 transition-all duration-300 shadow-sm overflow-hidden flex items-center justify-center">
-                <ArrowRight size={24} className="text-[#94A3B8] group-hover:text-red-500 group-hover:translate-x-1 transition-all" />
-             </div>
-             <span className="mt-2 text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-[#94A3B8] text-center w-full group-hover:text-red-600">All</span>
-          </Link>
         </div>
       </div>
     </div>

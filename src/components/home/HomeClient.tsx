@@ -38,20 +38,6 @@ export default function HomeClient({ categories, featuredCategories, recentBooks
       {/* Hero Spacing - Clean */}
       <div className="pt-24 lg:pt-28"></div>
 
-      {/* Categories Header */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-12 mt-12 mb-6">
-        <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
-          <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">Our Collections</h2>
-          <Link 
-            href="/categories"
-            className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
-          >
-            <span>View All</span>
-            <ArrowUpRight size={12} className="transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </Link>
-        </div>
-      </section>
-
       {/* Circular Categories - Scrollable */}
       <HomeCategoryList categories={categories} />
 
