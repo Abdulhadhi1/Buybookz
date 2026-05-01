@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
+import ClientLayout from "@/components/layout/ClientLayout";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { CartProvider } from "@/context/CartContext";
-
-const WhatsAppButton = dynamic(() => import("@/components/ui/WhatsAppButton"), { ssr: false });
-const MobileNav = dynamic(() => import("@/components/layout/MobileNav"), { ssr: false });
-const CartDrawer = dynamic(() => import("@/components/cart/CartDrawer"), { ssr: false });
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,11 +40,9 @@ export default function RootLayout({
         <ToastProvider>
           <CartProvider>
             {children}
-            <CartDrawer />
+            <ClientLayout />
           </CartProvider>
         </ToastProvider>
-        <WhatsAppButton />
-        <MobileNav />
       </body>
     </html>
   );
