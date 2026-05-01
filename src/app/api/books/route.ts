@@ -11,8 +11,8 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("query")?.trim() || "";
     const category = searchParams.get("category")?.trim() || "";
-    const requestedLimit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 6;
-    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 12) : 6;
+    const requestedLimit = searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : 10;
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 100) : 10;
     const requestedSkip = searchParams.get("skip") ? parseInt(searchParams.get("skip")!) : 0;
     const skip = Number.isFinite(requestedSkip) ? Math.max(requestedSkip, 0) : 0;
 

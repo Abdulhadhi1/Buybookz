@@ -35,6 +35,9 @@ type Tab = "Overview" | "Inventory" | "Categories" | "Users" | "Revenue" | "Sett
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
   const [books, setBooks] = useState<any[]>([]);
+  const [totalBooksCount, setTotalBooksCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   const [categories, setCategories] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -57,8 +60,15 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const skip = (currentPage - 1) * itemsPerPage;
+      const bParams = new URLSearchParams({
+        query: searchQuery,
+        limit: itemsPerPage.toString(),
+        skip: skip.toString()
+      });
+
       const [bRes, cRes, sRes, uRes] = await Promise.all([
-        fetch("/api/books"),
+        fetch(`/api/books?${bParams.toString()}`),
         fetch("/api/categories"),
         fetch("/api/admin/stats"),
         fetch("/api/admin/users")
@@ -74,6 +84,7 @@ export default function AdminDashboard() {
       ]);
 
       setBooks(bData.books || []);
+      setTotalBooksCount(bData.totalCount || 0);
       setCategories(Array.isArray(cData) ? cData : []);
       setStats(sData);
       setUsers(Array.isArray(uData) ? uData : []);
@@ -86,7 +97,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentPage, searchQuery]); // Re-fetch on page or search change
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -314,7 +325,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="bg-white rounded-[3.5rem] border border-border overflow-hidden shadow-sm">
-                    <div className="p-8 border-b border-border bg-secondary/10 flex flex-col md:flex-row justify-between gap-6">
+                    <div className="p-8 border-b border-border bg-secondary/10 flex flex-col md:flex-row justify-between gap-6 items-center">
                         <div className="relative flex-grow max-w-md">
                             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground opacity-30" size={18} />
                             <input 
@@ -322,8 +333,14 @@ export default function AdminDashboard() {
                                 placeholder="Filter by Title, Author..." 
                                 className="w-full pl-16 pr-8 py-4 bg-white rounded-full outline-none focus:ring-2 focus:ring-accent/20 border-transparent border focus:border-accent transition-all font-medium text-sm"
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setCurrentPage(1); // Reset to first page on search
+                                }}
                             />
+                        </div>
+                        <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                            Found {totalBooksCount} Results
                         </div>
                     </div>
                     <div className="overflow-x-auto">
@@ -338,7 +355,7 @@ export default function AdminDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border/50">
-                                {books.filter(b => b.title.toLowerCase().includes(searchQuery.toLowerCase())).map(book => (
+                                {books.map(book => (
                                     <tr key={book.id} className="hover:bg-secondary/5 transition-colors">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center space-x-5">
@@ -389,6 +406,29 @@ export default function AdminDashboard() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                    
+                    {/* Pagination Controls */}
+                    <div className="p-8 border-t border-border bg-secondary/5 flex justify-between items-center">
+                        <div className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                            Page {currentPage} of {Math.ceil(totalBooksCount / itemsPerPage) || 1}
+                        </div>
+                        <div className="flex space-x-2">
+                            <button 
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                className="px-6 py-2 bg-white border border-border rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-all disabled:opacity-30"
+                            >
+                                Previous
+                            </button>
+                            <button 
+                                disabled={currentPage >= Math.ceil(totalBooksCount / itemsPerPage)}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-6 py-2 bg-white border border-border rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-secondary transition-all disabled:opacity-30"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
             </motion.div>
