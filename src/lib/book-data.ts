@@ -103,7 +103,7 @@ export const getShopCatalog = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: { equals: category, mode: "insensitive" as const } },
+          category: { name: { contains: category, mode: "insensitive" as const } },
         } : {},
       ],
     };
@@ -132,12 +132,12 @@ export const getShopCatalog = unstable_cache(
     const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
     const books = booksRaw.map((book) => ({
       ...book,
-      category: book.categoryId ? { name: categoryNames.get(book.categoryId) || null } : null,
+      category: book.categoryId ? { name: categoryNames.get(book.categoryId)?.trim() || null } : null,
     }));
 
     return { books, categories, totalCount };
   },
-  ["shop-catalog-v3"],
+  ["shop-catalog-v4"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
 
@@ -152,7 +152,7 @@ export const getApiBooks = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: { equals: category, mode: "insensitive" as const } },
+          category: { name: { contains: category, mode: "insensitive" as const } },
         } : {},
       ],
     };
@@ -181,6 +181,6 @@ export const getApiBooks = unstable_cache(
 
     return { books, totalCount };
   },
-  ["api-books-v3"],
+  ["api-books-v4"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );

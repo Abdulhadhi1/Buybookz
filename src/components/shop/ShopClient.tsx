@@ -110,7 +110,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     const targetCategory = normalize(selectedCategory);
     const currentBookCategory = bookCategoryName ? normalize(bookCategoryName) : "";
 
-    const matchesCategory = selectedCategory === "All" || currentBookCategory === targetCategory;
+    const matchesCategory = selectedCategory === "All" || currentBookCategory.includes(targetCategory) || targetCategory.includes(currentBookCategory);
     const matchesStock = showInStockOnly ? (book.stock ?? 10) > 0 : true;
     
     return matchesCategory && matchesStock;
