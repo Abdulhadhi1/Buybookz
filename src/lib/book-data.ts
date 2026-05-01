@@ -7,22 +7,28 @@ const CACHE_SECONDS = 300;
 
 export const getHomeCatalog = unstable_cache(
   async () => {
-    // 1. Fetch 10 categories
-    const categoriesRaw = await prisma.category.findMany({
-      take: 10,
+    // 1. Fetch categories that actually HAVE books first to ensure we have rows to show
+    const categoriesWithAtLeastOneBook = await prisma.category.findMany({
+      where: {
+        books: {
+          some: {}
+        }
+      },
+      take: 10, // We take 10 to fill the top list
       orderBy: { name: "asc" },
       select: { id: true, name: true },
     });
 
-    // 2. For each category, fetch data needed (10 books for rows, or 1 book for icon)
+    // 2. For these 10 categories, fetch up to 10 books each
     const processedCategories = await Promise.all(
-      categoriesRaw.map(async (cat, index) => {
-        // Fetch 10 books for the first 4 categories, otherwise just 1 for the icon
-        const limit = index < 4 ? 10 : 1;
+      categoriesWithAtLeastOneBook.map(async (cat, index) => {
+        // We only need 10 books for the first 4 categories (to show in rows)
+        // For the others, we just need 1 to show as an icon in the top circles
+        const take = index < 4 ? 10 : 1;
         
         const books = await prisma.book.findMany({
           where: { categoryId: cat.id },
-          take: limit,
+          take,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
@@ -56,18 +62,32 @@ export const getHomeCatalog = unstable_cache(
       },
     });
 
+    // 4. If we don't have enough categories with books, fetch some empty ones for the top list
+    let topCategories = processedCategories.map(c => ({ id: c.id, name: c.name, image: c.image }));
+    if (topCategories.length < 10) {
+        const remainingCount = 10 - topCategories.length;
+        const extraCategories = await prisma.category.findMany({
+            where: {
+                id: { notIn: topCategories.map(c => c.id) }
+            },
+            take: remainingCount,
+            select: { id: true, name: true }
+        });
+        topCategories = [...topCategories, ...extraCategories.map(c => ({ id: c.id, name: c.name, image: null }))];
+    }
+
     return {
-      // Top circles list (All 10 categories)
-      categories: processedCategories.map(c => ({ id: c.id, name: c.name, image: c.image })),
+      // Top circles list (Always 10 items)
+      categories: topCategories,
       
-      // Bottom rows (First 4 categories with books)
+      // Bottom rows (The first 4 categories that have books)
       featuredCategories: processedCategories.slice(0, 4).filter(c => c.books.length > 0),
       
       recentBooks,
       uncategorizedBooks: [],
     };
   },
-  ["home-catalog-v5"],
+  ["home-catalog-v6"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
 
