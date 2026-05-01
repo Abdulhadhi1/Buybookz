@@ -73,7 +73,7 @@ export default function AdminDashboard() {
         bRes.json(), cRes.json(), sRes.json(), uRes.json()
       ]);
 
-      setBooks(Array.isArray(bData) ? bData : []);
+      setBooks(bData.books || []);
       setCategories(Array.isArray(cData) ? cData : []);
       setStats(sData);
       setUsers(Array.isArray(uData) ? uData : []);
@@ -262,15 +262,15 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div className="bg-white p-8 rounded-[3rem] border border-border shadow-sm flex flex-col justify-between h-48 group hover:border-accent transition-colors">
                         <div className="flex justify-between items-start text-blue-500"><BookOpen size={24} /><TrendingUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Library Inventory</p><p className="text-4xl font-bold tracking-tighter">{stats?.totalBooks || 0} Titles</p></div>
+                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Total Inventory</p><p className="text-4xl font-bold tracking-tighter">{stats?.totalBooks || 0} Books</p></div>
                     </div>
                     <div className="bg-white p-8 rounded-[3rem] border border-border shadow-sm flex flex-col justify-between h-48 group hover:border-accent transition-colors">
-                        <div className="flex justify-between items-start text-red-500"><ShoppingBag size={24} /><TrendingUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Critical Stock</p><p className="text-4xl font-bold tracking-tighter text-red-500">{stats?.outOfStock || 0} Alert</p></div>
+                        <div className="flex justify-between items-start text-orange-500"><Tag size={24} /><TrendingUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" /></div>
+                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Genres & Types</p><p className="text-4xl font-bold tracking-tighter">{stats?.totalCategories || 0} Categories</p></div>
                     </div>
                     <div className="bg-white p-8 rounded-[3rem] border border-border shadow-sm flex flex-col justify-between h-48 group hover:border-accent transition-colors">
                         <div className="flex justify-between items-start text-emerald-500"><Users size={24} /><TrendingUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" /></div>
-                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Total Readers</p><p className="text-4xl font-bold tracking-tighter">{stats?.totalUsers || 0}</p></div>
+                        <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Active Readers</p><p className="text-4xl font-bold tracking-tighter">{stats?.totalUsers || 0}</p></div>
                     </div>
                     <div className="bg-white p-8 rounded-[3rem] border border-border shadow-sm flex flex-col justify-between h-48 group hover:border-accent transition-colors">
                         <div className="flex justify-between items-start text-accent"><DollarSign size={24} /><TrendingUp size={16} className="opacity-0 group-hover:opacity-100 transition-opacity" /></div>

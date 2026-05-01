@@ -11,14 +11,15 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const [totalBooks, outOfStock, totalUsers, paidOrders] = await Promise.all([
+        const [totalBooks, outOfStock, totalUsers, paidOrders, totalCategories] = await Promise.all([
             prisma.book.count(),
             prisma.book.count({ where: { stock: { lt: 5 } } }),
             prisma.user.count({ where: { role: "USER" } }),
             prisma.order.findMany({
                 where: { status: "PAID" },
                 select: { totalAmount: true }
-            })
+            }),
+            prisma.category.count()
         ]);
 
         const totalRevenue = paidOrders.reduce((acc: number, order: any) => acc + order.totalAmount, 0);
@@ -27,7 +28,8 @@ export async function GET() {
             totalBooks,
             outOfStock,
             totalUsers,
-            totalRevenue
+            totalRevenue,
+            totalCategories
         });
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
