@@ -35,8 +35,11 @@ export default function HomeClient({ categories, featuredCategories, recentBooks
     <main className="min-h-screen bg-background text-foreground transition-colors duration-500 selection:bg-accent/30">
       <Navbar />
 
+      {/* Hero Spacing - Clean */}
+      <div className="pt-24 lg:pt-32"></div>
+
       {/* Categories View All - Clean */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-12 mt-12 mb-4 flex justify-end">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-4 flex justify-end">
           <Link 
             href="/categories"
             className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest text-accent hover:text-primary transition-all whitespace-nowrap"
