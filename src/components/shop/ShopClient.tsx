@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -44,6 +44,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [totalCount, setTotalCount] = useState(serverTotalCount);
   const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length < serverTotalCount);
+  const [isPending, startTransition] = useTransition();
 
   // Sync state with URL
   useEffect(() => {
@@ -57,15 +58,17 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   }, [initialBooks, serverTotalCount]);
 
   const handleCategorySelect = (catName: string) => {
-    setSelectedCategory(catName);
-    const params = new URLSearchParams(searchParams.toString());
-    if (catName === "All") {
-      params.delete("category");
-    } else {
-      params.set("category", catName);
-    }
-    router.push(`/shop?${params.toString()}`, { scroll: false });
-    setIsMobileFilterOpen(false);
+    startTransition(() => {
+        setSelectedCategory(catName);
+        const params = new URLSearchParams(searchParams.toString());
+        if (catName === "All") {
+          params.delete("category");
+        } else {
+          params.set("category", catName);
+        }
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+        setIsMobileFilterOpen(false);
+    });
   };
 
   const loadMoreBooks = async () => {
@@ -288,7 +291,12 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                     </div>
                 </div>
 
-                {filteredBooks.length > 0 ? (
+                {isPending ? (
+                    <div className="flex flex-col items-center justify-center py-40 space-y-4">
+                        <Loader2 size={40} className="animate-spin text-primary/20" />
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Updating Collection...</p>
+                    </div>
+                ) : filteredBooks.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12">
                         {filteredBooks.map((book) => (
                             <BookCard key={book.id} {...book} />
