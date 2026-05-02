@@ -19,9 +19,9 @@ const prismaClientSingleton = () => {
             ssl: {
                 rejectUnauthorized: false // Common for hosted RDS/Supabase/Neon cases
             },
-            max: 10, // Limit connections to prevent exhaustion
+            max: 20, // Increased for stability
             idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 5000,
+            connectionTimeoutMillis: 10000, // Increased timeout
         });
 
         const adapter = new PrismaPg(pool);
@@ -38,9 +38,6 @@ declare global {
 
 // Global reference handling for both development and production
 const getEffectiveInstance = () => {
-    if (process.env.NODE_ENV === "production") {
-        return prismaClientSingleton();
-    }
     if (!globalThis.prismaGlobal) {
         globalThis.prismaGlobal = prismaClientSingleton();
     }
