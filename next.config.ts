@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  outputFileTracingIncludes: {
+    "/*": [
+      "node_modules/pg-cloudflare/dist/**/*",
+      "node_modules/pg-cloudflare/esm/**/*",
+      "node_modules/pg-cloudflare/package.json",
+    ],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
