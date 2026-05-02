@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getSession, updateSession } from "@/lib/auth";
 
-export async function proxy(request: NextRequest) {
+export const runtime = "edge";
+
+export async function middleware(request: NextRequest) {
   // Update session if it exists
   const sessionResponse = await updateSession(request);
 
