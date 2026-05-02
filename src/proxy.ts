@@ -4,7 +4,7 @@ import { getSession, updateSession } from "@/lib/auth";
 
 export const runtime = "edge";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Update session if it exists
   const sessionResponse = await updateSession(request);
 
