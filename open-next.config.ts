@@ -1,8 +1,5 @@
-// Triggering new build
-const config = {
+export default {
   default: {
     runtime: "edge",
   },
 };
-
-export default config;
