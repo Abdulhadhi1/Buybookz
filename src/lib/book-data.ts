@@ -133,7 +133,7 @@ export const getShopCatalog = unstable_cache(
 
     return { books, categories, totalCount };
   },
-  ["shop-catalog-v4"],
+  ["shop-catalog-v5"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
 
@@ -177,6 +177,6 @@ export const getApiBooks = unstable_cache(
 
     return { books, totalCount };
   },
-  ["api-books-v4"],
+  ["api-books-v5"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
