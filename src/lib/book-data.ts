@@ -79,8 +79,8 @@ export const getHomeCatalog = async () => {
 
 
 export const getShopCatalog = unstable_cache(
-  async (query = "", category = "") => {
-    const where = {
+  async (query = "", category = "", sort = "relevance", inStock = false) => {
+    const where: any = {
       AND: [
         query ? {
           OR: [
@@ -91,8 +91,13 @@ export const getShopCatalog = unstable_cache(
         category && category !== "All" ? {
           category: { name: { contains: category, mode: "insensitive" as const } },
         } : {},
+        inStock ? { stock: { gt: 0 } } : {},
       ],
     };
+
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price-low-high") orderBy = { price: "asc" };
+    else if (sort === "price-high-low") orderBy = { price: "desc" };
 
     const [booksRaw, categories, totalCount] = await Promise.all([
       prisma.book.findMany({
@@ -107,7 +112,7 @@ export const getShopCatalog = unstable_cache(
           stock: true,
           categoryId: true,
         },
-        orderBy: { createdAt: "desc" },
+        orderBy,
       }),
       prisma.category.findMany({
         select: { id: true, name: true },
@@ -123,7 +128,7 @@ export const getShopCatalog = unstable_cache(
 
     return { books, categories, totalCount };
   },
-  ["shop-catalog-v5"],
+  ["shop-catalog-v6"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );
 
@@ -172,6 +177,6 @@ export const getApiBooks = unstable_cache(
 
     return { books, totalCount };
   },
-  ["api-books-v6"],
+  ["api-books-v7"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );

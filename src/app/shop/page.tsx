@@ -13,7 +13,9 @@ export default async function ShopPage({
     const params = await searchParams;
     const query = params.query?.trim() || "";
     const category = params.category?.trim() || "";
-    const { books, categories, totalCount } = await getShopCatalog(query, category);
+    const sort = (params as any).sort || "relevance";
+    const inStock = (params as any).inStock === "true";
+    const { books, categories, totalCount } = await getShopCatalog(query, category, sort, inStock);
 
     const serializedBooks = JSON.parse(JSON.stringify(books));
     const serializedCategories = JSON.parse(JSON.stringify(categories));

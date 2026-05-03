@@ -60,8 +60,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   // Handle local filter changes (sort and stock)
   useEffect(() => {
     const fetchFiltered = async () => {
-      // Don't fetch on initial mount if books already exist (handled by above useEffect)
-      // This is a simple way to avoid double fetch on mount
+      // Avoid redundant initial fetch
       if (books.length === initialBooks.length && sortBy === "relevance" && !showInStockOnly) return;
       
       setIsLoadingMore(true);
@@ -73,6 +72,9 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
         params.set("inStock", String(showInStockOnly));
         if (selectedCategory !== "All") params.set("category", selectedCategory);
         
+        // Update URL to keep state in sync
+        router.push(`/shop?${params.toString()}`, { scroll: false });
+
         const res = await fetch(`/api/books?${params.toString()}`);
         const data = await res.json();
         const nextBooks = data.books || [];
@@ -93,6 +95,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     startTransition(() => {
         setSelectedCategory(catName);
         const params = new URLSearchParams(searchParams.toString());
+        params.set("skip", "0"); // Reset skip on category change
         if (catName === "All") {
           params.delete("category");
         } else {
@@ -100,6 +103,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
         }
         router.push(`/shop?${params.toString()}`, { scroll: false });
         setIsMobileFilterOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
 
@@ -108,7 +112,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     setIsLoadingMore(true);
 
     try {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams();
       params.set("limit", "12");
       params.set("skip", String(books.length));
       params.set("sort", sortBy);
@@ -124,14 +128,17 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
       const nextBooks: ShopBook[] = data.books || [];
       const nextTotal: number = data.totalCount ?? totalCount;
 
-      setBooks((current) => {
-        const existingIds = new Set(current.map(b => b.id));
-        const uniqueNextBooks = nextBooks.filter(b => !existingIds.has(b.id));
-        const combined = [...current, ...uniqueNextBooks];
-        return combined;
+      const updatedBooks = [...books];
+      const existingIds = new Set(updatedBooks.map(b => b.id));
+      nextBooks.forEach(book => {
+        if (!existingIds.has(book.id)) {
+          updatedBooks.push(book);
+        }
       });
+
+      setBooks(updatedBooks);
       setTotalCount(nextTotal);
-      setHasMoreBooks(books.length + nextBooks.length < nextTotal);
+      setHasMoreBooks(updatedBooks.length < nextTotal);
     } catch (err) {
       console.error(err);
     } finally {
