@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -48,16 +48,23 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   const [isPending, startTransition] = useTransition();
 
   // Sync state with URL
-  useEffect(() => {
-    setSelectedCategory(searchParams.get("category") || "All");
-  }, [searchParams]);
+  const lastCategoryRef = useRef(categoryFromUrl);
 
+  // Sync state with URL and initial books from server
   useEffect(() => {
-    setBooks(initialBooks);
-    setTotalCount(serverTotalCount);
-    setHasMoreBooks(initialBooks.length < serverTotalCount);
-    setPage(1); // Reset page on initialBooks change
-  }, [initialBooks, serverTotalCount]);
+    const currentCategory = searchParams.get("category") || "All";
+    setSelectedCategory(currentCategory);
+    
+    // Only reset books if the CATEGORY changed (navigation/filter click)
+    // Avoid resetting if we just changed sort/inStock which triggered initialBooks update
+    if (lastCategoryRef.current !== currentCategory) {
+        setBooks(initialBooks);
+        setTotalCount(serverTotalCount);
+        setHasMoreBooks(initialBooks.length < serverTotalCount);
+        setPage(1);
+        lastCategoryRef.current = currentCategory;
+    }
+  }, [initialBooks, serverTotalCount, searchParams]);
 
   // Handle local filter changes (sort and stock)
   useEffect(() => {
