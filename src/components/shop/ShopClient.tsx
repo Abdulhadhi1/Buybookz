@@ -42,6 +42,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
   const [books, setBooks] = useState(initialBooks);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(serverTotalCount);
   const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length < serverTotalCount);
   const [isPending, startTransition] = useTransition();
@@ -55,6 +56,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     setBooks(initialBooks);
     setTotalCount(serverTotalCount);
     setHasMoreBooks(initialBooks.length < serverTotalCount);
+    setPage(1); // Reset page on initialBooks change
   }, [initialBooks, serverTotalCount]);
 
   // Handle local filter changes (sort and stock)
@@ -68,6 +70,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
         const params = new URLSearchParams(searchParams.toString());
         params.set("limit", "12");
         params.set("skip", "0");
+        setPage(1); // Reset page on filter change
         params.set("sort", sortBy);
         params.set("inStock", String(showInStockOnly));
         if (selectedCategory !== "All") params.set("category", selectedCategory);
@@ -112,9 +115,10 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     setIsLoadingMore(true);
 
     try {
+      const currentCount = books.length;
       const params = new URLSearchParams();
       params.set("limit", "12");
-      params.set("skip", String(books.length));
+      params.set("skip", String(currentCount));
       params.set("sort", sortBy);
       params.set("inStock", String(showInStockOnly));
       if (selectedCategory !== "All") {
@@ -128,17 +132,21 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
       const nextBooks: ShopBook[] = data.books || [];
       const nextTotal: number = data.totalCount ?? totalCount;
 
-      const updatedBooks = [...books];
-      const existingIds = new Set(updatedBooks.map(b => b.id));
-      nextBooks.forEach(book => {
-        if (!existingIds.has(book.id)) {
-          updatedBooks.push(book);
-        }
-      });
+      if (nextBooks.length === 0) {
+        setHasMoreBooks(false);
+        return;
+      }
 
-      setBooks(updatedBooks);
+      setBooks((prev) => {
+        const existingIds = new Set(prev.map(b => b.id));
+        const unique = nextBooks.filter(b => !existingIds.has(b.id));
+        const combined = [...prev, ...unique];
+        
+        // Update hasMore based on the NEW combined length
+        setHasMoreBooks(combined.length < nextTotal);
+        return combined;
+      });
       setTotalCount(nextTotal);
-      setHasMoreBooks(updatedBooks.length < nextTotal);
     } catch (err) {
       console.error(err);
     } finally {
@@ -146,11 +154,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     }
   };
 
-  const filteredBooks = books.filter((book) => {
-    const matchesStock = showInStockOnly ? (book.stock ?? 10) > 0 : true;
-    return matchesStock;
-  });
-
+  const filteredBooks = books; // Trust the server-side filtering for accuracy and performance
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
