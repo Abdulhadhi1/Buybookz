@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 
 const HOME_BOOK_LIMIT = 6;
-const SHOP_BOOK_LIMIT = 6;
+const SHOP_BOOK_LIMIT = 12;
 const CACHE_SECONDS = 300;
 
 export const getHomeCatalog = async () => {
