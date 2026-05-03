@@ -30,7 +30,7 @@ import {
 import { formatPrice } from "@/lib/utils";
 import PriceDisplay from "@/components/ui/PriceDisplay";
 
-type Tab = "Overview" | "Inventory" | "Categories" | "Users" | "Revenue" | "Settings";
+type Tab = "Overview" | "Inventory" | "Categories" | "Users" | "Revenue" | "Analytics" | "Settings";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("Overview");
@@ -40,6 +40,7 @@ export default function AdminDashboard() {
   const itemsPerPage = 20;
   const [categories, setCategories] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,11 +68,12 @@ export default function AdminDashboard() {
         skip: skip.toString()
       });
 
-      const [bRes, cRes, sRes, uRes] = await Promise.all([
+      const [bRes, cRes, sRes, uRes, aRes] = await Promise.all([
         fetch(`/api/books?${bParams.toString()}`),
         fetch("/api/categories"),
         fetch("/api/admin/stats"),
-        fetch("/api/admin/users")
+        fetch("/api/admin/users"),
+        fetch("/api/admin/analytics")
       ]);
 
       if (bRes.status === 401) {
@@ -79,8 +81,8 @@ export default function AdminDashboard() {
         return;
       }
 
-      const [bData, cData, sData, uData] = await Promise.all([
-        bRes.json(), cRes.json(), sRes.json(), uRes.json()
+      const [bData, cData, sData, uData, aData] = await Promise.all([
+        bRes.json(), cRes.json(), sRes.json(), uRes.json(), aRes.json()
       ]);
 
       setBooks(bData.books || []);
@@ -88,6 +90,7 @@ export default function AdminDashboard() {
       setCategories(Array.isArray(cData) ? cData : []);
       setStats(sData);
       setUsers(Array.isArray(uData) ? uData : []);
+      setAnalytics(aData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -213,6 +216,7 @@ export default function AdminDashboard() {
     { id: "Categories", icon: <Tag size={20} />, label: "Categories" },
     { id: "Users", icon: <Users size={20} />, label: "Users" },
     { id: "Revenue", icon: <TrendingUp size={20} />, label: "Revenue" },
+    { id: "Analytics", icon: <Globe size={20} />, label: "Analytics" },
     { id: "Settings", icon: <Settings size={20} />, label: "Settings" },
   ];
 
@@ -561,6 +565,115 @@ export default function AdminDashboard() {
             </motion.div>
         )}
 
+        {/* Tab: Analytics */}
+        {activeTab === "Analytics" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
+                <header className="flex justify-between items-end">
+                    <div>
+                        <h2 className="text-4xl font-serif font-bold text-primary">Live Audience</h2>
+                        <p className="text-muted-foreground mt-2 italic">Detailed visitor tracking and behavioral analysis.</p>
+                    </div>
+                    <div className="flex gap-4">
+                        <div className="bg-white px-6 py-3 rounded-2xl border border-border shadow-sm text-center">
+                            <p className="text-[8px] font-black uppercase tracking-widest opacity-40">Unique Visitors</p>
+                            <p className="text-xl font-bold">{analytics?.totalVisitors || 0}</p>
+                        </div>
+                        <div className="bg-white px-6 py-3 rounded-2xl border border-border shadow-sm text-center">
+                            <p className="text-[8px] font-black uppercase tracking-widest opacity-40">Total Page Views</p>
+                            <p className="text-xl font-bold">{analytics?.totalViews || 0}</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-white rounded-[3.5rem] border border-border overflow-hidden shadow-sm">
+                        <div className="p-8 border-b border-border bg-secondary/10 flex justify-between items-center">
+                            <h3 className="font-bold text-sm uppercase tracking-widest">Recent Activity</h3>
+                            <button onClick={fetchData} className="text-[10px] font-black text-accent hover:underline">Refresh Stream</button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left font-sans">
+                                <thead>
+                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground border-b border-border">
+                                        <th className="px-8 py-4">Visitor</th>
+                                        <th className="px-6 py-4">Location</th>
+                                        <th className="px-6 py-4">Page</th>
+                                        <th className="px-8 py-4 text-right">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border/50">
+                                    {(analytics?.pageViews || []).map((view: any) => (
+                                        <tr key={view.id} className="hover:bg-secondary/5 transition-colors group">
+                                            <td className="px-8 py-4">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                                                        <Users size={14} className="opacity-40" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-xs">{view.userName || "Guest Visitor"}</p>
+                                                        <p className="text-[8px] font-black opacity-40 uppercase">{view.userPhone || view.ip || "Unknown IP"}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center space-x-2">
+                                                    <Globe size={12} className="text-accent opacity-50" />
+                                                    <span className="text-[10px] font-bold">
+                                                        {view.city ? `${view.city}, ${view.country}` : "Global Trace"}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 bg-secondary rounded border border-border">
+                                                    {view.path}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-4 text-right text-[9px] opacity-40 font-black uppercase">
+                                                {new Date(view.timestamp).toLocaleTimeString()}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="space-y-8">
+                        <div className="bg-primary text-white p-10 rounded-[3.5rem] shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-10"><Globe size={80} /></div>
+                            <h3 className="text-xl font-serif font-bold mb-6">Popular Paths</h3>
+                            <div className="space-y-4">
+                                {(analytics?.pathStats || []).map((stat: any) => (
+                                    <div key={stat.path} className="flex items-center justify-between">
+                                        <span className="text-xs font-medium opacity-70 truncate max-w-[150px]">{stat.path}</span>
+                                        <span className="text-xs font-black">{stat._count.id} Views</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-white p-10 rounded-[3.5rem] border border-border shadow-sm">
+                            <h3 className="text-lg font-serif font-bold mb-6">Geographic Reach</h3>
+                            <p className="text-xs text-muted-foreground italic leading-relaxed">
+                                Tracking distribution across regions to optimize server delivery and targeted promotions.
+                            </p>
+                            <div className="mt-8 pt-8 border-t border-border flex justify-between items-center">
+                                <div className="text-center flex-grow">
+                                    <p className="text-[8px] font-black uppercase opacity-40">Top Region</p>
+                                    <p className="text-sm font-bold">{analytics?.pageViews?.[0]?.country || "Calculating..."}</p>
+                                </div>
+                                <div className="w-[1px] h-8 bg-border" />
+                                <div className="text-center flex-grow">
+                                    <p className="text-[8px] font-black uppercase opacity-40">Health</p>
+                                    <p className="text-sm font-bold text-emerald-500">Active</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+
         {/* Tab: Settings */}
         {activeTab === "Settings" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12">
@@ -605,6 +718,7 @@ export default function AdminDashboard() {
                 </div>
             </motion.div>
         )}
+
       </main>
 
       {/* Add Book Modal */}

@@ -15,8 +15,10 @@ export async function GET(req: Request) {
     const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 100) : 10;
     const requestedSkip = searchParams.get("skip") ? parseInt(searchParams.get("skip")!) : 0;
     const skip = Number.isFinite(requestedSkip) ? Math.max(requestedSkip, 0) : 0;
+    const sort = searchParams.get("sort") || "relevance";
+    const inStock = searchParams.get("inStock") === "true";
 
-    const data = await getApiBooks(query, category, limit, skip);
+    const data = await getApiBooks(query, category, limit, skip, sort, inStock);
 
     return NextResponse.json(data, {
       headers: {

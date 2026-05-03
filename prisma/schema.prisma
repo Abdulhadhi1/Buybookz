@@ -126,3 +126,23 @@ model Banner {
   link      String?
   createdAt DateTime @default(now())
 }
+
+model Analytics {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  ip        String?
+  city      String?
+  region    String?
+  country   String?
+  browser   String?
+  os        String?
+  device    String?
+  userId    String?
+  userPhone String?
+  userName  String?
+  timestamp DateTime @default(now())
+
+  @@index([timestamp])
+  @@index([path])
+}

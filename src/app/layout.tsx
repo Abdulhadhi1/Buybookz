@@ -4,6 +4,7 @@ import "./globals.css";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { CartProvider } from "@/context/CartContext";
+import AnalyticsTracker from "@/components/analytics/AnalyticsTracker";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans transition-colors duration-300">
         <ToastProvider>
           <CartProvider>
+            <AnalyticsTracker />
             {children}
             <ClientLayout />
           </CartProvider>

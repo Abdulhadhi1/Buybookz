@@ -6,82 +6,72 @@ const SHOP_BOOK_LIMIT = 6;
 const CACHE_SECONDS = 300;
 
 export const getHomeCatalog = async () => {
-  // 1. Fetch categories that actually HAVE books first to ensure we have rows to show
-  const categoriesWithAtLeastOneBook = await prisma.category.findMany({
-    where: {
-      books: {
-        some: {}
-      }
-    },
-    take: 10, // We take 10 to fill the top list
-    orderBy: { name: "asc" },
-    select: { id: true, name: true },
-  });
-
-  // 2. For these 10 categories, fetch up to 10 books each
-  const processedCategories = await Promise.all(
-    categoriesWithAtLeastOneBook.map(async (cat, index) => {
-      // We only need 10 books for the first 4 categories (to show in rows)
-      // For the others, we just need 1 to show as an icon in the top circles
-      const take = index < 4 ? 10 : 1;
-      
-      const books = await prisma.book.findMany({
-        where: { categoryId: cat.id },
-        take,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          author: true,
-          price: true,
-          image: true,
-          categoryId: true,
-        },
-      });
-
-      return {
-        ...cat,
-        books,
-        image: books[0]?.image || null,
-      };
-    })
-  );
-
-  // 3. Fetch 12 recent books for the "Best Selling" section
-  const recentBooks = await prisma.book.findMany({
-    take: 12,
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      author: true,
-      price: true,
-      image: true,
-      categoryId: true,
-    },
-  });
-
-  // 4. If we don't have enough categories with books, fetch some empty ones for the top list
-  let topCategories = processedCategories.map(c => ({ id: c.id, name: c.name, image: c.image }));
-  if (topCategories.length < 10) {
-      const remainingCount = 10 - topCategories.length;
-      const extraCategories = await prisma.category.findMany({
-          where: {
-              id: { notIn: topCategories.map(c => c.id) }
+  // Parallelize the initial fetches
+  const [categoriesWithBooks, recentBooks, allCategories] = await Promise.all([
+    prisma.category.findMany({
+      where: { books: { some: {} } },
+      take: 10,
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        books: {
+          take: 10,
+          orderBy: { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            price: true,
+            image: true,
+            categoryId: true,
           },
-          take: remainingCount,
-          select: { id: true, name: true }
-      });
-      topCategories = [...topCategories, ...extraCategories.map(c => ({ id: c.id, name: c.name, image: null }))];
+        }
+      }
+    }),
+    prisma.book.findMany({
+      take: 12,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        price: true,
+        image: true,
+        categoryId: true,
+      },
+    }),
+    prisma.category.findMany({
+      take: 15,
+      select: { id: true, name: true }
+    })
+  ]);
+
+  // Process featured categories (first 4 with books)
+  const featuredCategories = categoriesWithBooks.slice(0, 4).map(cat => ({
+    ...cat,
+    image: cat.books[0]?.image || null
+  }));
+
+  // Process top circles (ensure 10 items)
+  let topCategories = categoriesWithBooks.map(c => ({ 
+    id: c.id, 
+    name: c.name, 
+    image: c.books[0]?.image || null 
+  }));
+
+  if (topCategories.length < 10) {
+    const existingIds = new Set(topCategories.map(c => c.id));
+    const extra = allCategories
+      .filter(c => !existingIds.has(c.id))
+      .slice(0, 10 - topCategories.length)
+      .map(c => ({ id: c.id, name: c.name, image: null }));
+    topCategories = [...topCategories, ...extra];
   }
 
   return {
-    // Top circles list (Always 10 items)
-    categories: topCategories,
-    
-    // Bottom rows (The first 4 categories that have books)
-    featuredCategories: processedCategories.slice(0, 4).filter(c => c.books.length > 0),
-    
+    categories: topCategories.slice(0, 10),
+    featuredCategories,
     recentBooks,
     uncategorizedBooks: [],
   };
@@ -138,8 +128,8 @@ export const getShopCatalog = unstable_cache(
 );
 
 export const getApiBooks = unstable_cache(
-  async (query = "", category = "", limit = 24, skip = 0) => {
-    const where = {
+  async (query = "", category = "", limit = 24, skip = 0, sort = "relevance", inStock = false) => {
+    const where: any = {
       AND: [
         query ? {
           OR: [
@@ -150,8 +140,13 @@ export const getApiBooks = unstable_cache(
         category && category !== "All" ? {
           category: { name: { contains: category, mode: "insensitive" as const } },
         } : {},
+        inStock ? { stock: { gt: 0 } } : {},
       ],
     };
+
+    let orderBy: any = { createdAt: "desc" };
+    if (sort === "price-low-high") orderBy = { price: "asc" };
+    else if (sort === "price-high-low") orderBy = { price: "desc" };
 
     const [books, totalCount] = await Promise.all([
         prisma.book.findMany({
@@ -168,7 +163,7 @@ export const getApiBooks = unstable_cache(
                 select: { name: true },
               },
             },
-            orderBy: { createdAt: "desc" },
+            orderBy,
             skip,
             take: limit,
           }),
@@ -177,6 +172,6 @@ export const getApiBooks = unstable_cache(
 
     return { books, totalCount };
   },
-  ["api-books-v5"],
+  ["api-books-v6"],
   { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
 );

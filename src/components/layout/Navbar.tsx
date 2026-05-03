@@ -45,7 +45,8 @@ const Navbar = () => {
         const fetchSuggestions = async () => {
           try {
             const res = await fetch(`/api/books?query=${encodeURIComponent(searchTerm)}&limit=5`);
-            const books: SearchSuggestion[] = await res.json();
+            const data = await res.json();
+            const books = data.books || [];
             setSuggestions(books);
             setShowSuggestions(true);
             books.forEach((book: { id: string }) => {
@@ -121,6 +122,7 @@ const Navbar = () => {
                 alt="BuyBookz Logo" 
                 fill 
                 priority
+                sizes="(max-width: 640px) 160px, 224px"
                 className="object-contain" 
               />
             </div>
@@ -255,6 +257,7 @@ const Navbar = () => {
                       alt="BuyBookz Logo" 
                       fill 
                       priority
+                      sizes="128px"
                       className="object-contain" 
                     />
                   </div>

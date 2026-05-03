@@ -57,6 +57,38 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
     setHasMoreBooks(initialBooks.length < serverTotalCount);
   }, [initialBooks, serverTotalCount]);
 
+  // Handle local filter changes (sort and stock)
+  useEffect(() => {
+    const fetchFiltered = async () => {
+      // Don't fetch on initial mount if books already exist (handled by above useEffect)
+      // This is a simple way to avoid double fetch on mount
+      if (books.length === initialBooks.length && sortBy === "relevance" && !showInStockOnly) return;
+      
+      setIsLoadingMore(true);
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("limit", "12");
+        params.set("skip", "0");
+        params.set("sort", sortBy);
+        params.set("inStock", String(showInStockOnly));
+        if (selectedCategory !== "All") params.set("category", selectedCategory);
+        
+        const res = await fetch(`/api/books?${params.toString()}`);
+        const data = await res.json();
+        const nextBooks = data.books || [];
+        setBooks(nextBooks);
+        setTotalCount(data.totalCount || 0);
+        setHasMoreBooks(nextBooks.length < (data.totalCount || 0));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    };
+
+    fetchFiltered();
+  }, [sortBy, showInStockOnly]);
+
   const handleCategorySelect = (catName: string) => {
     startTransition(() => {
         setSelectedCategory(catName);
@@ -77,22 +109,27 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
 
     try {
       const params = new URLSearchParams(searchParams.toString());
-      params.set("limit", "12"); // Load more at once for better feel
+      params.set("limit", "12");
       params.set("skip", String(books.length));
+      params.set("sort", sortBy);
+      params.set("inStock", String(showInStockOnly));
       if (selectedCategory !== "All") {
         params.set("category", selectedCategory);
-      } else {
-        params.delete("category");
       }
 
       const res = await fetch(`/api/books?${params.toString()}`);
       if (!res.ok) throw new Error("Failed to load more books");
 
       const data = await res.json();
-      const nextBooks: ShopBook[] = data.books || data;
+      const nextBooks: ShopBook[] = data.books || [];
       const nextTotal: number = data.totalCount ?? totalCount;
 
-      setBooks((current) => [...current, ...nextBooks]);
+      setBooks((current) => {
+        const existingIds = new Set(current.map(b => b.id));
+        const uniqueNextBooks = nextBooks.filter(b => !existingIds.has(b.id));
+        const combined = [...current, ...uniqueNextBooks];
+        return combined;
+      });
       setTotalCount(nextTotal);
       setHasMoreBooks(books.length + nextBooks.length < nextTotal);
     } catch (err) {
@@ -103,21 +140,8 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   };
 
   const filteredBooks = books.filter((book) => {
-    // Normalize both for comparison (handles different Tamil character encodings)
-    const normalize = (s: string) => s.trim().toLowerCase().normalize('NFC');
-    
-    const bookCategoryName = typeof book.category === "object" ? book.category?.name : book.category;
-    const targetCategory = normalize(selectedCategory);
-    const currentBookCategory = bookCategoryName ? normalize(bookCategoryName) : "";
-
-    const matchesCategory = selectedCategory === "All" || currentBookCategory.includes(targetCategory) || targetCategory.includes(currentBookCategory);
     const matchesStock = showInStockOnly ? (book.stock ?? 10) > 0 : true;
-    
-    return matchesCategory && matchesStock;
-  }).sort((a, b) => {
-    if (sortBy === "price-low-high") return a.price - b.price;
-    if (sortBy === "price-high-low") return b.price - a.price;
-    return 0;
+    return matchesStock;
   });
 
 
