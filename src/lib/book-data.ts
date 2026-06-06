@@ -89,7 +89,7 @@ export const getShopCatalog = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: { contains: category, mode: "insensitive" as const } },
+          category: { name: { equals: category, mode: "insensitive" as const } },
         } : {},
         inStock ? { stock: { gt: 0 } } : {},
       ],
@@ -143,7 +143,7 @@ export const getApiBooks = unstable_cache(
           ],
         } : {},
         category && category !== "All" ? {
-          category: { name: { contains: category, mode: "insensitive" as const } },
+          category: { name: { equals: category, mode: "insensitive" as const } },
         } : {},
         inStock ? { stock: { gt: 0 } } : {},
       ],

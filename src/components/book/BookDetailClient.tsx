@@ -88,7 +88,7 @@ export default function BookDetailClient({ book, relatedBooks }: BookDetailClien
         <nav className="flex items-center space-x-2 text-[10px] text-muted-foreground mb-6 lg:mb-10 overflow-hidden whitespace-nowrap px-2">
             <Link href="/" className="hover:text-primary">Home</Link>
             <ChevronRight size={10} />
-            <Link href={`/shop?category=${book.category?.name}`} className="hover:text-primary">{book.category?.name}</Link>
+            <Link href={`/shop?category=${encodeURIComponent(book.category?.name || "")}`} className="hover:text-primary">{book.category?.name}</Link>
             <ChevronRight size={10} />
             <span className="text-primary font-bold truncate">{book.title}</span>
         </nav>

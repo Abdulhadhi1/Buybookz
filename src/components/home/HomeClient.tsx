@@ -89,7 +89,7 @@ export default function HomeClient({ categories, featuredCategories, recentBooks
               <div className="flex items-end justify-between gap-4 border-b border-border/10 pb-2">
                 <h2 className="text-xl md:text-2xl font-serif font-black leading-none tracking-tight capitalize">{cat.name}</h2>
                 <Link 
-                  href={`/shop?category=${cat.name}`}
+                  href={`/shop?category=${encodeURIComponent(cat.name)}`}
                   className="group flex items-center space-x-1 text-[10px] font-black uppercase tracking-widest hover:text-accent transition-all whitespace-nowrap"
                 >
                   <span>View All</span>
