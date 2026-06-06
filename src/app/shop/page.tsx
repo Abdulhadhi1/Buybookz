@@ -3,7 +3,7 @@ import ShopClient from "@/components/shop/ShopClient";
 import ShopSkeleton from "@/components/shop/ShopSkeleton";
 import { getShopCatalog } from "@/lib/book-data";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default async function ShopPage({ 
     searchParams 

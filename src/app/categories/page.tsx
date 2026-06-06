@@ -4,7 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamic = "force-dynamic";
 
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({

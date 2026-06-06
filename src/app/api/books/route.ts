@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 import { getApiBooks } from "@/lib/book-data";
 import { revalidateTag } from "next/cache";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   try {
