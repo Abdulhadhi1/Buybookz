@@ -5,17 +5,14 @@ const HOME_BOOK_LIMIT = 6;
 const SHOP_BOOK_LIMIT = 12;
 const CACHE_SECONDS = 300;
 
-// Helper function to bypass next/cache's unstable_cache in Cloudflare read-only filesystem environments
+// Helper function to bypass next/cache's unstable_cache completely to ensure reliability in Cloudflare and other serverless runtimes
 const safeCache = <T extends (...args: any[]) => Promise<any>>(
   fn: T,
   keyParts: string[],
   options?: { revalidate?: number; tags?: string[] }
 ): T => {
-  const isCloudflare = process.env.CF_PAGES === "1" || process.env.NEXT_RUNTIME === "edge" || !!process.env.wrangler;
-  if (isCloudflare) {
-    return fn;
-  }
-  return unstable_cache(fn, keyParts, options) as any;
+  // Return direct execution of the database query function to prevent filesystem/KV cache hangs in serverless environments
+  return fn;
 };
 
 export const getHomeCatalog = async () => {
