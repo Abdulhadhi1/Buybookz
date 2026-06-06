@@ -46,6 +46,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   const [totalCount, setTotalCount] = useState(serverTotalCount);
   const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length < serverTotalCount);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState(false);
 
   // Sync state with URL
   const lastCategoryRef = useRef(categoryFromUrl);
@@ -104,7 +105,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
 
   // Infinite scroll auto loading on scroll using IntersectionObserver
   useEffect(() => {
-    if (!hasMoreBooks || isLoadingMore) return;
+    if (!hasMoreBooks || isLoadingMore || error) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -125,7 +126,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
         observer.unobserve(currentSentinel);
       }
     };
-  }, [hasMoreBooks, isLoadingMore, books.length]);
+  }, [hasMoreBooks, isLoadingMore, error, books.length]);
 
   const handleCategorySelect = (catName: string) => {
     startTransition(() => {
@@ -146,6 +147,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
   const loadMoreBooks = async () => {
     if (isLoadingMore || !hasMoreBooks) return;
     setIsLoadingMore(true);
+    setError(false);
 
     try {
       const currentCount = books.length;
@@ -182,6 +184,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
       setTotalCount(nextTotal);
     } catch (err) {
       console.error(err);
+      setError(true);
     } finally {
       setIsLoadingMore(false);
     }
@@ -385,9 +388,20 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                         </button>
                     </div>
                 )}
-                {hasMoreBooks && (
+                {hasMoreBooks && !error && (
                     <div ref={sentinelRef} className="flex justify-center mt-12 py-8">
                         <Loader2 size={24} className="animate-spin text-primary" />
+                    </div>
+                )}
+                {error && (
+                    <div className="flex flex-col items-center justify-center mt-12 py-8 space-y-4">
+                        <p className="text-xs font-bold text-red-500 uppercase tracking-wider">Failed to load more books</p>
+                        <button 
+                            onClick={() => { setError(false); loadMoreBooks(); }}
+                            className="px-6 py-2.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all shadow-md"
+                        >
+                            Retry
+                        </button>
                     </div>
                 )}
             </div>

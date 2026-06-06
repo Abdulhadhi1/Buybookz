@@ -25,7 +25,8 @@ export async function GET(req: Request) {
         "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("API GET Books error:", error);
     return NextResponse.json({ error: "Failed to fetch books" }, { status: 500 });
   }
 }
