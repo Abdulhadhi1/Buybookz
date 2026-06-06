@@ -49,6 +49,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
 
   // Sync state with URL
   const lastCategoryRef = useRef(categoryFromUrl);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   // Sync state with URL and initial books from server
   useEffect(() => {
@@ -100,6 +101,31 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
 
     fetchFiltered();
   }, [sortBy, showInStockOnly]);
+
+  // Infinite scroll auto loading on scroll using IntersectionObserver
+  useEffect(() => {
+    if (!hasMoreBooks || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreBooks();
+        }
+      },
+      { rootMargin: "300px" } // Load more 300px before reaching the bottom
+    );
+
+    const currentSentinel = sentinelRef.current;
+    if (currentSentinel) {
+      observer.observe(currentSentinel);
+    }
+
+    return () => {
+      if (currentSentinel) {
+        observer.unobserve(currentSentinel);
+      }
+    };
+  }, [hasMoreBooks, isLoadingMore, books.length]);
 
   const handleCategorySelect = (catName: string) => {
     startTransition(() => {
@@ -359,17 +385,9 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                         </button>
                     </div>
                 )}
-
-                {filteredBooks.length > 0 && hasMoreBooks && (
-                    <div className="flex justify-center mt-12">
-                        <button
-                            onClick={loadMoreBooks}
-                            disabled={isLoadingMore}
-                            className="min-w-40 px-8 py-3.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all disabled:opacity-60 flex items-center justify-center gap-2"
-                        >
-                            {isLoadingMore && <Loader2 size={14} className="animate-spin" />}
-                            <span>{isLoadingMore ? "Loading" : "Load More"}</span>
-                        </button>
+                {hasMoreBooks && (
+                    <div ref={sentinelRef} className="flex justify-center mt-12 py-8">
+                        <Loader2 size={24} className="animate-spin text-primary" />
                     </div>
                 )}
             </div>

@@ -78,105 +78,116 @@ export const getHomeCatalog = async () => {
 };
 
 
-export const getShopCatalog = unstable_cache(
-  async (query = "", category = "", sort = "relevance", inStock = false) => {
-    const where: any = {
-      AND: [
-        query ? {
-          OR: [
-            { title: { contains: query, mode: "insensitive" as const } },
-            { author: { contains: query, mode: "insensitive" as const } },
-          ],
-        } : {},
-        category && category !== "All" ? {
-          category: { name: { equals: category, mode: "insensitive" as const } },
-        } : {},
-        inStock ? { stock: { gt: 0 } } : {},
-      ],
-    };
+export const getShopCatalog = (query = "", category = "", sort = "relevance", inStock = false) => {
+  return unstable_cache(
+    async () => {
+      const where: any = {
+        AND: [
+          query ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" as const } },
+              { author: { contains: query, mode: "insensitive" as const } },
+            ],
+          } : {},
+          category && category !== "All" ? {
+            category: { name: { equals: category, mode: "insensitive" as const } },
+          } : {},
+          inStock ? { stock: { gt: 0 } } : {},
+        ],
+      };
 
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "price-low-high") orderBy = { price: "asc" };
-    else if (sort === "price-high-low") orderBy = { price: "desc" };
+      let orderBy: any = { createdAt: "desc" };
+      if (sort === "price-low-high") orderBy = { price: "asc" };
+      else if (sort === "price-high-low") orderBy = { price: "desc" };
 
-    const [booksRaw, categories, totalCount] = await Promise.all([
-      prisma.book.findMany({
-        where,
-        take: SHOP_BOOK_LIMIT,
-        select: {
-          id: true,
-          title: true,
-          author: true,
-          price: true,
-          image: true,
-          stock: true,
-          categoryId: true,
-        },
-        orderBy,
-      }),
-      prisma.category.findMany({
-        select: { id: true, name: true },
-      }),
-      prisma.book.count({ where }),
-    ]);
-
-    const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
-    const books = booksRaw.map((book) => ({
-      ...book,
-      category: book.categoryId ? { name: categoryNames.get(book.categoryId)?.trim() || null } : null,
-    }));
-
-    return { books, categories, totalCount };
-  },
-  ["shop-catalog-v6"],
-  { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
-);
-
-export const getApiBooks = unstable_cache(
-  async (query = "", category = "", limit = 24, skip = 0, sort = "relevance", inStock = false) => {
-    const where: any = {
-      AND: [
-        query ? {
-          OR: [
-            { title: { contains: query, mode: "insensitive" as const } },
-            { author: { contains: query, mode: "insensitive" as const } },
-          ],
-        } : {},
-        category && category !== "All" ? {
-          category: { name: { equals: category, mode: "insensitive" as const } },
-        } : {},
-        inStock ? { stock: { gt: 0 } } : {},
-      ],
-    };
-
-    let orderBy: any = { createdAt: "desc" };
-    if (sort === "price-low-high") orderBy = { price: "asc" };
-    else if (sort === "price-high-low") orderBy = { price: "desc" };
-
-    const [books, totalCount] = await Promise.all([
+      const [booksRaw, categories, totalCount] = await Promise.all([
         prisma.book.findMany({
-            where,
-            select: {
-              id: true,
-              title: true,
-              author: true,
-              price: true,
-              image: true,
-              stock: true,
-              categoryId: true,
-              category: {
-                select: { name: true },
-              },
-            },
-            orderBy,
-            skip,
-            take: limit,
-          }),
-          prisma.book.count({ where })
-    ]);
+          where,
+          take: SHOP_BOOK_LIMIT,
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            price: true,
+            image: true,
+            stock: true,
+            categoryId: true,
+          },
+          orderBy,
+        }),
+        prisma.category.findMany({
+          select: { id: true, name: true },
+        }),
+        prisma.book.count({ where }),
+      ]);
 
-    return { books, totalCount };
-  },
-  ["api-books-v7"],
-  { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
-);
+      const categoryNames = new Map(categories.map((category) => [category.id, category.name]));
+      const books = booksRaw.map((book) => ({
+        ...book,
+        category: book.categoryId ? { name: categoryNames.get(book.categoryId)?.trim() || null } : null,
+      }));
+
+      return { books, categories, totalCount };
+    },
+    ["shop-catalog-v7", query, category, sort, String(inStock)],
+    { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
+  )();
+};
+
+export const getApiBooks = (
+  query = "",
+  category = "",
+  limit = 24,
+  skip = 0,
+  sort = "relevance",
+  inStock = false
+) => {
+  return unstable_cache(
+    async () => {
+      const where: any = {
+        AND: [
+          query ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" as const } },
+              { author: { contains: query, mode: "insensitive" as const } },
+            ],
+          } : {},
+          category && category !== "All" ? {
+            category: { name: { equals: category, mode: "insensitive" as const } },
+          } : {},
+          inStock ? { stock: { gt: 0 } } : {},
+        ],
+      };
+
+      let orderBy: any = { createdAt: "desc" };
+      if (sort === "price-low-high") orderBy = { price: "asc" };
+      else if (sort === "price-high-low") orderBy = { price: "desc" };
+
+      const [books, totalCount] = await Promise.all([
+        prisma.book.findMany({
+          where,
+          select: {
+            id: true,
+            title: true,
+            author: true,
+            price: true,
+            image: true,
+            stock: true,
+            categoryId: true,
+            category: {
+              select: { name: true },
+            },
+          },
+          orderBy,
+          skip,
+          take: limit,
+        }),
+        prisma.book.count({ where })
+      ]);
+
+      return { books, totalCount };
+    },
+    ["api-books-v8", query, category, String(limit), String(skip), sort, String(inStock)],
+    { revalidate: CACHE_SECONDS, tags: ["books", "categories"] }
+  )();
+};
