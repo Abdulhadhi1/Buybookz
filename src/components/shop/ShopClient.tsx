@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ChevronDown, X, ChevronRight, LayoutGrid, List, Filter, SlidersHorizontal, Loader2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -28,84 +28,104 @@ interface ShopClientProps {
   initialBooks: ShopBook[];
   initialCategories: ShopCategory[];
   totalCount: number;
+  initialParams: {
+    category: string;
+    query: string;
+    sort: string;
+    inStock: boolean;
+  };
 }
 
-export default function ShopClient({ initialBooks, initialCategories, totalCount: serverTotalCount }: ShopClientProps) {
+export default function ShopClient({ 
+  initialBooks, 
+  initialCategories, 
+  totalCount: serverTotalCount,
+  initialParams
+}: ShopClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const categoryFromUrl = searchParams.get("category") || "All";
+
+  // Extract current values directly from searchParams (single source of truth)
+  const selectedCategory = searchParams.get("category") || "All";
   
-  const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl);
-  const [sortBy, setSortBy] = useState("relevance");
-  const [showInStockOnly, setShowInStockOnly] = useState(false);
+  // Support both sort and sortBy, mapping 'latest' to 'relevance'
+  let sortBy = searchParams.get("sort") || searchParams.get("sortBy") || "relevance";
+  if (sortBy === "latest") {
+    sortBy = "relevance";
+  }
+  
+  const showInStockOnly = searchParams.get("inStock") === "true";
+  const query = searchParams.get("query") || "";
+
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("categories");
-  const [books, setBooks] = useState(initialBooks);
+  const [books, setBooks] = useState<ShopBook[]>(initialBooks);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(serverTotalCount);
   const [hasMoreBooks, setHasMoreBooks] = useState(initialBooks.length < serverTotalCount);
-  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState(false);
 
-  // Sync state with URL
-  const lastCategoryRef = useRef(categoryFromUrl);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
-  // Sync state with URL and initial books from server
+  // Unified client-side fetch effect listening to searchParams
   useEffect(() => {
-    const currentCategory = searchParams.get("category") || "All";
-    setSelectedCategory(currentCategory);
-    
-    // Only reset books if the CATEGORY changed (navigation/filter click)
-    // Avoid resetting if we just changed sort/inStock which triggered initialBooks update
-    if (lastCategoryRef.current !== currentCategory) {
-        setBooks(initialBooks);
-        setTotalCount(serverTotalCount);
-        setHasMoreBooks(initialBooks.length < serverTotalCount);
-        setPage(1);
-        lastCategoryRef.current = currentCategory;
+    // Stale Cache Shield:
+    // If it is the first render, we check if the URL parameters match what the server used.
+    // If they match, we skip the fetch and use initialBooks / serverTotalCount.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      const matchesServer = 
+        selectedCategory === (initialParams.category || "All") &&
+        sortBy === (initialParams.sort || "relevance") &&
+        showInStockOnly === (initialParams.inStock || false) &&
+        query === (initialParams.query || "");
+
+      if (matchesServer) {
+        return;
+      }
     }
-  }, [initialBooks, serverTotalCount, searchParams]);
 
-  // Handle local filter changes (sort and stock)
-  useEffect(() => {
     const fetchFiltered = async () => {
-      // Avoid redundant initial fetch
-      if (books.length === initialBooks.length && sortBy === "relevance" && !showInStockOnly) return;
-      
-      setIsLoadingMore(true);
+      setIsLoading(true);
+      setError(false);
       try {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = new URLSearchParams();
         params.set("limit", "12");
         params.set("skip", "0");
-        setPage(1); // Reset page on filter change
         params.set("sort", sortBy);
         params.set("inStock", String(showInStockOnly));
-        if (selectedCategory !== "All") params.set("category", selectedCategory);
-        
-        // Update URL to keep state in sync
-        router.push(`/shop?${params.toString()}`, { scroll: false });
+        if (selectedCategory !== "All") {
+          params.set("category", selectedCategory);
+        }
+        if (query) {
+          params.set("query", query);
+        }
 
         const res = await fetch(`/api/books?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch books");
         const data = await res.json();
         const nextBooks = data.books || [];
+        const nextTotal = data.totalCount || 0;
+
         setBooks(nextBooks);
-        setTotalCount(data.totalCount || 0);
-        setHasMoreBooks(nextBooks.length < (data.totalCount || 0));
+        setTotalCount(nextTotal);
+        setHasMoreBooks(nextBooks.length < nextTotal);
       } catch (err) {
         console.error(err);
+        setError(true);
       } finally {
-        setIsLoadingMore(false);
+        setIsLoading(false);
       }
     };
 
     fetchFiltered();
-  }, [sortBy, showInStockOnly]);
+  }, [searchParams]);
 
   // Infinite scroll auto loading on scroll using IntersectionObserver
   useEffect(() => {
-    if (!hasMoreBooks || isLoadingMore || error) return;
+    if (!hasMoreBooks || isLoading || isLoadingMore || error) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -126,22 +146,42 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
         observer.unobserve(currentSentinel);
       }
     };
-  }, [hasMoreBooks, isLoadingMore, error, books.length]);
+  }, [hasMoreBooks, isLoading, isLoadingMore, error, books.length]);
 
   const handleCategorySelect = (catName: string) => {
-    startTransition(() => {
-        setSelectedCategory(catName);
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("skip", "0"); // Reset skip on category change
-        if (catName === "All") {
-          params.delete("category");
-        } else {
-          params.set("category", catName);
-        }
-        router.push(`/shop?${params.toString()}`, { scroll: false });
-        setIsMobileFilterOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("skip", "0"); // Reset skip on category change
+    if (catName === "All") {
+      params.delete("category");
+    } else {
+      params.set("category", catName);
+    }
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+    setIsMobileFilterOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSortChange = (sortVal: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sort", sortVal);
+    params.set("skip", "0");
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+  };
+
+  const handleInStockChange = (checked: boolean) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (checked) {
+      params.set("inStock", "true");
+    } else {
+      params.delete("inStock");
+    }
+    params.set("skip", "0");
+    router.push(`/shop?${params.toString()}`, { scroll: false });
+  };
+
+  const handleClearAll = () => {
+    router.push("/shop");
+    setIsMobileFilterOpen(false);
   };
 
   const loadMoreBooks = async () => {
@@ -158,6 +198,9 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
       params.set("inStock", String(showInStockOnly));
       if (selectedCategory !== "All") {
         params.set("category", selectedCategory);
+      }
+      if (query) {
+        params.set("query", query);
       }
 
       const res = await fetch(`/api/books?${params.toString()}`);
@@ -236,7 +279,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                       <div className="flex items-center justify-between">
                           <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
                           <button 
-                              onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
+                              onClick={handleClearAll}
                               className="text-[10px] font-bold text-accent hover:underline"
                           >
                               Clear all
@@ -251,11 +294,11 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                               </div>
                           )}
                           {showInStockOnly && (
-                              <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                                  <span>In stock</span>
-                                  <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
-                              </div>
-                          )}
+                               <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                                   <span>In stock</span>
+                                   <button onClick={() => handleInStockChange(false)}><X size={10} /></button>
+                               </div>
+                           )}
                       </div>
 
                       <div className="space-y-4 pt-4">
@@ -321,7 +364,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                                             <input 
                                                 type="checkbox" 
                                                 checked={showInStockOnly} 
-                                                onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                                onChange={(e) => handleInStockChange(e.target.checked)}
                                                 className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
                                             />
                                             <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>
@@ -355,7 +398,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                             <SlidersHorizontal size={14} className="text-muted-foreground" />
                             <select 
                                 value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
+                                onChange={(e) => handleSortChange(e.target.value)}
                                 className="bg-transparent text-xs font-bold outline-none cursor-pointer min-w-[120px]"
                             >
                                 <option value="relevance">By Relevance</option>
@@ -366,7 +409,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                     </div>
                 </div>
 
-                {isPending ? (
+                {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-40 space-y-4">
                         <Loader2 size={40} className="animate-spin text-primary/20" />
                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground animate-pulse">Updating Collection...</p>
@@ -381,7 +424,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                     <div className="text-center py-40 space-y-6 bg-white rounded-[3rem] border border-border shadow-sm">
                         <h3 className="text-xl font-serif text-muted-foreground italic">No books found in this filter.</h3>
                         <button 
-                            onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); router.push("/shop")}}
+                            onClick={handleClearAll}
                             className="px-8 py-3.5 bg-primary text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-accent transition-all"
                         >
                             Reset Filters
@@ -431,7 +474,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                   <div className="flex items-center justify-between">
                       <h2 className="text-sm font-black uppercase tracking-widest text-primary">Filters</h2>
                       <button 
-                          onClick={() => {setSelectedCategory("All"); setShowInStockOnly(false); setIsMobileFilterOpen(false); router.push("/shop")}}
+                          onClick={handleClearAll}
                           className="text-[10px] font-bold text-accent hover:underline"
                       >
                           Clear all
@@ -446,11 +489,11 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                           </div>
                       )}
                       {showInStockOnly && (
-                          <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
-                              <span>In stock</span>
-                              <button onClick={() => setShowInStockOnly(false)}><X size={10} /></button>
-                          </div>
-                      )}
+                           <div className="flex items-center space-x-2 bg-secondary/50 px-3 py-1.5 rounded-full text-[10px] font-bold">
+                               <span>In stock</span>
+                               <button onClick={() => handleInStockChange(false)}><X size={10} /></button>
+                           </div>
+                       )}
                   </div>
 
                   <div className="space-y-4 pt-4">
@@ -514,7 +557,7 @@ export default function ShopClient({ initialBooks, initialCategories, totalCount
                                         <input 
                                             type="checkbox" 
                                             checked={showInStockOnly} 
-                                            onChange={(e) => setShowInStockOnly(e.target.checked)}
+                                            onChange={(e) => handleInStockChange(e.target.checked)}
                                             className="w-4 h-4 rounded border-border text-primary focus:ring-primary cursor-pointer" 
                                         />
                                         <span className="text-xs font-medium text-muted-foreground group-hover:text-primary cursor-pointer">Show In Stock</span>

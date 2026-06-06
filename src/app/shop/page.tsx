@@ -20,12 +20,15 @@ export default async function ShopPage({
     const serializedBooks = JSON.parse(JSON.stringify(books));
     const serializedCategories = JSON.parse(JSON.stringify(categories));
 
+    const initialParams = { query, category, sort, inStock };
+
     return (
         <Suspense fallback={<ShopSkeleton />}>
             <ShopClient 
                 initialBooks={serializedBooks} 
                 initialCategories={serializedCategories} 
                 totalCount={totalCount}
+                initialParams={initialParams}
             />
         </Suspense>
     );
